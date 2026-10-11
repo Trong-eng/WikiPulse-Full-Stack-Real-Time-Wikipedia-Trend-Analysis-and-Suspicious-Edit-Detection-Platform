@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wikipulse-core"
+version = "0.1.0"
+description = "Shared config and serving contracts for the WikiPulse academic MVP"
+requires-python = ">=3.11,<3.13"
+dependencies = ["pydantic==2.10.6"]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.5", "ruff==0.11.2", "httpx==0.28.1", "fastapi==0.115.12", "cassandra-driver==3.29.2", "kafka-python==2.1.2"]
+
+[tool.setuptools.packages.find]
+where = ["shared"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "api/tests", "dashboard/tests", "replay/tests", "processing/spark/tests", "ingestion/collector/tests"]
+pythonpath = [".", "shared"]
+markers = ["integration: requires the Docker stack", "spark: requires PySpark and Java"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

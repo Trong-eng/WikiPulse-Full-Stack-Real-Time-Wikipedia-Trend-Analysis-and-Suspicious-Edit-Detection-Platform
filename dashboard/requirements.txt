@@ -1,0 +1,2 @@
+streamlit==1.43.2
+httpx==0.28.1

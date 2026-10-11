@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<!-- Planned full-profile contract; not loaded by CP0. Owner: Trọng W2. -->
+<configuration>
+  <property><name>fs.defaultFS</name><value>hdfs://namenode:9000</value></property>
+</configuration>

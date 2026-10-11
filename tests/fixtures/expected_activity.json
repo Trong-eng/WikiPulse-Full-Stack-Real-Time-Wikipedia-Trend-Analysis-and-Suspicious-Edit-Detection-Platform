@@ -1,0 +1,11 @@
+{
+  "window_start": "2026-01-01T00:00:00+00:00",
+  "phase_one_records": 10,
+  "raw_total": 11,
+  "invalid_total": 2,
+  "silver_total": 7,
+  "rows": [
+    {"wiki": "enwiki", "event_count": 5, "edit_count": 5, "new_page_count": 0, "anonymous_edit_count": 1, "bot_edit_count": 1},
+    {"wiki": "viwiki", "event_count": 1, "edit_count": 0, "new_page_count": 1, "anonymous_edit_count": 0, "bot_edit_count": 0}
+  ]
+}

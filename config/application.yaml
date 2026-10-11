@@ -1,0 +1,5 @@
+contract_version: 0.1.0
+implementation: activity_only
+window: 1 minute
+watermark: 10 minutes
+future_features: [page_trends, suspicious_edits, event_detail, live_collector, hdfs]

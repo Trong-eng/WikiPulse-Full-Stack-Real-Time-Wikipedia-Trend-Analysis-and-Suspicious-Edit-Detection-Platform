@@ -1,0 +1,8 @@
+# Interface prepared for Linh week 2; not consumed by CP0.
+trend:
+  weights: {edit_count: 0.50, unique_editors: 0.25, abs_byte_delta: 0.25}
+  normalization_caps: {edit_count: 50, unique_editors: 20, abs_byte_delta: 10000}
+risk:
+  weights: {LARGE_DELETION: 30, REVERT_PATTERN: 20, ANONYMOUS_EDIT: 10}
+  large_deletion_bytes: 500
+  max_score: 100

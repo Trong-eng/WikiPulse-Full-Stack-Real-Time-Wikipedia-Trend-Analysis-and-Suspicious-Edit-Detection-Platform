@@ -1,0 +1,4 @@
+global:
+  scrape_interval: 15s
+# Starter only: application exporters/metrics are not implemented at CP0.
+scrape_configs: []

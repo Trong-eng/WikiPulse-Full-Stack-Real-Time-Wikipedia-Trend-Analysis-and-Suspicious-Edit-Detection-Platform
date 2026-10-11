@@ -1,0 +1,147 @@
+name: ${COMPOSE_PROJECT_NAME:-wikipulse}
+
+x-app-env: &app-env
+  PIPELINE_MODE: ${PIPELINE_MODE:-REPLAY}
+  RUN_ID: ${RUN_ID:-dev}
+  PIPELINE_VERSION: ${PIPELINE_VERSION:-0.1.0}
+  WIKI_ALLOWLIST: ${WIKI_ALLOWLIST:-enwiki,viwiki}
+  KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
+  KAFKA_RAW_TOPIC: ${KAFKA_RAW_TOPIC:-wikipedia.recentchange.raw}
+  KAFKA_DLQ_TOPIC: ${KAFKA_DLQ_TOPIC:-wikipedia.recentchange.dlq}
+  CASSANDRA_HOST: ${CASSANDRA_HOST:-cassandra}
+  CASSANDRA_PORT: ${CASSANDRA_PORT:-9042}
+  CASSANDRA_KEYSPACE: ${CASSANDRA_KEYSPACE:-wikipulse}
+
+services:
+  init-kafka-volume:
+    image: alpine:3.22.1
+    user: "0:0"
+    command: [sh, -c, "chown -R 1000:1000 /kafka-data"]
+    volumes: [kafka-data:/kafka-data]
+
+  kafka:
+    image: apache/kafka:3.9.1
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:${KAFKA_ADVERTISED_EXTERNAL_PORT:-${KAFKA_HOST_PORT:-19092}}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
+    ports: ["127.0.0.1:${KAFKA_HOST_PORT:-19092}:19092"]
+    volumes: [kafka-data:/tmp/kraft-combined-logs]
+    depends_on:
+      init-kafka-volume: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD-SHELL, /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list >/dev/null 2>&1]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+
+  init-topics:
+    image: apache/kafka:3.9.1
+    environment: *app-env
+    volumes: [./scripts/create_topics.sh:/create_topics.sh:ro]
+    entrypoint: [/bin/bash, /create_topics.sh]
+    depends_on:
+      kafka: {condition: service_healthy}
+
+  cassandra:
+    image: cassandra:4.1.8
+    environment:
+      CASSANDRA_CLUSTER_NAME: WikiPulse
+      MAX_HEAP_SIZE: 512M
+      HEAP_NEWSIZE: 128M
+    volumes: [cassandra-data:/var/lib/cassandra]
+    healthcheck:
+      test: [CMD-SHELL, "cqlsh -e 'SELECT release_version FROM system.local' >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      start_period: 30s
+      retries: 25
+
+  init-cassandra:
+    image: wikipulse-api:0.1.0
+    build: {context: ., dockerfile: api/Dockerfile}
+    command: [python, -m, api.app.init_db]
+    environment: *app-env
+    depends_on:
+      cassandra: {condition: service_healthy}
+
+  api:
+    image: wikipulse-api:0.1.0
+    build: {context: ., dockerfile: api/Dockerfile}
+    environment: *app-env
+    ports: ["127.0.0.1:${API_HOST_PORT:-18000}:8000"]
+    depends_on:
+      init-cassandra: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      retries: 20
+
+  spark:
+    image: wikipulse-spark:0.1.0
+    build: {context: ., dockerfile: processing/spark/Dockerfile}
+    environment:
+      <<: *app-env
+      DATA_BASE_PATH: ${DATA_BASE_PATH:-file:///data/wikipulse}
+      SPARK_CHECKPOINT_PATH: ${SPARK_CHECKPOINT_PATH:-/data/checkpoints}
+      WATERMARK_DELAY: ${WATERMARK_DELAY:-10 minutes}
+      TRIGGER_INTERVAL: ${TRIGGER_INTERVAL:-10 seconds}
+      USER_HASH_SALT: ${USER_HASH_SALT:-local-demo-change-me}
+      MAX_OFFSETS_PER_TRIGGER: ${MAX_OFFSETS_PER_TRIGGER:-1000}
+      SPARK_PROGRESS_PATH: /data/progress.json
+    volumes: [lake-data:/data]
+    depends_on:
+      init-topics: {condition: service_completed_successfully}
+      init-cassandra: {condition: service_completed_successfully}
+
+  replay:
+    image: wikipulse-replay:0.1.0
+    build: {context: ., dockerfile: replay/Dockerfile}
+    profiles: [tools]
+    environment:
+      <<: *app-env
+      REPLAY_SPEED_FACTOR: ${REPLAY_SPEED_FACTOR:-1}
+    depends_on:
+      init-topics: {condition: service_completed_successfully}
+
+  dashboard:
+    image: wikipulse-dashboard:0.1.0
+    build: {context: ., dockerfile: dashboard/Dockerfile}
+    environment:
+      <<: *app-env
+      DASHBOARD_API_URL: ${DASHBOARD_API_URL:-http://api:8000}
+    ports: ["127.0.0.1:${DASHBOARD_HOST_PORT:-8501}:8501"]
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      retries: 20
+
+  collector:
+    image: wikipulse-replay:0.1.0
+    build: {context: ., dockerfile: replay/Dockerfile}
+    profiles: [live]
+    command: [python, -m, ingestion.collector.app.main]
+    environment:
+      <<: *app-env
+      WIKIMEDIA_STREAM_URL: ${WIKIMEDIA_STREAM_URL:-https://stream.wikimedia.org/v2/stream/recentchange}
+    depends_on:
+      init-topics: {condition: service_completed_successfully}
+
+volumes:
+  kafka-data:
+  cassandra-data:
+  lake-data:
