@@ -1,4 +1,4 @@
-from datetime import timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -72,3 +72,24 @@ def test_invalid_keyspace_cannot_be_interpolated(settings, cassandra_boundary):
     with pytest.raises(ValueError):
         CassandraActivityStore(settings)
     assert not cassandra_boundary.clusters
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"window_end": datetime(2026, 1, 1, 0, 0, tzinfo=timezone.utc)},
+        {"edit_count": 4},
+        {"anonymous_edit_count": 4},
+        {"bot_edit_count": 4},
+        {"wiki": "EnWiki"},
+        {"wiki": "enwiki' OR 1=1"},
+    ],
+)
+def test_upsert_rejects_rows_that_break_the_activity_contract(
+    settings, activity_row, cassandra_boundary, override
+):
+    from wikipulse_core.serving import CassandraActivityStore
+
+    with pytest.raises(ValueError):
+        CassandraActivityStore(settings).upsert_activity([{**activity_row, **override}])
+    assert not cassandra_boundary.rows

@@ -11,7 +11,12 @@ from wikipulse_core.config import Settings
 from wikipulse_core.logging import configure_logging
 from wikipulse_core.serving import CassandraActivityStore
 
-from api.app.models import ActivityEnvelope, HealthResponse, NotImplementedResponse
+from api.app.models import (
+    ActivityEnvelope,
+    DependencyErrorResponse,
+    HealthResponse,
+    NotImplementedResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +60,11 @@ def create_app(
             dependencies={"cassandra": "ready" if ready else "unavailable"},
         )
 
-    @application.get("/api/v1/activity", response_model=ActivityEnvelope)
+    @application.get(
+        "/api/v1/activity",
+        response_model=ActivityEnvelope,
+        responses={503: {"model": DependencyErrorResponse}},
+    )
     def activity(
         request: Request,
         wiki: Annotated[

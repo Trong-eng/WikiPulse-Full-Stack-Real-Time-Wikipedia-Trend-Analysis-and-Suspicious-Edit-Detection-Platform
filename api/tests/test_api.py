@@ -135,3 +135,18 @@ def test_startup_dependency_warning_is_structured_api_json(settings, cassandra_b
     assert record["level"] == "WARNING"
     assert "Cassandra" in record["message"]
     assert datetime.fromisoformat(record["timestamp"]).utcoffset() == timedelta(0)
+
+
+def test_activity_outage_contract_is_published_in_openapi(settings, cassandra_boundary):
+    with client_for(settings) as client:
+        cassandra_boundary.query_failure = True
+        response = client.get("/api/v1/activity")
+        assert response.status_code == 503
+        assert response.json() == {
+            "detail": {"code": "DEPENDENCY_UNAVAILABLE", "source": "cassandra"}
+        }
+        responses = client.get("/openapi.json").json()["paths"]["/api/v1/activity"]["get"][
+            "responses"
+        ]
+        assert "503" in responses
+        assert "422" in responses

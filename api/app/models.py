@@ -23,6 +23,15 @@ class HealthResponse(BaseModel):
     dependencies: dict[str, Literal["ready", "unavailable"]]
 
 
+class DependencyErrorDetail(BaseModel):
+    code: Literal["DEPENDENCY_UNAVAILABLE"] = "DEPENDENCY_UNAVAILABLE"
+    source: Literal["cassandra"] = "cassandra"
+
+
+class DependencyErrorResponse(BaseModel):
+    detail: DependencyErrorDetail
+
+
 class NotImplementedResponse(BaseModel):
     code: Literal["NOT_IMPLEMENTED"] = "NOT_IMPLEMENTED"
     feature: Literal["trends", "suspicious-edits", "events"]
