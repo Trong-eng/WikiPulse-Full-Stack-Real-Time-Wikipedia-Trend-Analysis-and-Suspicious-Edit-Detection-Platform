@@ -5,7 +5,7 @@ from collections.abc import Iterable
 from datetime import datetime, timezone
 from threading import RLock
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from wikipulse_core.config import Settings
 
@@ -20,7 +20,7 @@ def Cluster(*args, **kwargs):
 class ActivityRow(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    wiki: str
+    wiki: str = Field(pattern=r"^[a-z][a-z0-9_]{1,63}$")
     window_start: datetime
     window_end: datetime
     event_count: int = Field(ge=0)
@@ -37,6 +37,17 @@ class ActivityRow(BaseModel):
         if value.tzinfo is None:
             return value.replace(tzinfo=timezone.utc)
         return value.astimezone(timezone.utc)
+
+    @model_validator(mode="after")
+    def consistent_window_counts(self) -> "ActivityRow":
+        # Mirrors activity_windows: anonymous/bot counts are subsets of edits.
+        if self.window_end <= self.window_start:
+            raise ValueError("window_end must be after window_start")
+        if self.edit_count + self.new_page_count > self.event_count:
+            raise ValueError("edit_count + new_page_count must not exceed event_count")
+        if max(self.anonymous_edit_count, self.bot_edit_count) > self.edit_count:
+            raise ValueError("anonymous/bot edit counts must not exceed edit_count")
+        return self
 
 
 ACTIVITY_FIELDS = tuple(ActivityRow.model_fields)

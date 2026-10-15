@@ -18,7 +18,7 @@ Validation errors tối thiểu: INVALID_JSON, MISSING_EVENT_TIME, MISSING_WIKI,
 
 ## Activity — Linh → Nhân
 
-Window 1 minute/event time; watermark 10 minutes. Output DataFrame được flatten: wiki string; window_start/window_end timestamp; event_count/edit_count/new_page_count/anonymous_edit_count/bot_edit_count long; updated_at timestamp. Counts absolute, không delta. Callback `write_activity_batch(batch_df, batch_id)` gọi `wikipulse_core.serving.CassandraActivityStore.upsert_activity(rows)`; rows là iterable dictionary theo schema trên. Session Cassandra mở ở driver; không collect toàn dataset vào RAM; dùng toLocalIterator cho scaffold tải thấp.
+Window 1 minute/event time; watermark 10 minutes. Output DataFrame được flatten: wiki string; window_start/window_end timestamp; event_count/edit_count/new_page_count/anonymous_edit_count/bot_edit_count long; updated_at timestamp. Counts absolute, không delta. Callback `write_activity_batch(batch_df, batch_id)` gọi `wikipulse_core.serving.CassandraActivityStore.upsert_activity(rows)`; rows là iterable dictionary theo schema trên. `ActivityRow` (shared/wikipulse_core/serving.py) validate wiki identifier, `window_end > window_start` và count nhất quán; row vi phạm làm batch fail thay vì ghi sai. Session Cassandra mở ở driver; không collect toàn dataset vào RAM; dùng toLocalIterator cho scaffold tải thấp.
 
 CQL: `wiki_activity_by_window`, PRIMARY KEY ((wiki), window_start), clustering DESC. Một partition/wiki đủ cho activity MVP; TTL/retention dài hạn dành tuần 3. Query latest đọc row đầu; query window dùng đúng wiki/window_start. Query trends/suspicious tương lai: ((wiki, window_start), page_key hoặc event_id); score không trong khóa.
 
@@ -28,7 +28,7 @@ CQL: `wiki_activity_by_window`, PRIMARY KEY ((wiki), window_start), clustering D
 - GET /api/v1/activity?wiki=enwiki&window=<ISO-UTC optional>&limit=20: wiki mặc định enwiki; limit 1–100. `window` là window_start, thiếu thì các cửa sổ mới nhất sẵn có, sắp xếp giảm dần.
 - GET /api/v1/trends; GET /api/v1/suspicious-edits; GET /api/v1/events/{event_id}: tuần 1 trả HTTP 501 với `code=NOT_IMPLEMENTED` và role/tuần phụ trách.
 
-Envelope activity: `{data: ActivityRow[], generated_at: ISO-UTC, source: "cassandra", pipeline_mode: "REPLAY"|"LIVE", provisional: true}`. ActivityRow có 9 trường như output Spark. Dữ liệu trống HTTP 200 data []; timestamp serialization có UTC timezone. API không giả kết quả và không seed serving vào đường demo.
+Envelope activity: `{data: ActivityRow[], generated_at: ISO-UTC, source: "cassandra", pipeline_mode: "REPLAY"|"LIVE", provisional: true}`. ActivityRow có 9 trường như output Spark. Dữ liệu trống HTTP 200 data []; timestamp serialization có UTC timezone. Cassandra lỗi khi query: HTTP 503 `{detail: {code: "DEPENDENCY_UNAVAILABLE", source: "cassandra"}}` (có trong OpenAPI). Query sai (limit, wiki ngoài allowlist, window thiếu timezone): HTTP 422. API không giả kết quả và không seed serving vào đường demo.
 
 ## Lưu trữ, health và command
 
