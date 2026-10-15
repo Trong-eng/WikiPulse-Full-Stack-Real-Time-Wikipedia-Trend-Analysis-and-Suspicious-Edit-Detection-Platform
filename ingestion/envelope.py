@@ -14,13 +14,15 @@ def message_key(event: dict) -> bytes:
     page = event.get("page_id")
     if page is None:
         page = event.get("title") or "unknown"
-    return f"{wiki}:{page}".encode("utf-8")
+    # backslashreplace: a lone surrogate in a title must not crash keying.
+    return f"{wiki}:{page}".encode("utf-8", "backslashreplace")
 
 
 def encode_event(line: str, now: datetime, *, source: str = "replay") -> tuple[bytes | None, bytes]:
     """Stamp ingestion metadata without touching source IDs/timestamps.
 
-    Non-object JSON or malformed lines pass through unkeyed so Spark can quarantine them.
+    Malformed or non-object JSON passes through unkeyed so Spark can quarantine it. Strings
+    that are not valid UTF-8 (lone surrogate escapes) stay \\u-escaped in the payload.
     """
     try:
         event = json.loads(line)
@@ -30,4 +32,8 @@ def encode_event(line: str, now: datetime, *, source: str = "replay") -> tuple[b
         return None, line.encode("utf-8")
     event["ingested_at"] = now.isoformat()
     event["collector_version"] = collector_version(source)
-    return message_key(event), json.dumps(event, ensure_ascii=False).encode("utf-8")
+    try:
+        payload = json.dumps(event, ensure_ascii=False).encode("utf-8")
+    except UnicodeEncodeError:
+        payload = json.dumps(event).encode("utf-8")
+    return message_key(event), payload
