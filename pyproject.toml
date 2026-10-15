@@ -16,7 +16,7 @@ dev = ["pytest==8.3.5", "ruff==0.11.2", "httpx==0.28.1", "fastapi==0.115.12", "c
 where = ["shared"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "api/tests", "dashboard/tests", "replay/tests", "processing/spark/tests", "ingestion/collector/tests"]
+testpaths = ["tests", "api/tests", "dashboard/tests", "replay/tests", "processing/spark/tests", "ingestion/tests", "ingestion/collector/tests"]
 pythonpath = [".", "shared"]
 markers = ["integration: requires the Docker stack", "spark: requires PySpark and Java"]
 

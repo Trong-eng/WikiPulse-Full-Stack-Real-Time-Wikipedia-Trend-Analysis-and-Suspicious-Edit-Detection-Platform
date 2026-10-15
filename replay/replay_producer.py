@@ -1,7 +1,6 @@
 """Publish fixture JSONL records without rewriting source timestamps or identifiers."""
 
 import argparse
-import json
 import logging
 import math
 import os
@@ -12,26 +11,11 @@ from pathlib import Path
 from wikipulse_core.config import Settings
 from wikipulse_core.logging import configure_logging
 
+from ingestion.envelope import encode_event, message_key
+
+__all__ = ["encode_event", "message_key", "replay_delay", "main"]
+
 logger = logging.getLogger(__name__)
-
-
-def message_key(event: dict) -> bytes:
-    page = event.get("page_id")
-    if page is None:
-        page = event.get("title") or "unknown"
-    return f"{event.get('wiki', 'unknown')}:{page}".encode("utf-8")
-
-
-def encode_event(line: str, now: datetime) -> tuple[bytes | None, bytes]:
-    try:
-        event = json.loads(line)
-    except json.JSONDecodeError:
-        return None, line.encode("utf-8")
-    if not isinstance(event, dict):
-        return None, line.encode("utf-8")
-    event["ingested_at"] = now.isoformat()
-    event["collector_version"] = "replay-0.1.0"
-    return message_key(event), json.dumps(event, ensure_ascii=False).encode("utf-8")
 
 
 def replay_delay(interval: float, speed: float) -> float:
