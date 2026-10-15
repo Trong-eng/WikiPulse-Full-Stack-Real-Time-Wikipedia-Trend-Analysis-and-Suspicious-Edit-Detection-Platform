@@ -1,0 +1,1177 @@
+% Báo cáo kỹ thuật WikiPulse -- bản cập nhật liên tục của cả nhóm.
+% Định dạng theo mẫu báo cáo của Trường CNTT&TT, ĐHBK Hà Nội (lớp report 12pt, lề 2,5 cm, giãn dòng 1,5,
+% phông Latin Modern, tài liệu tham khảo BibTeX kiểu plain). Quy ước cập nhật: xem chương đầu và README.md.
+% Biên dịch: latexmk -xelatex main.tex  (hoặc xelatex main -> bibtex main -> xelatex main -> xelatex main)
+\documentclass[12pt,a4paper]{report}
+
+% ============================================================================
+\usepackage{fontspec}               % XeLaTeX: phông Latin Modern (giống Computer Modern, đủ dấu tiếng Việt)
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{listings}               % chỉ dùng bộ đếm và tên "Đoạn mã"; khối mã viết bằng fancyvrb (đúng chữ có dấu)
+\usepackage{fancyvrb}
+\usepackage[table]{xcolor}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,shapes.misc,shapes.multipart,calc,fit,backgrounds}
+\usepackage{pgf-umlsd}            % biểu đồ tuần tự UML
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\geometry{margin=2.5cm}
+\onehalfspacing
+\graphicspath{{hinh/}}
+\setcounter{tocdepth}{2}
+\hypersetup{hidelinks}
+\setlist{itemsep=1pt,topsep=3pt}
+\emergencystretch=3em          % tránh tràn lề khi dòng có tên mã dài không ngắt được
+
+\newcommand{\enquote}[1]{“#1”}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\chualam}{\par\noindent\textit{(Dự kiến, chưa thực hiện.)}\par}
+% Ghi chú nhỏ dưới một mục đã viết nhưng còn sửa ở các tuần sau
+\newcommand{\dukiensua}[1]{\par\noindent{\footnotesize\itshape\color{black!60}Ghi chú: #1}\par}
+% Thông tin còn thiếu, cần bổ sung
+\newcommand{\canbosung}[1]{{\color{red}[#1]}}
+
+\renewcommand{\lstlistingname}{Đoạn mã}
+
+% Từ khóa giả mã giữ tiếng Anh chuẩn (Input, Output, for, if, return...); chỉ phần mô tả viết tiếng Việt
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Output:}}
+\algnewcommand\algorithmicand{\textbf{and}}
+\algnewcommand\AlgAnd{\algorithmicand}
+\floatname{algorithm}{Thuật toán}
+
+% Màu dùng trong sơ đồ
+\definecolor{wpblue}{RGB}{18,92,173}
+\definecolor{wpgreen}{RGB}{46,140,87}
+\definecolor{wpamber}{RGB}{214,140,20}
+\definecolor{wpred}{RGB}{190,50,50}
+\definecolor{wpgray}{RGB}{110,116,128}
+\definecolor{lightblue}{RGB}{228,239,252}
+\definecolor{lightgreen}{RGB}{224,244,232}
+\definecolor{lightamber}{RGB}{255,241,214}
+\definecolor{lightred}{RGB}{252,226,226}
+\definecolor{lightgray}{RGB}{242,243,245}
+
+% Hộp ghi chú: khung mảnh, nền xám nhạt, hợp văn phong báo cáo
+\newtcolorbox{ghichu}[1]{colback=lightgray,colframe=black!55,boxrule=0.4pt,arc=0pt,
+  fonttitle=\bfseries,coltitle=black,colbacktitle=black!10,title=#1}
+
+\tikzset{
+  box/.style={draw=wpblue,fill=lightblue,rounded corners=3pt,align=center,font=\small\sffamily,
+              minimum height=9mm,inner sep=4pt,text width=#1},
+  box/.default=28mm,
+  gbox/.style={box=#1,draw=wpgreen,fill=lightgreen},
+  gbox/.default=28mm,
+  abox/.style={box=#1,draw=wpamber,fill=lightamber},
+  abox/.default=28mm,
+  rbox/.style={box=#1,draw=wpred,fill=lightred},
+  rbox/.default=28mm,
+  db/.style={cylinder,shape border rotate=90,aspect=0.18,draw=wpblue,fill=lightblue,
+             align=center,font=\small\sffamily,minimum height=13mm,text width=24mm},
+  dec/.style={diamond,aspect=2.2,draw=wpamber,fill=lightamber,align=center,font=\small\sffamily,inner sep=1pt},
+  arr/.style={-{Stealth[length=2.6mm]},thick,color=wpgray},
+  lab/.style={font=\scriptsize\sffamily,color=wpgray,fill=white,inner sep=1pt},
+  uc/.style={ellipse,draw=wpblue,fill=lightblue,align=center,font=\footnotesize\sffamily,
+             minimum width=40mm,minimum height=9mm,inner sep=1pt},
+  actor/.pic={\draw[thick] (0,0.42) circle (0.16);
+              \draw[thick] (0,0.26) -- (0,-0.12) (-0.28,0.14) -- (0.28,0.14) (0,-0.12) -- (-0.2,-0.46) (0,-0.12) -- (0.2,-0.46);},
+  % --- UML: biểu đồ hoạt động ---
+  start/.style={circle,fill=black,minimum size=3.2mm,inner sep=0},
+  stop/.style={circle,draw=black,thick,fill=white,minimum size=4.4mm,inner sep=0,
+               path picture={\fill[black] (path picture bounding box.center) circle (1.25mm);}},
+  act/.style={rectangle,rounded corners=2.5mm,draw=black,fill=lightblue,align=center,font=\footnotesize\sffamily,
+              minimum height=8mm,inner sep=3pt,text width=#1},
+  act/.default=40mm,
+  dnode/.style={diamond,draw=black,fill=white,minimum size=6.5mm,inner sep=0},
+  flow/.style={-{Stealth[length=2.2mm]},thick},
+  guard/.style={font=\scriptsize\sffamily,fill=white,inner sep=1pt},
+  % --- UML: biểu đồ trạng thái ---
+  state/.style={rectangle,rounded corners=3mm,draw=black,fill=lightblue,align=center,font=\footnotesize\sffamily,
+                minimum height=9mm,minimum width=24mm,inner sep=3pt},
+  % --- UML: biểu đồ gói, triển khai ---
+  pkg/.style={rectangle,draw=black,fill=lightblue,align=center,font=\footnotesize\sffamily,minimum width=24mm,
+              minimum height=9mm,inner sep=2pt,
+              append after command={\pgfextra{\draw[fill=lightblue] (\tikzlastnode.north west) rectangle ++(8mm,2.4mm);}}},
+  dep/.style={-{Straight Barb[length=2mm]},dashed,thick},
+  udnode/.style={rectangle,draw=black,fill=lightblue,align=center,font=\footnotesize\sffamily,inner sep=4pt,
+                 append after command={\pgfextra{\draw (\tikzlastnode.north west) -- ++(3mm,3mm)
+                   -- ($(\tikzlastnode.north east)+(3mm,3mm)$) -- ($(\tikzlastnode.south east)+(3mm,3mm)$)
+                   -- (\tikzlastnode.south east) ($(\tikzlastnode.north east)+(3mm,3mm)$) -- (\tikzlastnode.north east);}}},
+  % --- sơ đồ CSDL (sinh bởi tools/erd.py) ---
+  erd/.style={rectangle split,rectangle split parts=2,draw=black,anchor=north west,font=\scriptsize\sffamily,
+              rectangle split part fill={lightblue,white},inner sep=2pt},
+  erdstub/.style={draw=black,dashed,anchor=north west,font=\scriptsize\sffamily,inner sep=4pt,fill=lightgray},
+  erdline/.style={thick},
+  erdmult/.style={font=\scriptsize\sffamily,fill=white,inner sep=1pt},
+  erdfk/.style={font=\tiny\sffamily,color=wpgray,sloped,above,inner sep=1pt},
+}
+
+% ============================================================================
+% DOCUMENT BEGIN
+% ============================================================================
+
+% ============================================================================
+% DOCUMENT BEGIN
+% ============================================================================
+\begin{document}
+
+% ============================================================================
+% TRANG BÌA (theo mẫu báo cáo của Trường CNTT&TT)
+% ============================================================================
+\begin{titlepage}
+\begin{center}
+
+\textsc{\large \textbf{ĐẠI HỌC BÁCH KHOA HÀ NỘI}}\\[0.5cm]
+
+{\Large TRƯỜNG CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG \\[0.6cm]}
+
+\includegraphics[scale=0.11]{logo-soict-hust-1.png}\\[0.6cm]
+\textsc{\Large \textbf{\canbosung{Mã học phần -- Tên học phần}}}\\[0.4cm]
+
+\rule{\linewidth}{0.7mm} \\[0.4cm]
+{\huge \bfseries WikiPulse\\[0.3cm]}
+{\Large \bfseries Phân tích xu hướng Wikipedia và ưu tiên xem xét\\[0.1cm] chỉnh sửa đáng ngờ theo thời gian thực\\[0.3cm]}
+{\large (Báo cáo kỹ thuật -- bản cập nhật liên tục)\\[0.3cm]}
+\rule{\linewidth}{0.7mm} \\[0.6cm]
+
+{\large \textbf{Giảng viên hướng dẫn:}}\\[0.3cm]
+\begin{tabular}{l}
+\large \canbosung{Học hàm, học vị, họ tên} \\[0.4cm]
+\end{tabular}
+
+{\large \textbf{Nhóm sinh viên thực hiện:}}\\[0.3cm]
+\begin{tabular}{ll}
+\large \canbosung{Họ tên} (Trọng) & \large \canbosung{MSSV} \\
+\large \canbosung{Họ tên} (Thành) & \large \canbosung{MSSV} \\
+\large \canbosung{Họ tên} (Linh) & \large \canbosung{MSSV} \\
+\large Hoàng Văn Nhân & \large 20235542 \\
+\large \canbosung{Họ tên} (Mạnh) & \large \canbosung{MSSV} \\
+\end{tabular}
+
+\vfill
+
+{\large \textbf{Hà Nội - Việt Nam}\\[0.2cm] \color{blue!90!black}2026}
+
+\end{center}
+\end{titlepage}
+\setstretch{1.5}
+
+\pagenumbering{roman}
+
+\chapter*{Quy ước cập nhật báo cáo}
+\addcontentsline{toc}{chapter}{Quy ước cập nhật báo cáo}
+Báo cáo này được cả nhóm viết dần trong quá trình phát triển, để thành viên mới đọc hiểu được project và để báo cáo
+cuối kỳ không phải soạn lại từ đầu. Quy ước:
+\begin{itemize}
+  \item Phần chưa làm chỉ có đề mục, kèm dòng \textit{(Dự kiến, chưa thực hiện.)} -- macro \code{\textbackslash chualam}.
+  \item Phần đã viết nhưng còn sửa theo các tuần sau có ghi chú nhỏ bên dưới -- macro
+        \code{\textbackslash dukiensua\{nội dung, tuần\}}.
+  \item Thông tin còn thiếu đánh dấu màu đỏ -- macro \code{\textbackslash canbosung}. Trên trang bìa, mỗi thành viên tự
+        điền họ tên và MSSV của mình; trưởng nhóm điền học phần và giảng viên.
+  \item Mỗi việc trong \code{docs/checkpoints.md} khi chuyển sang DONE thì owner cập nhật mục tương ứng ở đây trong cùng
+        PR, kèm số liệu và bằng chứng tái hiện được. Không ghi kết quả chưa đo.
+  \item Nguồn sự thật cho giao diện giữa các module vẫn là \code{docs/contracts.md}; báo cáo giải thích và dẫn lại, không
+        định nghĩa contract mới.
+\end{itemize}
+
+\begin{table}[H]
+\centering\small
+\caption{Lịch sử cập nhật báo cáo}\label{tab:lichsu}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
+\toprule
+\textbf{Ngày} & \textbf{Người} & \textbf{Nội dung} \\ \midrule
+15/10/2026 & Nhân & Khởi tạo khung báo cáo; viết phần CP0 (kiến trúc, luồng dữ liệu, serving, kiểm thử) \\
+15/10/2026 & Nhân & Thêm use case (biểu đồ, đặc tả), biểu đồ hoạt động; viết lại Chương 2 kèm hình minh họa; chuyển
+tên file, lệnh sang Phụ lục A \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\tableofcontents
+\newpage
+
+\begin{abstract}
+Wikipedia nhận hàng trăm chỉnh sửa mỗi phút. Wikimedia công bố toàn bộ thay đổi này dưới dạng luồng sự kiện công khai
+(EventStreams \code{recentchange})~\cite{eventstreams}. Luồng này đủ để biết trang nào đang được quan tâm và chỉnh sửa nào
+đáng được người tuần tra xem trước, nhưng dữ liệu đến liên tục, có trùng lặp, có sự kiện đến muộn và có bản ghi hỏng.
+
+Báo cáo trình bày \textbf{WikiPulse}, một nền tảng xử lý luồng đầy đủ: Kafka nhận sự kiện, Spark Structured Streaming
+kiểm tra, chuẩn hóa, loại trùng và tổng hợp theo cửa sổ thời gian sự kiện, dữ liệu được lưu ba tầng Bronze/Silver/Gold
+dạng Parquet, kết quả phục vụ qua Cassandra, FastAPI và dashboard Streamlit. Hệ thống chạy được ở hai chế độ: LIVE nối
+với Wikimedia, và REPLAY phát lại dữ liệu mẫu cố định để kiểm thử tái hiện được.
+
+Đến ngày 15/10/2026, nhóm đã hoàn thành mốc CP0: luồng REPLAY chạy thật từ Kafka tới dashboard cho nghiệp vụ đếm hoạt
+động theo wiki trong cửa sổ 1 phút, kết quả khớp bộ kết quả kỳ vọng độc lập và được kiểm chứng trên hai máy (macOS ARM64
+và Windows x86\_64). Trang xu hướng, ưu tiên chỉnh sửa đáng ngờ, chế độ LIVE và HDFS là việc của tuần 2--4, được liệt
+kê dưới dạng đề mục.
+\dukiensua{Tóm tắt viết lại khi chốt CP4.}
+\end{abstract}
+
+\chapter*{Danh mục thuật ngữ và viết tắt}
+\addcontentsline{toc}{chapter}{Danh mục thuật ngữ và viết tắt}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Thuật ngữ} & \textbf{Nghĩa} \\ \midrule
+Event time & Thời điểm sự kiện xảy ra trên Wikipedia (trường \code{meta.dt}), khác thời điểm hệ thống nhận \\
+Cửa sổ (window) & Khoảng thời gian event time cố định để tổng hợp, ví dụ 1 phút \\
+Watermark & Ngưỡng trễ tối đa hệ thống chờ sự kiện đến muộn (10 phút); qua ngưỡng thì cửa sổ được chốt \\
+Bronze / Silver / Gold & Ba tầng dữ liệu: thô, đã chuẩn hóa, đã tổng hợp và chốt \\
+Provisional / finalized & Số liệu tạm tính (có thể còn đổi) / số liệu đã chốt sau watermark \\
+REPLAY / LIVE & Chế độ phát lại dữ liệu mẫu / chế độ nhận luồng thật từ Wikimedia \\
+Upsert & Ghi đè theo khóa: có thì thay, chưa có thì thêm \\
+DLQ & Dead-letter queue, topic chứa bản ghi không xử lý được \\
+Canary & Sự kiện kiểm tra do Wikimedia phát vào luồng, không phải chỉnh sửa thật \\
+Checkpoint & Trạng thái Spark lưu lại để chạy tiếp sau khi dừng; đồng thời là mốc nghiệm thu CP0--CP4 của nhóm \\
+\bottomrule
+\end{tabularx}
+
+\newpage
+\pagenumbering{arabic}
+
+% ============================================================================
+% CHƯƠNG 1: GIỚI THIỆU
+% ============================================================================
+\chapter{Giới thiệu}\label{chap:gioithieu}
+
+\section{Đặt vấn đề}
+Luồng \code{recentchange} của Wikimedia phát mọi thay đổi trên các dự án Wikimedia: sửa trang, tạo trang mới, thay đổi
+nhật ký. Mỗi sự kiện có wiki, tiêu đề trang, người sửa, kích thước trước và sau, cờ bot, cờ ẩn danh. Từ luồng này có thể
+trả lời hai câu hỏi có ích:
+\begin{enumerate}
+  \item \textbf{Đang có gì nóng?} Trang nào đang được sửa nhiều bất thường trong vài phút gần nhất.
+  \item \textbf{Nên xem chỉnh sửa nào trước?} Chỉnh sửa nào có dấu hiệu cần người tuần tra kiểm tra, ví dụ xóa nhiều
+        nội dung, hoàn tác qua lại, hay sửa ẩn danh.
+\end{enumerate}
+
+Khó khăn nằm ở tính chất của dữ liệu luồng: sự kiện đến không theo thứ tự, có bản trùng khi nguồn kết nối lại, có bản
+ghi hỏng, và kết quả phải cập nhật liên tục trong khi vẫn phải đúng khi hệ thống khởi động lại.
+
+\section{Mục tiêu}
+\begin{itemize}
+  \item Xây dựng luồng end-to-end Kafka $\rightarrow$ Spark $\rightarrow$ Parquet/Cassandra $\rightarrow$ API
+        $\rightarrow$ dashboard, chạy được ở hai chế độ LIVE và REPLAY.
+  \item Tổng hợp theo event time có watermark, loại trùng, cách ly bản ghi lỗi, đúng khi retry và khởi động lại.
+  \item Phục vụ ba nghiệp vụ: hoạt động theo wiki, trang xu hướng, danh sách chỉnh sửa cần ưu tiên xem xét.
+  \item Bảo vệ quyền riêng tư: tên người dùng và IP không đi ra khỏi tầng Bronze.
+\end{itemize}
+
+\section{Phạm vi}
+\begin{itemize}
+  \item \textbf{Trong phạm vi:} MVP một node chạy bằng Docker Compose; mặc định hai wiki \code{enwiki}, \code{viwiki}, mở
+        rộng bằng cấu hình; lưu Parquet cục bộ (tuần 1) rồi HDFS (tuần 2--3).
+  \item \textbf{Ngoài phạm vi:} mô hình học máy, độ sẵn sàng cao, triển khai cloud, xác thực và phân quyền. Kubernetes và
+        monitoring chỉ ở mức khung.
+  \item \textbf{Nguyên tắc:} điểm rủi ro chỉ dùng để \emph{ưu tiên xem xét}, không kết luận một chỉnh sửa là phá hoại.
+        Không đưa dữ liệu giả vào đường demo.
+\end{itemize}
+
+\section{Tổ chức nhóm}
+Nhóm 5 người, 4 tuần, khoảng 10--15 giờ mỗi người mỗi tuần. Tiến độ quản lý theo mốc nghiệm thu
+(Bảng~\ref{tab:moc}) và bảng việc chi tiết trong \code{docs/checkpoints.md}; một việc chỉ chuyển DONE khi có bằng chứng
+kiểm thử.
+
+\begin{table}[H]
+\centering\small
+\caption{Phân công theo module}\label{tab:phancong}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Thành viên} & \textbf{Phụ trách} \\ \midrule
+Trọng & Core, cấu hình, Docker Compose, Makefile, tích hợp và nghiệm thu chung \\
+Thành & Ingestion: Kafka topics, replay, collector LIVE \\
+Linh & Xử lý Spark: validation, chuẩn hóa, loại trùng, cửa sổ, đặc trưng xu hướng và rủi ro \\
+Nhân & Lưu trữ phục vụ Cassandra, sink từ Spark, API FastAPI \\
+Mạnh & Dashboard Streamlit, kiểm thử chấp nhận (acceptance) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Các mốc nghiệm thu}\label{tab:moc}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+\textbf{Mốc} & \textbf{Điều kiện DONE} & \textbf{Trạng thái} \\ \midrule
+CP0 & REPLAY thật qua Kafka/Spark/3 tầng Parquet/Cassandra/API/Overview & DONE (11/10/2026) \\
+CP1 & Người khác chạy lại được CP0; mỗi người nhận module, contract và test đầu tiên & Đang làm \\
+CP2 & LIVE/REPLAY, cửa sổ, rủi ro, xu hướng đúng fixture; UI thật; HDFS khởi động & Chưa \\
+CP3 & E2E trên HDFS; late data, khởi động lại, retry, Gold finalized được kiểm chứng & Chưa \\
+CP4 & Clone sạch trên máy thứ hai; replay pass; LIVE $\geq$ 15 phút; 4 trang; đủ tài liệu & Chưa \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\dukiensua{Cập nhật cột trạng thái mỗi khi đạt mốc.}
+
+\section{Cấu trúc báo cáo}
+\begin{itemize}
+  \item Chương~\ref{chap:nen} trình bày kiến thức nền về xử lý luồng và các công nghệ sử dụng.
+  \item Chương~\ref{chap:lienquan} điểm lại các công cụ và nghiên cứu liên quan.
+  \item Chương~\ref{chap:thietke} mô tả phân tích, thiết kế và cài đặt.
+  \item Chương~\ref{chap:danhgia} trình bày kiểm thử và kết quả.
+  \item Chương~\ref{chap:ketluan} kết luận và liệt kê phần còn lại.
+\end{itemize}
+
+% ============================================================================
+% CHƯƠNG 2: CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ
+% ============================================================================
+\chapter{Cơ sở lý thuyết và công nghệ}\label{chap:nen}
+
+Chương này giải thích các khái niệm mà thiết kế ở Chương~\ref{chap:thietke} dựa vào: dữ liệu luồng khác dữ liệu tĩnh ở
+đâu, Kafka giữ sự kiện thế nào, Spark tổng hợp theo thời gian ra sao khi sự kiện đến lộn xộn, vì sao dữ liệu được lưu
+thành ba tầng, và vì sao Cassandra được chọn để phục vụ kết quả.
+
+\section{Bài toán xử lý dữ liệu luồng}\label{sec:luong}
+Dữ liệu tĩnh (một file, một bảng) có điểm bắt đầu và kết thúc: chạy truy vấn một lần là có kết quả. Dữ liệu luồng thì
+\textbf{không bao giờ kết thúc}: sự kiện đến liên tục, kết quả phải được tính dần và cập nhật mãi. Ngoài ra, mỗi sự kiện
+có hai mốc thời gian khác nhau:
+\begin{itemize}
+  \item \textbf{Event time}: lúc sự việc thật sự xảy ra, ví dụ lúc một người bấm lưu chỉnh sửa trên Wikipedia.
+  \item \textbf{Processing time}: lúc hệ thống nhận được sự kiện đó.
+\end{itemize}
+Hai mốc này lệch nhau vì mạng chậm, nguồn mất kết nối rồi gửi bù, hay hệ thống tạm dừng. Hình~\ref{fig:eventtime} cho thấy
+ba hiện tượng mà mọi hệ thống luồng phải xử lý.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+  \draw[arr] (0,2.2) -- (12.4,2.2) node[right,align=left]{event time\\(lúc xảy ra)};
+  \draw[arr] (0,0) -- (12.4,0) node[right,align=left]{processing time\\(lúc nhận)};
+  \foreach \x/\l in {0.5/00:00,3.5/00:01,6.5/00:02,9.5/00:03} {
+    \draw (\x,2.1) -- (\x,2.3); \node[wpgray] at (\x,3.05) {\l}; \draw[wpgray!50,densely dotted] (\x,2.3) -- (\x,2.85);
+    \draw (\x,-0.1) -- (\x,0.1);
+  }
+  % đúng thứ tự
+  \foreach \a/\b/\n in {1.0/1.6/e1, 2.4/3.0/e2} {
+    \fill[wpblue] (\a,2.2) circle (0.09) node[above=1mm,text=wpblue]{\n};
+    \draw[wpblue,thick,-{Stealth[length=2mm]}] (\a,2.1) -- (\b,0.1);
+    \fill[wpblue] (\b,0) circle (0.09);
+  }
+  % đến muộn, lộn thứ tự
+  \fill[wpamber] (3.0,2.2) circle (0.09) node[above=1mm,text=wpamber]{e3};
+  \draw[wpamber,thick,-{Stealth[length=2mm]}] (3.0,2.1) -- (7.6,0.1);
+  \fill[wpamber] (7.6,0) circle (0.09);
+  \fill[wpblue] (4.6,2.2) circle (0.09) node[above=1mm,text=wpblue]{e4};
+  \draw[wpblue,thick,-{Stealth[length=2mm]}] (4.6,2.1) -- (5.2,0.1);
+  \fill[wpblue] (5.2,0) circle (0.09);
+  % trùng
+  \fill[wpred] (7.0,2.2) circle (0.09) node[above=1mm,text=wpred]{e5};
+  \draw[wpred,thick,-{Stealth[length=2mm]}] (7.0,2.1) -- (8.6,0.1);
+  \draw[wpred,thick,dashed,-{Stealth[length=2mm]}] (7.0,2.1) -- (10.4,0.1);
+  \fill[wpred] (8.6,0) circle (0.09); \fill[wpred] (10.4,0) circle (0.09);
+  % hỏng
+  \node[wpgray,font=\footnotesize\bfseries] at (11.5,0) {\{\,?\,\}};
+  \node[below,lab,text=wpamber] at (7.6,-0.25) {e3 đến sau e4};
+  \node[below,lab,text=wpred,align=center] at (9.5,-0.25) {e5 đến hai lần};
+  \node[below,lab,align=center] at (11.6,-0.25) {bản ghi hỏng};
+\end{tikzpicture}
+\caption{Event time và processing time. Mỗi mũi tên nối lúc sự kiện xảy ra với lúc hệ thống nhận được. Sự kiện có thể đến
+\textcolor{wpamber}{muộn và lộn thứ tự} (e3), \textcolor{wpred}{đến hai lần} khi nguồn gửi lại (e5), hoặc đến ở dạng
+hỏng không đọc được.}\label{fig:eventtime}
+\end{figure}
+
+Nếu đếm theo processing time, kết quả phụ thuộc vào việc mạng nhanh hay chậm, và chạy lại cùng dữ liệu sẽ ra số khác.
+Vì vậy WikiPulse đếm theo \textbf{event time}: chạy lại bao nhiêu lần cũng ra cùng một kết quả. Cái giá phải trả là hệ
+thống phải chờ sự kiện muộn, phải tự loại bản trùng và tách riêng bản ghi hỏng. Các mục sau giải thích cách làm từng việc.
+
+\section{Luồng sự kiện thay đổi của Wikipedia}
+Wikimedia công bố mọi thay đổi trên các dự án của mình qua dịch vụ EventStreams~\cite{eventstreams}. Client mở một kết nối
+HTTP dài và nhận từng sự kiện dạng JSON ngay khi nó xảy ra (giao thức Server-Sent Events). Bảng~\ref{tab:recentchange} liệt
+kê các thông tin của một sự kiện mà hệ thống dùng tới.
+
+\begin{table}[H]
+\centering\small
+\caption{Thông tin chính trong một sự kiện thay đổi và cách hệ thống dùng}\label{tab:recentchange}
+\begin{tabularx}{\linewidth}{@{}lXX@{}}
+\toprule
+\textbf{Thông tin} & \textbf{Ý nghĩa} & \textbf{Dùng để} \\ \midrule
+Định danh sự kiện & Duy nhất cho mỗi sự kiện & Loại bản trùng \\
+Thời điểm & Lúc thay đổi xảy ra (event time) & Xếp vào cửa sổ thời gian \\
+Wiki, trang & Ví dụ \enquote{enwiki}, tên bài viết & Nhóm kết quả theo wiki, theo trang \\
+Loại thay đổi & Sửa trang, tạo trang mới, ghi nhật ký & Đếm từng loại \\
+Kích thước trước, sau & Số byte của trang & Phát hiện xóa nhiều nội dung \\
+Người sửa, cờ ẩn danh, cờ bot & Tài khoản hoặc địa chỉ IP & Đếm sửa ẩn danh, sửa bởi bot; được băm trước khi lưu \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Kết nối dài có thể đứt. Khi nối lại, client có thể nhận lại một phần sự kiện đã nhận, nên phía sau phải chịu được bản
+trùng. Ngoài sự kiện thật, Wikimedia còn phát định kỳ \textbf{sự kiện canary} để tự kiểm tra hệ thống của họ; các sự
+kiện này phải bị loại khỏi số liệu.
+\dukiensua{Bổ sung cách nối lại không mất sự kiện khi làm collector LIVE (W2-THANH-01).}
+
+\section{Apache Kafka: bộ đệm sự kiện bền vững}
+Kafka~\cite{kreps2011} lưu sự kiện thành một \textbf{nhật ký chỉ ghi thêm} (append-only log). Các khái niệm chính
+(Hình~\ref{fig:kafka}):
+\begin{itemize}
+  \item \textbf{Topic}: một kênh sự kiện, ví dụ kênh chứa các thay đổi thô của Wikipedia.
+  \item \textbf{Partition}: topic được chia thành nhiều nhật ký song song để chia tải. Mỗi sự kiện trong một partition có
+        số thứ tự tăng dần gọi là \textbf{offset}.
+  \item \textbf{Khóa}: producer gắn khóa cho mỗi sự kiện; sự kiện cùng khóa luôn vào cùng partition, nên giữ đúng thứ tự
+        với nhau. WikiPulse dùng khóa là wiki và trang, để các chỉnh sửa của cùng một trang không bị đảo thứ tự.
+  \item \textbf{Consumer} tự nhớ mình đã đọc đến offset nào, nên có thể dừng rồi đọc tiếp, hoặc đọc lại từ đầu.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+  \node[box=24mm] (p1) at (-0.6,1.5) {Replay\\(dữ liệu mẫu)};
+  \node[box=24mm,dashed] (p2) at (-0.6,-1.5) {Collector LIVE};
+  \foreach \r/\y/\n in {0/1.5/5, 1/0/4, 2/-1.5/6} {
+    \node[font=\scriptsize\sffamily,anchor=east] at (3.2,\y) {partition \r};
+    \foreach \i in {0,...,\n} {
+      \node[draw=wpblue,fill=lightblue,minimum width=6mm,minimum height=6mm,inner sep=0,font=\scriptsize\sffamily]
+        at (3.6+\i*0.62,\y) {\i};
+    }
+  }
+  \node[draw=black,dashed,fit={(1.9,1.9) (8.0,-1.9)},inner sep=2mm,
+        label={[font=\footnotesize\sffamily\bfseries]above:topic: các thay đổi thô}] (topic) {};
+  \node[box=24mm] (c) at (11.4,0) {Spark\\(consumer)};
+  \draw[arr] (p1.east) -- (1.95,1.5);
+  \draw[arr,dashed] (p2.east) -- (1.95,-1.5);
+  \draw[arr] (topic.east) -- node[above,lab]{đọc theo offset} (c.west);
+  \draw[wpred,thick,-{Stealth[length=2mm]}] (5.46,-0.75) -- (5.46,-0.35);
+  \node[font=\scriptsize\sffamily,text=wpred,anchor=west] at (5.6,-0.62) {đã đọc tới đây};
+  \node[font=\scriptsize\sffamily,text=wpgray] at (5.0,-2.55) {sự kiện mới luôn ghi vào cuối $\rightarrow$};
+\end{tikzpicture}
+\caption{Topic Kafka gồm ba partition. Mỗi ô là một sự kiện, số trong ô là offset. Producer ghi vào cuối nhật ký;
+consumer (Spark) đọc theo offset và nhớ vị trí đã đọc. Nét đứt là phần chưa làm.}\label{fig:kafka}
+\end{figure}
+
+Trong WikiPulse, Kafka đứng giữa nguồn sự kiện và Spark. Spark dừng để nâng cấp hay bị lỗi thì sự kiện vẫn nằm an toàn
+trong Kafka; khi Spark chạy lại, nó đọc tiếp từ offset cũ. Nhờ đọc lại được, chế độ REPLAY chỉ cần ghi dữ liệu mẫu vào
+cùng topic là toàn bộ phần sau chạy y như với dữ liệu thật.
+
+\section{Spark Structured Streaming}
+\subsection{Mô hình micro-batch}
+Spark Structured Streaming~\cite{armbrust2018} cho phép viết truy vấn trên luồng giống như truy vấn trên một bảng bình
+thường. Luồng được coi là một \textbf{bảng không giới hạn}, mỗi sự kiện mới là một dòng thêm vào. Cứ sau một khoảng cố
+định (10 giây trong WikiPulse), Spark lấy phần dữ liệu mới thành một \textbf{micro-batch}, tính tiếp kết quả từ trạng thái
+lần trước, rồi ghi kết quả ra đích (Hình~\ref{fig:microbatch}).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+  \foreach \i/\x in {1/0,2/2.3,3/4.6} {
+    \node[draw=wpblue,fill=lightblue,minimum width=19mm,minimum height=8mm] (b\i) at (\x,0) {batch \i};
+  }
+  \node[font=\footnotesize] at (6.4,0) {\ldots};
+  \draw[arr] (-1.3,-0.9) -- (7.0,-0.9) node[right]{thời gian};
+  \foreach \x/\t in {-0.95/0s,1.35/10s,3.65/20s,5.95/30s} \draw (\x,-0.8) -- (\x,-1.0) node[below]{\t};
+  \node[box=30mm] (q) at (2.3,-2.8) {Truy vấn\\(lọc, chuẩn hóa, đếm)};
+  \node[db] (st) at (-2.4,-2.8) {Checkpoint\\offset + trạng thái};
+  \node[db] (out) at (6.2,-2.8) {Đích ghi\\(Parquet, Cassandra)};
+  \draw[arr] (b3.south) -- (q.north);
+  \draw[arr,<->] (st) -- node[above,lab]{đọc, lưu} (q);
+  \draw[arr] (q) -- (out);
+\end{tikzpicture}
+\caption{Mô hình micro-batch. Mỗi 10 giây, phần dữ liệu mới thành một batch; truy vấn kết hợp batch với trạng thái lưu
+trong checkpoint để ra kết quả mới.}\label{fig:microbatch}
+\end{figure}
+
+\textbf{Checkpoint} lưu hai thứ: đã đọc Kafka tới offset nào, và trạng thái đang tính dở (ví dụ số đếm của các cửa sổ chưa
+chốt). Khi Spark khởi động lại, nó đọc checkpoint và chạy tiếp như chưa từng dừng. Checkpoint gắn chặt với cấu trúc
+truy vấn: đổi cách tính có trạng thái thì phải dùng checkpoint mới.
+
+\subsection{Cửa sổ thời gian và watermark}
+Để đếm \enquote{mỗi phút có bao nhiêu chỉnh sửa}, sự kiện được xếp vào các \textbf{cửa sổ} 1 phút theo event time. Câu hỏi
+khó là: \emph{khi nào thì một cửa sổ được coi là đủ?} Sự kiện của phút 00:00 có thể vẫn đang trên đường tới. Spark trả
+lời bằng \textbf{watermark}~\cite{akidau2015}:
+\[
+  \text{watermark} = \text{event time lớn nhất đã thấy} - \text{độ trễ cho phép (10 phút)}.
+\]
+Cửa sổ nào kết thúc trước watermark thì được \textbf{chốt}: kết quả không đổi nữa và trạng thái của nó được xóa khỏi bộ
+nhớ. Sự kiện đến muộn hơn watermark bị bỏ khỏi phép đếm (nhưng vẫn được lưu ở tầng thô để tra lại).
+Hình~\ref{fig:watermark} minh họa bằng chính dữ liệu mẫu của dự án.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize\sffamily,x=0.85cm]
+  \fill[lightgreen] (0,-0.2) rectangle (2.17,1.6);
+  \fill[lightamber] (2.17,-0.2) rectangle (14.5,1.6);
+  \draw[arr] (0,0) -- (14.8,0) node[right]{event time};
+  \foreach \m in {0,1,2,...,14} \draw (\m,-0.08) -- (\m,0.08);
+  \foreach \m/\t in {0/00:00,2/00:02,4/00:04,6/00:06,8/00:08,10/00:10,12/00:12,14/00:14}
+    \node[below] at (\m,-0.1) {\t};
+  \draw[wpblue,thick] (0,0.35) -- (0,0.55) -- (1,0.55) -- (1,0.35);
+  \node[above,text=wpblue] at (0.5,0.55) {cửa sổ 00:00};
+  \foreach \x in {0.15,0.3,0.45,0.6,0.8} \fill[wpblue] (\x,0.2) circle (0.06);
+  \fill[wpblue] (12.17,0.2) circle (0.07);
+  \draw[wpgray,-{Stealth[length=2mm]}] (12.17,1.15) -- (12.17,0.3);
+  \node[above,align=center,text=wpgray] at (12.17,1.1) {sự kiện mới nhất\\00:12:10};
+  \draw[wpred,very thick,dashed] (2.17,-0.2) -- (2.17,1.6);
+  \node[above,text=wpred,align=center] at (2.17,1.6) {watermark = 00:12:10 $-$ 10 phút = 00:02:10};
+  \node[text=wpgreen!70!black,font=\footnotesize\bfseries] at (1.1,1.3) {đã chốt};
+  \node[text=wpamber!80!black,font=\footnotesize\bfseries] at (7.5,1.3) {còn mở, số tạm tính};
+  \fill[wpred] (0.7,-0.75) circle (0.07);
+  \draw[wpred,thick] (0.55,-0.9) -- (0.85,-0.6) (0.55,-0.6) -- (0.85,-0.9);
+  \node[right,text=wpred] at (1.0,-0.75) {sự kiện 00:00:40 đến lúc này: quá muộn, không được đếm};
+\end{tikzpicture}
+\caption{Watermark trên dữ liệu mẫu. Sự kiện lúc 00:12:10 đẩy watermark tới 00:02:10, nên cửa sổ 00:00 (5 chỉnh sửa
+enwiki) được chốt. Mọi cửa sổ sau watermark vẫn mở và có thể còn thay đổi.}\label{fig:watermark}
+\end{figure}
+
+Độ trễ cho phép là một sự đánh đổi: dài thì đếm được nhiều sự kiện muộn hơn nhưng phải giữ nhiều trạng thái và chờ lâu
+mới có số chốt; ngắn thì ngược lại. Dự án chọn 10 phút.
+
+\subsection{Số tạm tính và số đã chốt}
+Người xem dashboard muốn thấy số ngay, không muốn chờ 10 phút. Spark có hai \textbf{chế độ xuất} kết quả, và WikiPulse
+dùng cả hai cho cùng một phép đếm (Bảng~\ref{tab:chedo}).
+
+\begin{table}[H]
+\centering\small
+\caption{Hai chế độ xuất kết quả}\label{tab:chedo}
+\begin{tabularx}{\linewidth}{@{}lXXl@{}}
+\toprule
+\textbf{Chế độ} & \textbf{Khi nào ghi} & \textbf{Tính chất} & \textbf{Đích trong WikiPulse} \\ \midrule
+Update & Mỗi batch, mọi cửa sổ vừa thay đổi & Nhanh; số còn có thể tăng (tạm tính) & Cassandra, cho API \\
+Append & Chỉ khi cửa sổ đã qua watermark & Chậm hơn ít nhất 10 phút; số không đổi nữa (đã chốt) & Tầng Gold, cho phân tích \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Spark có một giới hạn quan trọng: một truy vấn ở chế độ Update không được chứa hai bước cần nhớ trạng thái liên tiếp, ví
+dụ \enquote{loại trùng rồi đếm}~\cite{sparkguide}. Vì vậy WikiPulse tách thành nhiều truy vấn: một truy vấn loại trùng và
+ghi ra đĩa, các truy vấn khác đọc lại kết quả đó để đếm (Mục~\ref{sec:spark}).
+
+\subsection{Loại bản trùng}
+Mỗi sự kiện có một định danh duy nhất. Spark nhớ các định danh đã thấy và bỏ sự kiện nào trùng. Không thể nhớ mãi, nên
+Spark chỉ nhớ trong phạm vi watermark: bản trùng đến cách bản gốc quá 10 phút thì không còn bị phát hiện. Đây là giới hạn
+có chủ đích, được ghi rõ trong contract của nhóm.
+
+\section{Kiến trúc dữ liệu ba tầng}
+Thay vì chỉ lưu kết quả cuối, dữ liệu được lưu theo ba tầng~\cite{medallion}, mỗi tầng sạch hơn tầng trước
+(Hình~\ref{fig:medallion}). Lưu tầng thô giúp kiểm tra lại khi nghi có lỗi và tính lại khi đổi công thức mà không cần nguồn
+gửi lại dữ liệu.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+  \node[draw=wpamber,fill=lightamber,rounded corners=3pt,text width=38mm,align=left,inner sep=5pt] (b) at (0,0)
+    {\textbf{Bronze -- thô}\\[2pt] Nguyên văn mọi bản ghi nhận được, kể cả bản hỏng (tách riêng).\\[2pt]
+     \textcolor{wpgray}{Còn tên người dùng, IP.}};
+  \node[draw=wpgray,fill=lightgray,rounded corners=3pt,text width=38mm,align=left,inner sep=5pt] (s) at (5.2,0)
+    {\textbf{Silver -- đã làm sạch}\\[2pt] Đã kiểm tra, chuẩn hóa kiểu dữ liệu, giờ UTC, bỏ trùng, bỏ canary.\\[2pt]
+     \textcolor{wpgray}{Người dùng chỉ còn mã băm.}};
+  \node[draw=wpamber!60!black,fill=wpamber!25,rounded corners=3pt,text width=38mm,align=left,inner sep=5pt] (g) at (10.4,0)
+    {\textbf{Gold -- tổng hợp}\\[2pt] Số đếm theo wiki và cửa sổ, chỉ ghi khi đã chốt.\\[2pt]
+     \textcolor{wpgray}{Dùng cho phân tích, báo cáo.}};
+  \draw[arr] (b) -- node[above,lab]{kiểm tra} (s);
+  \draw[arr] (s) -- node[above,lab]{tổng hợp} (g);
+\end{tikzpicture}
+\caption{Ba tầng dữ liệu. Đi từ trái sang phải, dữ liệu sạch dần và ít thông tin nhạy cảm hơn.}\label{fig:medallion}
+\end{figure}
+
+Ba tầng được lưu dạng \textbf{Parquet}, định dạng theo cột, nén tốt, đọc nhanh khi chỉ cần vài cột. File được chia thư
+mục theo ngày và giờ, nên truy vấn một khoảng thời gian chỉ phải đọc đúng các thư mục đó.
+
+\section{Apache Cassandra: phục vụ kết quả}
+Dashboard cần đọc số liệu nhanh, liên tục. Parquet hợp cho phân tích theo lô nhưng không hợp để trả lời hàng nghìn câu
+hỏi nhỏ mỗi phút. Kết quả tạm tính vì vậy được ghi vào Cassandra~\cite{lakshman2010}.
+
+Khác CSDL quan hệ, trong Cassandra \textbf{bảng được thiết kế theo câu truy vấn}, không theo thực thể~\cite{cassandracql}.
+Khóa chính có hai phần (Hình~\ref{fig:cassandra}):
+\begin{itemize}
+  \item \textbf{Partition key} quyết định dữ liệu nằm cùng nhau ở đâu. WikiPulse dùng wiki: mọi cửa sổ của enwiki nằm
+        chung một partition.
+  \item \textbf{Clustering key} quyết định thứ tự trong partition. WikiPulse dùng thời điểm bắt đầu cửa sổ, sắp giảm dần,
+        nên các phút mới nhất luôn nằm đầu.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+  \foreach \p/\x/\rows in {enwiki/0/{00:12 | 1 sự kiện, 00:00 | 5 sự kiện},
+                           viwiki/6.6/{00:00 | 1 sự kiện}} {
+    \node[font=\footnotesize\sffamily\bfseries,anchor=west] at (\x,0.55) {partition \enquote{\p}};
+    \foreach \r [count=\i] in \rows {
+      \node[draw=wpblue,fill=lightblue,minimum width=50mm,minimum height=6mm,anchor=west] at (\x,-\i*0.65+0.1) {\r};
+    }
+  }
+  \draw[arr] (5.3,0.05) -- node[right,lab,align=left]{mới\\cũ} (5.3,-1.3);
+  \node[draw=wpgreen,fill=lightgreen,rounded corners=3pt,text width=100mm,align=left,inner sep=4pt] at (5.8,-2.3)
+    {\enquote{5 phút gần nhất của enwiki} = vào đúng partition enwiki, lấy 5 dòng đầu. Không phải quét bảng.};
+\end{tikzpicture}
+\caption{Dữ liệu hoạt động trong Cassandra. Mỗi wiki là một partition; trong partition, các cửa sổ xếp mới trước.}\label{fig:cassandra}
+\end{figure}
+
+Hai tính chất của Cassandra quyết định cách ghi:
+\begin{itemize}
+  \item Ghi một dòng có khóa đã tồn tại thì \textbf{ghi đè} (upsert), không sinh dòng mới. WikiPulse ghi \emph{tổng số}
+        của cửa sổ chứ không ghi \enquote{cộng thêm 1}, nên khi Spark ghi lại một batch sau sự cố, kết quả vẫn đúng, không
+        bị đếm đôi.
+  \item Truy vấn không chỉ rõ partition buộc Cassandra quét mọi node. Dự án cấm kiểu truy vấn này (\enquote{allow
+        filtering}); mỗi câu hỏi của API phải có bảng thiết kế riêng cho nó.
+\end{itemize}
+
+\section{FastAPI và Streamlit}
+\textbf{FastAPI} là framework Python để viết API web; kiểu dữ liệu khai báo một lần được dùng để kiểm tra đầu vào, định
+dạng đầu ra và sinh tài liệu API tự động (OpenAPI). \textbf{Streamlit} dựng giao diện dashboard bằng Python thuần, hợp với
+nhóm không có người chuyên frontend.
+
+\section{Công nghệ sử dụng}
+\begin{table}[H]
+\centering\small
+\caption{Công nghệ sử dụng và vai trò}\label{tab:congnghe}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Lựa chọn} & \textbf{Vai trò} \\ \midrule
+Hàng đợi & Apache Kafka 3.9 & Giữ sự kiện, tách nguồn khỏi xử lý, cho phép đọc lại \\
+Xử lý luồng & Spark 3.5 (PySpark) & Kiểm tra, chuẩn hóa, loại trùng, đếm theo cửa sổ \\
+Lưu trữ phân tích & Parquet (cục bộ, sau là HDFS) & Ba tầng Bronze, Silver, Gold \\
+Lưu trữ phục vụ & Apache Cassandra 4.1 & Số tạm tính cho API \\
+API & FastAPI & Cung cấp số liệu cho dashboard \\
+Giao diện & Streamlit & Dashboard bốn trang \\
+Chạy & Docker Compose & Dựng toàn bộ hệ thống bằng một lệnh, chạy trên ARM64 và x86\_64 \\
+Ngôn ngữ, kiểm thử & Python 3.11, pytest & Toàn bộ mã nguồn và kiểm thử \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\dukiensua{Thêm HDFS khi có profile đầy đủ (tuần 2--3).}
+
+% ============================================================================
+% CHƯƠNG 3: LIÊN QUAN
+% ============================================================================
+\chapter{Các công cụ và nghiên cứu liên quan}\label{chap:lienquan}
+\section{Công cụ tuần tra của cộng đồng Wikipedia}\chualam
+\section{Mô hình đánh giá chỉnh sửa của Wikimedia}\chualam
+\section{Thống kê lượt xem và xu hướng trang}\chualam
+\section{Khoảng trống mà WikiPulse nhắm tới}\chualam
+
+% ============================================================================
+% CHƯƠNG 4: PHÂN TÍCH, THIẾT KẾ VÀ CÀI ĐẶT
+% ============================================================================
+\chapter{Phân tích, thiết kế và cài đặt}\label{chap:thietke}
+
+\section{Phân tích yêu cầu}
+\subsection{Tác nhân}
+\begin{itemize}
+  \item \textbf{Người xem:} người tuần tra hoặc người quan tâm đến Wikipedia, mở dashboard để xem hoạt động, trang xu
+        hướng và các chỉnh sửa nên xem trước. Không cần đăng nhập (ngoài phạm vi MVP).
+  \item \textbf{Người vận hành:} thành viên nhóm khởi động, dừng hệ thống, phát lại dữ liệu mẫu, chuyển sang nguồn thật
+        và kiểm tra trạng thái. Người vận hành làm được mọi việc của người xem.
+  \item \textbf{Wikimedia EventStreams (hệ thống ngoài):} phát luồng sự kiện thay đổi ở chế độ LIVE.
+\end{itemize}
+
+\subsection{Biểu đồ use case}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\small\sffamily]
+  \draw[thick,rounded corners=3pt] (-3.4,1.0) rectangle (3.4,-9.9);
+  \node[font=\sffamily\bfseries] at (0,0.6) {Hệ thống WikiPulse};
+  \node[uc] (u1) at (0,-0.2) {Xem hoạt động theo wiki};
+  \node[uc,dashed] (u2) at (0,-1.2) {Xem trang xu hướng};
+  \node[uc,dashed] (u3) at (0,-2.2) {Xem chỉnh sửa cần ưu tiên};
+  \node[uc,dashed] (u4) at (0,-3.2) {Xem chi tiết một sự kiện};
+  \node[uc] (u5) at (0,-4.2) {Xem trạng thái hệ thống};
+  \node[uc] (u6) at (0,-5.5) {Khởi động, dừng hệ thống};
+  \node[uc] (u7) at (0,-6.5) {Phát lại dữ liệu mẫu};
+  \node[uc] (u8) at (0,-7.5) {Chạy kiểm thử end-to-end};
+  \node[uc,dashed] (u9) at (0,-8.9) {Thu thập luồng thật (LIVE)};
+  \pic at (-6,-1.9) {actor}; \node (nx) at (-6,-1.9) {}; \node[left] at (-6.35,-1.9) {Người xem};
+  \pic at (-6,-6.4) {actor}; \node (vh) at (-6,-6.4) {}; \node[left,align=right] at (-6.35,-6.4) {Người\\vận hành};
+  \pic at (6,-8.9) {actor}; \node (wm) at (6,-8.9) {}; \node[below,align=center] at (6,-9.4) {Wikimedia\\EventStreams};
+  \foreach \u in {1,...,5} \draw (nx) -- (u\u.west);
+  \foreach \u in {6,7,8,9} \draw (vh) -- (u\u.west);
+  \draw (wm) -- (u9.east);
+  \draw[-{Triangle[open,length=3mm,width=3mm]},thick] (-6,-5.85) -- (-6,-2.45);
+\end{tikzpicture}
+\caption{Biểu đồ use case tổng quát. Đường nối là quan hệ giữa tác nhân và use case; mũi tên tam giác rỗng là quan hệ
+khái quát hóa (người vận hành làm được mọi việc của người xem). Use case viền đứt nét là phần chưa làm.}\label{fig:usecase}
+\end{figure}
+\dukiensua{Viền đứt nét đổi thành liền khi use case tương ứng xong (tuần 2--3).}
+
+\subsection{Đặc tả các use case chính}
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả use case \enquote{Xem hoạt động theo wiki}}\label{tab:uc-hoatdong}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{3.2cm}X@{}}
+\toprule
+Tác nhân & Người xem \\
+Tiền điều kiện & Hệ thống đang chạy \\
+Luồng chính & 1. Người xem mở trang Overview, chọn wiki (mặc định enwiki).\newline
+2. Dashboard gọi API lấy các cửa sổ 1 phút mới nhất của wiki đó.\newline
+3. API đọc đúng partition của wiki trong Cassandra và trả kết quả, gắn nhãn \enquote{tạm tính}.\newline
+4. Dashboard hiện năm chỉ số (sự kiện, chỉnh sửa, trang mới, sửa ẩn danh, sửa bởi bot) và biểu đồ theo thời gian;
+tự làm mới sau 15 giây.\newline
+5. Người xem có thể chọn một cửa sổ cụ thể để xem riêng. \\
+Luồng thay thế & 3a. Chưa có dữ liệu: hiện thông báo trống, không hiện số giả.\newline
+3b. Cassandra không phản hồi: API trả lỗi \enquote{phụ thuộc chưa sẵn sàng}; dashboard báo dịch vụ chưa sẵn sàng.\newline
+1a. Wiki không nằm trong danh sách cho phép: API từ chối yêu cầu. \\
+Hậu điều kiện & Không thay đổi dữ liệu \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả use case \enquote{Phát lại dữ liệu mẫu}}\label{tab:uc-replay}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{3.2cm}X@{}}
+\toprule
+Tác nhân & Người vận hành \\
+Tiền điều kiện & Kafka đã sẵn sàng và đã có topic \\
+Luồng chính & 1. Người vận hành chạy lệnh phát lại.\newline
+2. Hệ thống đọc từng dòng của file dữ liệu mẫu, giữ nguyên định danh và thời điểm của sự kiện, thêm thời điểm nhận.\newline
+3. Hệ thống gửi từng sự kiện vào Kafka với khóa wiki và trang, chờ Kafka xác nhận.\newline
+4. Spark xử lý như với dữ liệu thật; sau khoảng 10--30 giây số liệu xuất hiện trên dashboard. \\
+Luồng thay thế & 2a. Dòng không phải JSON hợp lệ: vẫn gửi nguyên văn để kiểm tra đường xử lý bản ghi hỏng.\newline
+1a. Người vận hành chọn tốc độ phát nhanh hơn: chỉ đổi nhịp gửi, không đổi thời điểm sự kiện. \\
+Hậu điều kiện & Kafka có thêm các sự kiện mẫu; phát lại nhiều lần không làm tăng số đếm trong phạm vi watermark \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Đặc tả use case \enquote{Xem trang xu hướng}}\chualam
+\subsubsection{Đặc tả use case \enquote{Xem chỉnh sửa cần ưu tiên}}\chualam
+\subsubsection{Đặc tả use case \enquote{Xem chi tiết một sự kiện}}\chualam
+\subsubsection{Đặc tả use case \enquote{Thu thập luồng thật (LIVE)}}\chualam
+
+\subsection{Yêu cầu chức năng}
+\begin{table}[H]
+\centering\small
+\caption{Yêu cầu chức năng và trạng thái}\label{tab:ycchucnang}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+\textbf{Mã} & \textbf{Yêu cầu} & \textbf{Trạng thái} \\ \midrule
+F1 & Phát lại dữ liệu mẫu vào Kafka, giữ nguyên định danh và thời điểm sự kiện & Đã làm \\
+F2 & Nhận luồng thật từ Wikimedia, tự nối lại khi mất kết nối & Tuần 2 \\
+F3 & Kiểm tra, tách riêng bản ghi hỏng, chuẩn hóa, loại trùng & Đã làm \\
+F4 & Đếm hoạt động theo wiki, cửa sổ 1 phút; có số tạm tính và số đã chốt & Đã làm \\
+F5 & Trang xu hướng: cửa sổ 5 phút trượt mỗi 1 phút, top-N theo wiki & Tuần 2 \\
+F6 & Ưu tiên xem xét chỉnh sửa theo ba dấu hiệu: xóa nhiều nội dung, hoàn tác qua lại, sửa ẩn danh & Tuần 2 \\
+F7 & Tra cứu chi tiết một sự kiện & Tuần 2--3 \\
+F8 & Dashboard 4 trang: Overview, Trending, Suspicious Edits, System Status & Overview đã làm \\
+F9 & Lưu ba tầng trên HDFS & Tuần 2--3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\dukiensua{Cập nhật trạng thái theo từng checkpoint.}
+
+\subsection{Yêu cầu phi chức năng}
+\begin{itemize}
+  \item \textbf{Độ trễ:} số tạm tính hiện trên API trong 30--60 giây ở tải demo (mục tiêu, chưa đo). Số đã chốt chậm hơn
+        theo watermark 10 phút.
+  \item \textbf{Đúng khi chạy lại:} retry hay khởi động lại không được làm số bị đếm đôi.
+  \item \textbf{Riêng tư:} ngoài tầng thô, không nơi nào chứa tên người dùng hay IP. Người dùng được thay bằng mã băm
+        có \enquote{muối}; đây là bút danh hóa, không phải ẩn danh hóa hoàn toàn.
+  \item \textbf{Tái hiện được:} mọi kết quả kiểm thử chạy lại được bằng lệnh có sẵn.
+  \item \textbf{Tài nguyên:} chạy được trên máy 16 GB RAM, cấp cho Docker 6--8 GB.
+\end{itemize}
+
+\section{Kiến trúc tổng quan}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.86, transform shape]
+  \node[abox=24mm] (src) at (0,0) {Wikimedia\\EventStreams};
+  \node[box=24mm] (rep) at (0,-2.2) {Replay\\(dữ liệu mẫu)};
+  \node[box=24mm,dashed] (col) at (3.6,0) {Collector LIVE};
+  \node[db] (kafka) at (3.6,-2.2) {Kafka\\sự kiện thô};
+  \node[box=30mm] (spark) at (7.6,-2.2) {Spark Structured\\Streaming};
+  \node[db] (bronze) at (12.2,0.2) {Bronze\\thô, hỏng};
+  \node[db] (silver) at (12.2,-2.2) {Silver\\đã làm sạch};
+  \node[db] (gold) at (12.2,-4.6) {Gold\\đã chốt};
+  \node[db] (cass) at (7.6,-4.9) {Cassandra\\tạm tính};
+  \node[gbox=24mm] (api) at (3.6,-4.9) {FastAPI};
+  \node[gbox=24mm] (dash) at (0,-4.9) {Dashboard\\Streamlit};
+  \draw[arr,dashed] (src) -- (col);
+  \draw[arr,dashed] (col) -- (kafka);
+  \draw[arr] (rep) -- (kafka);
+  \draw[arr] (kafka) -- (spark);
+  \draw[arr] (spark) -- (bronze.west);
+  \draw[arr] (spark) -- (silver);
+  \draw[arr] (spark) -- node[below,lab]{append} (gold.west);
+  \draw[arr] (spark) -- node[right,lab]{update} (cass);
+  \draw[arr] (cass) -- (api);
+  \draw[arr] (api) -- (dash);
+\end{tikzpicture}
+\caption{Sơ đồ kiến trúc tổng quan. Nét đứt là phần chưa làm (collector LIVE, tuần 2). Màu: xanh dương là thành phần
+xử lý, xanh lá là đầu ra cho người dùng, vàng là nguồn bên ngoài.}\label{fig:kientruc}
+\end{figure}
+
+Kafka tách phần nhận khỏi phần xử lý; Spark là nơi duy nhất biến đổi dữ liệu; API và dashboard chỉ đọc kết quả. Dashboard
+không đọc Cassandra trực tiếp mà luôn đi qua API, để API là điểm duy nhất áp quy tắc riêng tư và giới hạn truy vấn.
+
+\subsection{Các thành phần và người phụ trách}
+\begin{table}[H]
+\centering\small
+\caption{Các thành phần (vị trí mã nguồn ở Phụ lục~\ref{app:ma})}\label{tab:module}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Nhiệm vụ} & \textbf{Phụ trách} \\ \midrule
+Lõi dùng chung & Đọc và kiểm tra cấu hình, ghi log dạng JSON, lớp truy cập Cassandra & Trọng, Nhân \\
+Thu thập & Phát lại dữ liệu mẫu, thu thập luồng thật & Thành \\
+Xử lý & Tiến trình Spark: các truy vấn, phép biến đổi, giám sát truy vấn & Linh \\
+Ghi kết quả & Đưa số đếm từ Spark vào Cassandra & Nhân \\
+Phục vụ & Lược đồ Cassandra, API & Nhân \\
+Giao diện & Dashboard và lớp gọi API & Mạnh \\
+Tích hợp & Docker Compose, tạo topic, dữ liệu mẫu, kiểm thử end-to-end & Trọng \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Triển khai}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.8, transform shape, font=\footnotesize\sffamily]
+  \node[udnode,text width=22mm] (kafka) at (0,0) {«container»\\\textbf{kafka}};
+  \node[udnode,text width=22mm] (spark) at (4,0) {«container»\\\textbf{spark}};
+  \node[udnode,text width=22mm] (cass) at (8,0) {«container»\\\textbf{cassandra}};
+  \node[udnode,text width=22mm] (api) at (8,-2.8) {«container»\\\textbf{api}\\cổng 18000};
+  \node[udnode,text width=22mm] (dash) at (4,-2.8) {«container»\\\textbf{dashboard}\\cổng 8501};
+  \node[udnode,text width=22mm] (rep) at (0,-2.8) {«container»\\\textbf{replay}\\chạy khi cần};
+  \begin{scope}[on background layer]
+    \node[udnode,fill=white,fit=(kafka)(cass)(rep)(api),inner xsep=6mm,inner ysep=6mm,yshift=4mm,
+          label={[font=\footnotesize\sffamily,anchor=north]north:«device» \textbf{Máy phát triển} (Docker Compose)}] (host) {};
+  \end{scope}
+  \node[udnode,text width=22mm] (browser) at (4,-6.2) {«device»\\\textbf{Trình duyệt}};
+  \draw[thick] (rep) -- node[left,guard]{Kafka} (kafka);
+  \draw[thick] (kafka) -- node[above,guard]{Kafka} (spark);
+  \draw[thick] (spark) -- node[above,guard]{CQL} (cass);
+  \draw[thick] (api) -- node[right,guard]{CQL} (cass);
+  \draw[thick] (dash) -- node[above,guard]{HTTP} (api);
+  \draw[thick] (browser) -- node[right,guard]{HTTP} (dash);
+\end{tikzpicture}
+\caption{Biểu đồ triển khai hiện tại. Các container gọi nhau bằng tên dịch vụ trong mạng Docker; chỉ API, dashboard và
+Kafka mở cổng ra máy chủ, và chỉ cho chính máy đó truy cập. Hai container khởi tạo (tạo topic, tạo lược đồ Cassandra)
+chạy một lần trước các dịch vụ chính.}\label{fig:trienkhai}
+\end{figure}
+\dukiensua{Thêm NameNode/DataNode khi có profile HDFS (W2-TRONG-01); Kubernetes ở tuần 3.}
+
+\section{Đường đi của một sự kiện}
+Hình~\ref{fig:hoatdong} cho thấy một sự kiện đi qua những bước kiểm tra nào trước khi được đếm. Mỗi nhánh rẽ đều để
+lại dấu vết: không có sự kiện nào \enquote{biến mất} mà không được lưu ở tầng thô.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize\sffamily, node distance=5mm]
+  \node[start] (s) at (0,0) {};
+  \node[act=50mm] (a1) at (0,-0.9) {Nhận sự kiện từ Kafka};
+  \node[act=50mm] (a2) at (0,-2.0) {Lưu nguyên văn vào Bronze};
+  \node[dnode] (d1) at (0,-3.2) {};
+  \node[act=40mm,fill=lightred] (x1) at (5.6,-3.2) {Lưu vào vùng bản ghi hỏng\\kèm mã lỗi};
+  \node[dnode] (d2) at (0,-4.8) {};
+  \node[act=40mm,fill=lightgray] (x2) at (5.6,-4.8) {Bỏ qua\\(chỉ còn ở Bronze)};
+  \node[act=62mm] (a3) at (0,-6.3) {Chuẩn hóa: giờ UTC, băm người dùng,\\tính chênh lệch byte, gán định danh};
+  \node[dnode] (d3) at (0,-7.8) {};
+  \node[act=40mm,fill=lightgray] (x3) at (5.6,-7.8) {Bỏ bản trùng};
+  \node[act=50mm] (a4) at (0,-9.0) {Ghi vào Silver};
+  \node[act=50mm] (a5) at (0,-10.1) {Cộng vào cửa sổ 1 phút của wiki};
+  \node[act=40mm,fill=lightgreen] (o1) at (-5.0,-11.2) {Ghi số tạm tính\\vào Cassandra (mỗi batch)};
+  \node[act=40mm,fill=lightamber] (o2) at (5.0,-11.2) {Ghi số đã chốt vào Gold\\(khi qua watermark)};
+  \node[stop] (e) at (0,-12.4) {};
+  \draw[flow] (s) -- (a1); \draw[flow] (a1) -- (a2); \draw[flow] (a2) -- (d1);
+  \draw[flow] (d1) -- node[above,guard]{[hỏng]} (x1);
+  \draw[flow] (d1) -- node[left,guard]{[hợp lệ]} (d2);
+  \draw[flow] (d2) -- node[above,guard,align=center]{[wiki ngoài danh sách\\hoặc canary]} (x2);
+  \draw[flow] (d2) -- node[left,guard]{[còn lại]} (a3);
+  \draw[flow] (a3) -- (d3);
+  \draw[flow] (d3) -- node[above,guard]{[đã thấy định danh]} (x3);
+  \draw[flow] (d3) -- node[left,guard]{[mới]} (a4);
+  \draw[flow] (a4) -- (a5);
+  \draw[flow] (a5.west) -| (o1.north);
+  \draw[flow] (a5.east) -| (o2.north);
+  \draw[flow] (o1.south) |- (e.west);
+  \draw[flow] (o2.south) |- (e.east);
+\end{tikzpicture}
+\caption{Biểu đồ hoạt động: đường đi của một sự kiện. Hình thoi là nút rẽ nhánh, điều kiện ghi trong ngoặc vuông.
+Bốn loại lỗi được ghi mã riêng: không phải JSON hợp lệ, thiếu thời điểm, thiếu wiki, thiếu trang.}\label{fig:hoatdong}
+\end{figure}
+
+\section{Biểu đồ tuần tự: người xem mở trang Overview}\chualam
+\dukiensua{Vẽ sau khi W1-MANH-01 xong, lúc luồng dashboard $\rightarrow$ API $\rightarrow$ Cassandra đã ổn định.}
+
+\section{Cấu hình và tách lần chạy}
+Mọi tham số (chế độ LIVE hay REPLAY, danh sách wiki, độ trễ watermark, địa chỉ các dịch vụ\ldots) được đọc từ biến môi
+trường và kiểm tra ngay khi khởi động, trước khi mở kết nối tốn tài nguyên. Mỗi lần chạy có một \textbf{mã lần chạy};
+dữ liệu và checkpoint của lần chạy nằm trong thư mục riêng mang mã đó, và mỗi truy vấn Spark có checkpoint riêng. Khi đổi
+schema hay nguồn dữ liệu, nhóm tạo mã lần chạy và keyspace Cassandra mới chứ không xóa checkpoint rồi ghi tiếp vào kết quả
+cũ. Kiểm thử end-to-end dùng mã lần chạy và vùng lưu trữ riêng nên không đụng dữ liệu đang dùng để phát triển.
+
+\section{Thu thập dữ liệu}
+\subsection{Kafka}
+Hệ thống dùng ba topic: sự kiện thô (3 partition), bản ghi không xử lý được (dead-letter queue) và cảnh báo của đường
+ống; một broker, mỗi partition một bản sao. Sự kiện giữ nguyên JSON của Wikimedia, chỉ thêm thời điểm nhận và phiên bản
+bộ thu thập. Khóa là wiki và mã trang (thiếu mã trang thì dùng tên trang).
+
+\subsection{Phát lại dữ liệu mẫu}
+Bộ phát lại đọc file dữ liệu mẫu và gửi từng dòng vào Kafka, giữ nguyên định danh và thời điểm sự kiện; tham số tốc độ
+chỉ đổi nhịp gửi. Dữ liệu mẫu ngày 01/01/2026 có 11 dòng, được chọn để thử đủ các nhánh ở Hình~\ref{fig:hoatdong}: 5
+chỉnh sửa enwiki, 1 trang mới viwiki, 1 bản trùng, 2 bản hỏng, 1 sự kiện canary, và 1 sự kiện lúc 00:12:10 để đẩy
+watermark qua cửa sổ 00:00 (Hình~\ref{fig:watermark}).
+
+\subsection{Thu thập luồng thật}\chualam
+
+\section{Xử lý luồng}\label{sec:spark}
+\subsection{Các truy vấn}
+Một tiến trình Spark chạy năm truy vấn độc lập, mỗi truy vấn một checkpoint (Bảng~\ref{tab:truyvan}). Bước loại trùng
+ghi kết quả ra Silver; hai truy vấn đếm đọc lại Silver. Nhờ vậy không truy vấn nào vừa loại trùng vừa đếm ở chế độ Update
+(giới hạn đã nêu ở Chương~\ref{chap:nen}).
+
+\begin{table}[H]
+\centering\small
+\caption{Các truy vấn streaming}\label{tab:truyvan}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+\textbf{Truy vấn} & \textbf{Việc làm} & \textbf{Ghi vào (chế độ)} \\ \midrule
+Bronze thô & Đọc Kafka, giữ nguyên bản ghi và vị trí trong Kafka & Parquet (append) \\
+Bronze hỏng & Đọc Kafka, lọc bản ghi hỏng, gắn mã lỗi & Parquet (append) \\
+Silver & Đọc Kafka, lọc, chuẩn hóa, loại trùng & Parquet (append) \\
+Hoạt động tạm tính & Đọc Silver, đếm theo wiki và phút & Cassandra (update) \\
+Hoạt động đã chốt & Đọc Silver, đếm như trên & Parquet Gold (append) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Định danh và loại trùng}
+Định danh của sự kiện lấy từ nguồn. Nếu nguồn không có, hệ thống tự tạo bằng cách băm các trường không đổi của sự kiện
+(wiki, trang, phiên bản, thời điểm, loại); không bao giờ dùng thời điểm nhận hay xử lý, vì như vậy cùng một sự kiện gửi
+hai lần sẽ có hai định danh khác nhau. Mọi phép biến đổi dùng hàm có sẵn của Spark, không viết hàm Python riêng, để Spark
+tối ưu được và không phải chuyển dữ liệu qua lại giữa Java và Python.
+
+\subsection{Đếm hoạt động}
+Với mỗi wiki và mỗi phút, hệ thống đếm: tổng sự kiện hợp lệ, số chỉnh sửa, số trang mới, và trong số chỉnh sửa thì bao
+nhiêu là ẩn danh, bao nhiêu là của bot.
+
+\subsection{Đặc trưng xu hướng}\chualam
+\subsection{Chấm điểm ưu tiên xem xét}\chualam
+
+\section{Lưu trữ}
+\subsection{Tầng Parquet}
+Bronze và Silver chia thư mục theo ngày và giờ của sự kiện; Gold chia theo ngày, giờ và wiki. Danh sách đầy đủ các trường
+của Silver nằm trong tài liệu contract của nhóm.
+\dukiensua{Chuyển sang HDFS ở tuần 2--3 (W2-TRONG-01, W3-LINH-01); thêm kết quả đọc lại sau khởi động lại.}
+
+\subsection{Lược đồ Cassandra}\label{sec:cassandra}
+Bảng hoạt động theo cửa sổ (Hình~\ref{fig:bangcass}) phục vụ đúng hai câu hỏi của API: \enquote{các phút mới nhất của
+một wiki} và \enquote{một phút cụ thể của một wiki}. Cách chọn khóa đã giải thích ở Hình~\ref{fig:cassandra}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=1.5, transform shape]
+\node[erd] (t) at (0,0) {\textbf{wiki\_activity\_by\_window}\nodepart{two}\begin{tabular}{@{}l@{\;}l@{\;}l@{\;}l@{}}
+PK & \textbf{wiki} & {\color{wpgray}text} & khóa partition \\
+CK$\downarrow$ & \textbf{window\_start} & {\color{wpgray}timestamp} & sắp mới trước \\
+ & window\_end & {\color{wpgray}timestamp} & \\
+ & event\_count & {\color{wpgray}bigint} & tổng sự kiện \\
+ & edit\_count & {\color{wpgray}bigint} & chỉnh sửa \\
+ & new\_page\_count & {\color{wpgray}bigint} & trang mới \\
+ & anonymous\_edit\_count & {\color{wpgray}bigint} & sửa ẩn danh \\
+ & bot\_edit\_count & {\color{wpgray}bigint} & sửa bởi bot \\
+ & updated\_at & {\color{wpgray}timestamp} & lần ghi gần nhất \\
+\end{tabular}};
+\end{tikzpicture}
+\caption{Bảng hoạt động theo cửa sổ. PK: khóa partition; CK$\downarrow$: khóa sắp xếp, giảm dần.}\label{fig:bangcass}
+\end{figure}
+
+\begin{itemize}
+  \item Spark ghi \textbf{tổng số} của cửa sổ, không ghi phần cộng thêm, nên ghi lại sau sự cố không làm đếm đôi.
+  \item Mỗi wiki thêm 1.440 dòng mỗi ngày, khoảng 525 nghìn dòng mỗi năm: đủ cho demo. Trước khi chạy LIVE dài ngày cần
+        đặt thời hạn tự xóa (TTL) hoặc chia partition theo ngày.
+  \item Trước khi ghi, mỗi dòng được kiểm tra: tên wiki hợp lệ, cửa sổ kết thúc sau khi bắt đầu, số đếm nhất quán (chỉnh
+        sửa cộng trang mới không vượt tổng; ẩn danh, bot không vượt số chỉnh sửa). Dòng sai làm batch thất bại để Spark
+        chạy lại, thay vì ghi số sai.
+\end{itemize}
+\dukiensua{Thêm bảng xu hướng, chỉnh sửa đáng ngờ, chi tiết sự kiện ở tuần 2 (W2-NHAN-01); TTL ở tuần 3 (W3-NHAN-01).}
+
+\subsection{Ghi kết quả từ Spark sang Cassandra}
+Ở mỗi batch, tiến trình chính của Spark duyệt lần lượt từng dòng kết quả (không nạp cả batch vào bộ nhớ) và ghi vào
+Cassandra. Nếu ghi lỗi, truy vấn dừng và Spark chạy lại batch đó từ checkpoint. Parquet và Cassandra không có giao dịch
+chung, nên hệ thống không cam kết \enquote{đúng một lần} trên cả hai nơi; tính đúng dựa vào việc ghi đè theo khóa ổn định.
+
+\section{API}
+\begin{table}[H]
+\centering\small
+\caption{Các endpoint}\label{tab:api}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+\textbf{Endpoint} & \textbf{Mô tả} & \textbf{Trạng thái} \\ \midrule
+\code{/health} & Kiểm tra Cassandra thật sự trả lời được & Đã làm \\
+\code{/api/v1/activity} & Hoạt động theo cửa sổ; chọn wiki, một cửa sổ cụ thể, số dòng tối đa 100 & Đã làm \\
+\code{/api/v1/trends} & Top-N trang xu hướng & Tuần 2 \\
+\code{/api/v1/suspicious-edits} & Chỉnh sửa cần ưu tiên xem xét & Tuần 2 \\
+\code{/api/v1/events/\{id\}} & Chi tiết một sự kiện & Tuần 2--3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Mọi phản hồi dữ liệu kèm thời điểm tạo, nguồn, chế độ chạy và nhãn \enquote{tạm tính}; mọi thời điểm theo UTC. Không có
+dữ liệu thì trả danh sách rỗng, không phải lỗi. Tham số sai (wiki ngoài danh sách, cửa sổ thiếu múi giờ, số dòng ngoài
+1--100) bị từ chối. Cassandra không trả lời thì API báo \enquote{phụ thuộc chưa sẵn sàng}; API vẫn khởi động được khi
+Cassandra chưa lên và tự hồi phục khi Cassandra sẵn sàng. Endpoint chưa làm trả mã \enquote{chưa triển khai} kèm người
+phụ trách và tuần, để dashboard hiện đúng trạng thái thay vì dữ liệu giả.
+\dukiensua{Thống nhất định dạng lỗi cho mọi endpoint và thêm ba endpoint ở tuần 2.}
+
+\section{Dashboard}
+Bốn trang: Overview (đã đọc dữ liệu thật: chọn wiki và cửa sổ, tự làm mới sau 15 giây), Trending, Suspicious Edits,
+System Status. Các trang chưa có dữ liệu hiện rõ là chưa triển khai, kèm người phụ trách.
+\dukiensua{Mạnh bổ sung ảnh chụp các trang (W1-MANH-01, W2-MANH-01).}
+
+% ============================================================================
+% CHƯƠNG 5: KIỂM THỬ VÀ ĐÁNH GIÁ
+% ============================================================================
+\chapter{Kiểm thử và đánh giá}\label{chap:danhgia}
+
+\section{Chiến lược kiểm thử}
+\begin{table}[H]
+\centering\small
+\caption{Các tầng kiểm thử}\label{tab:kiemthu}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+\textbf{Tầng} & \textbf{Nội dung} & \textbf{Khi chạy} \\ \midrule
+Nhẹ & Cấu hình, API, lớp truy cập Cassandra, phát lại, dashboard; Cassandra được giả lập ở tầng driver nhưng giữ đúng cách ghi đè theo khóa & Mỗi lần sửa code, vài giây \\
+Spark & Các phép biến đổi và cách điều phối truy vấn, chạy trong container có Java & Khi sửa phần xử lý \\
+Tích hợp & Lớp truy cập trên Cassandra thật, keyspace ngẫu nhiên, tự xóa sau khi chạy & Khi sửa lược đồ, truy vấn \\
+End-to-end & Dựng hệ thống riêng, phát dữ liệu mẫu hai pha, kiểm tra cả ba tầng, API và giao diện & Trước khi nghiệm thu \\
+\bottomrule
+\end{tabularx}
+\end{table}
+Lệnh chạy từng tầng ở Phụ lục~\ref{app:ma}.
+
+\section{Kết quả CP0}
+Dữ liệu mẫu ngày 01/01/2026 gồm 11 bản ghi. Kết quả chạy thật (Bảng~\ref{tab:cp0}) khớp bộ kết quả kỳ vọng; bộ này
+được viết tay độc lập, không sinh ra từ chính code xử lý.
+
+\begin{table}[H]
+\centering\small
+\caption{Kết quả CP0 trên dữ liệu mẫu, cửa sổ 2026-01-01 00:00 UTC}\label{tab:cp0}
+\begin{tabularx}{\linewidth}{@{}Xr@{}}
+\toprule
+\textbf{Chỉ tiêu} & \textbf{Kết quả} \\ \midrule
+Bản ghi Kafka / Bronze raw & 11 / 11 \\
+Bronze invalid & 2 \\
+Silver (sau loại trùng và canary) & 7 \\
+Gold cửa sổ 00:00 (đã chốt) & 2 dòng \\
+enwiki: event / edit / trang mới / ẩn danh / bot & 5 / 5 / 0 / 1 / 1 \\
+viwiki: event / edit / trang mới / ẩn danh / bot & 1 / 0 / 1 / 0 / 0 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Các lần kiểm chứng}\label{tab:kiemchung}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
+\toprule
+\textbf{Ngày} & \textbf{Máy} & \textbf{Kết quả} \\ \midrule
+11/10/2026 & Apple M3, ARM64 & 84 test nhẹ đạt; 16 test Spark đạt; kiểm thử end-to-end đạt (Trọng) \\
+15/10/2026 & Windows 11, x86\_64 & CP0 chạy lại, số khớp Bảng~\ref{tab:cp0}; phát lại lần hai không đổi số; 33 test API đạt, gồm 4 test trên Cassandra thật (Nhân) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\dukiensua{Mỗi thành viên chạy lại CP0 trên máy mình thì thêm một dòng (CP1).}
+
+\begin{ghichu}{Bài học khi chạy trên Windows}
+Hai lỗi chỉ xuất hiện trên Windows. (1) Git trên Windows mặc định đổi ký tự xuống dòng của file sang kiểu Windows (CRLF);
+script tạo topic chạy trong container Linux vì thế đọc sai và dừng. Cách sửa: khai báo cho Git luôn giữ kiểu Linux (LF)
+với mọi script shell. (2) Thư viện Cassandra cho Python cần một module đã bị gỡ khỏi Python 3.12; container dùng
+Python 3.11 nên không bị, còn máy phát triển dùng 3.12 phải cài thêm gói thay thế. Bài học: mỗi thành viên nên chạy lại
+toàn bộ hệ thống trên máy mình sớm (mốc CP1), vì lỗi môi trường không lộ ra khi chỉ chạy trên một máy.
+\end{ghichu}
+
+\section{Xu hướng và ưu tiên xem xét trên fixture vàng}\chualam
+\section{Độ trễ end-to-end}\chualam
+\section{Khởi động lại, retry và dữ liệu đến muộn}\chualam
+\section{Chạy LIVE liên tục}\chualam
+\section{Tải và dung lượng}\chualam
+
+% ============================================================================
+% CHƯƠNG 6: KẾT LUẬN
+% ============================================================================
+\chapter{Kết luận và hướng phát triển}\label{chap:ketluan}
+
+\section{Kết quả đạt được}
+Đến ngày 15/10/2026, khung end-to-end đã chạy thật ở chế độ REPLAY: Kafka nhận sự kiện, Spark kiểm tra, loại trùng,
+tổng hợp theo event time và ghi ba tầng Parquet, Cassandra phục vụ số tạm tính qua API, dashboard hiển thị trang
+Overview. Kết quả khớp bộ kỳ vọng độc lập trên hai máy khác kiến trúc. Các nguyên tắc đúng khi retry (upsert tổng tuyệt
+đối), riêng tư (không có định danh ngoài Bronze) và không dùng dữ liệu giả đã có test bảo vệ.
+\dukiensua{Viết lại khi chốt CP4.}
+
+\section{Hạn chế}
+\begin{itemize}
+  \item Một node, chưa có xác thực, phân quyền hay độ sẵn sàng cao.
+  \item Không có giao dịch chung giữa các sink; tính đúng dựa vào upsert theo khóa ổn định.
+  \item Bronze giữ payload gốc có thể chứa tên người dùng, IP; cần chính sách lưu giữ.
+\end{itemize}
+
+\section{Hướng phát triển}
+Các mục dưới đây đã có trong kế hoạch nhưng chưa thực hiện; mỗi mục được viết đầy đủ khi hoàn thành.
+
+\subsection{Collector LIVE với nối lại và đếm lỗi (W2-THANH-01)}\chualam
+\subsection{Cửa sổ trượt, đặc trưng xu hướng và điểm rủi ro (W2-LINH-01)}\chualam
+\subsection{API xu hướng, chỉnh sửa đáng ngờ và chi tiết sự kiện (W2-NHAN-01)}\chualam
+\subsection{Hoàn thiện bốn trang dashboard (W2-MANH-01)}\chualam
+\subsection{Profile HDFS và tích hợp ba tầng (W2-TRONG-01, W3-LINH-01)}\chualam
+\subsection{Retry, latest window, TTL và kiểm thử dung lượng (W3-NHAN-01)}\chualam
+\subsection{Khung Kubernetes và monitoring (W3-TRONG-01)}\chualam
+\subsection{Đóng băng, clone sạch và demo (tuần 4)}\chualam
+
+\appendix
+\chapter{Bảng tra mã nguồn}\label{app:ma}
+Phụ lục này nối các khái niệm trong báo cáo với vị trí mã nguồn, để người đọc tìm code mà không phải đọc tên file trong
+phần nội dung. Đường dẫn tính từ thư mục gốc của repo.
+
+\begin{table}[H]
+\centering\small
+\caption{Khái niệm và vị trí mã nguồn}\label{tab:trama}
+\begin{tabularx}{\linewidth}{@{}Xl@{}}
+\toprule
+\textbf{Khái niệm} & \textbf{Vị trí} \\ \midrule
+Cấu hình, kiểm tra tham số khởi động & \code{shared/wikipulse\_core/config.py} \\
+Lớp truy cập Cassandra, kiểm tra dòng trước khi ghi & \code{shared/wikipulse\_core/serving.py} \\
+Tạo topic Kafka & \code{scripts/create\_topics.sh} \\
+Phát lại dữ liệu mẫu & \code{replay/replay\_producer.py} \\
+Dữ liệu mẫu và kết quả kỳ vọng & \code{tests/fixtures/} \\
+Tiến trình Spark và năm truy vấn & \code{processing/spark/jobs/streaming\_job.py} \\
+Kiểm tra, chuẩn hóa, loại trùng, đếm & \code{processing/spark/wikipulse/transformations.py} \\
+Ghi kết quả sang Cassandra & \code{processing/spark/wikipulse/sinks.py} \\
+Thư mục theo mã lần chạy & \code{processing/spark/wikipulse/paths.py} \\
+Lược đồ Cassandra & \code{storage/cassandra/schema.cql} \\
+API & \code{api/app/main.py}, \code{api/app/models.py} \\
+Dashboard & \code{dashboard/app.py}, \code{dashboard/views/} \\
+Contract giữa các module & \code{docs/contracts.md} \\
+Bảng việc và trạng thái & \code{docs/checkpoints.md} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Lệnh thường dùng (chạy ở thư mục gốc repo)}\label{tab:lenh}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Lệnh} & \textbf{Tác dụng} \\ \midrule
+\code{make install} & Tạo môi trường Python và cài thư viện \\
+\code{make up} & Dựng và khởi động toàn bộ hệ thống \\
+\code{make replay} & Phát lại dữ liệu mẫu vào Kafka \\
+\code{make down} & Dừng hệ thống, giữ dữ liệu \\
+\code{make test} & Chạy kiểm thử nhẹ \\
+\code{make test-spark} & Chạy kiểm thử Spark trong container \\
+\code{pytest -m integration api/tests} & Kiểm thử trên Cassandra thật (cần đặt địa chỉ Cassandra qua biến môi trường) \\
+\code{make smoke} & Kiểm thử end-to-end trên hệ thống riêng, tự dọn sau khi chạy \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage\phantomsection
+\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
