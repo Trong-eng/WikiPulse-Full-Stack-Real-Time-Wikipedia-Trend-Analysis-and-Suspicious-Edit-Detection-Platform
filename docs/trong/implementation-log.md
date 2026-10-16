@@ -22,4 +22,4 @@ Ngày11/10/2026. User yêu cầu lưu kế hoạch plans.md và triển khai vi�
 - HDFS chỉ cấu hình dự kiến tuần1, profile thực được owner hoàn thiện tuần2; CP0 kiểm chứng volume local. Đây là ranh giới đã chốt trong kế hoạch.
 - Không ghi DONE việc của người khác; baseline đã có chỉ là điểm bàn giao. CP1 vẫn cần người khác chạy lại từ clone sạch.
 
-Raw logs/build outputs ở /private/tmp/wikipulse-*.log, smoke evidence artifacts/<run_id>. Report tóm tắt kiểm chứng sẽ được lưu tracked trong docs/verification.md.
+Raw logs/build outputs ở /private/tmp/wikipulse-*.log, smoke evidence artifacts/<run_id>. Report tóm tắt kiểm chứng sẽ được lưu tracked trong docs/trong/verification.md.

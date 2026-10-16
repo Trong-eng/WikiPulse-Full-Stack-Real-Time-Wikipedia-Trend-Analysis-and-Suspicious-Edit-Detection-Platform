@@ -34,6 +34,10 @@ Làm theo bên có ưu tiên cao hơn, đồng thời ghi item backlog cho owner
 
 ## 4. Bản đồ docs — mỗi chủ đề một nơi
 
+`docs/` có hai tầng:
+- **Tầng chung** (gốc `docs/` và `docs/plans/`): tài liệu nhiều người cùng sửa, hoặc là nguồn chuẩn mà module khác làm theo (plan, checkpoints, backlog, contract, kiến trúc, …).
+- **`docs/<owner>/`**: tài liệu do một người viết và chịu trách nhiệm, chỉ owner sửa. `<owner>` là tên không dấu viết thường, giống tiền tố branch: `trong`, `thanh`, `linh`, `nhan`, `manh`. File đặt phẳng trong folder, tên kebab-case, ví dụ `docs/thanh/ingestion-spike.md`.
+
 | Chủ đề | File / pattern | Owner |
 |---|---|---|
 | Kế hoạch tổng, phân công 4 tuần | `plans.md` | Trọng |
@@ -42,12 +46,18 @@ Làm theo bên có ưu tiên cao hơn, đồng thời ghi item backlog cho owner
 | Contract giữa module, kể cả bản nháp | `docs/contracts.md` (nháp: sửa thẳng trên PR draft) | producer + consumer |
 | Kiến trúc, luồng dữ liệu, data dictionary | `docs/architecture.md`, `docs/data-flow.md`, `docs/data-dictionary.md` | Trọng; owner module sửa phần của mình |
 | Setup, lệnh chạy, branch, ownership | `README.md`, `docs/development.md` | Trọng |
-| Lịch sử nghiệm thu CP0 (đóng băng) | `docs/verification.md`, `docs/implementation-log.md` | Trọng |
+| Lịch sử nghiệm thu CP0 (đóng băng) | `docs/trong/verification.md`, `docs/trong/implementation-log.md` | Trọng |
 | Plan, nhật ký, kết quả từng việc | `docs/plans/<ID>.md`, `docs/plans/<owner>-<slug>.md` | owner |
-| Khảo sát nguồn hoặc công cụ bên ngoài | `docs/<chủ-đề>-spike.md` | người làm spike |
+| Tài liệu riêng của một người: spike (`<chủ-đề>-spike.md`), ghi chú thiết kế, nghiên cứu, đo đạc. Không dùng cho plan, nhật ký, review, trạng thái, contract hay lệnh chạy/flags (đã có chỗ riêng) | `docs/<owner>/<chủ-đề>.md` | `<owner>` |
 | Cách chạy, flags, giới hạn của module | `<module>/README.md` (kể cả thư mục con, ví dụ `storage/cassandra/README.md`) | owner module |
 | Báo cáo LaTeX (sau khi merge branch `nhan/bao-cao-ky-thuat`) | `docs/bao-cao-ky-thuat/` | Nhân; mỗi owner viết mục của mình |
 | Quy trình cho người và agent | `AGENTS.md`, `CLAUDE.md` (chỉ `@AGENTS.md`) | Trọng |
+
+**Gốc hay folder riêng**:
+- Plan, backlog, checkpoint và contract **luôn** ở tầng chung, kể cả khi chỉ một người làm, vì các file khác link tới chúng theo ID.
+- Phần của bạn trong một file chung (ví dụ mục ingestion trong `architecture.md`) thì sửa ngay trong file chung, không tách ra folder riêng.
+- Tài liệu riêng mà module khác bắt đầu phụ thuộc (code hoặc test làm theo nội dung đó) thì chuyển lên tầng chung hoặc gộp vào file chung, sửa link và bảng trong cùng PR. Chỉ được trích số liệu làm `Nguồn:` trong backlog thì chưa tính là phụ thuộc. Link nằm trong file của người khác thì mở item backlog cho owner.
+- Không tạo sẵn folder rỗng; folder ra đời cùng file đầu tiên.
 
 **Tạo file `.md` mới**:
 - Trước khi tạo, tìm trong bảng trên. Nếu chủ đề đã có file thì ghi vào file đó.
@@ -66,7 +76,7 @@ Làm theo bên có ưu tiên cao hơn, đồng thời ghi item backlog cho owner
 
 ## 6. Quy tắc cứng
 
-- **Ownership**: chỉ sửa file thuộc module của mình (xem bảng ownership trong `README.md`/`docs/development.md`). Thấy file của người khác sai hoặc lệch: thêm item backlog vào mục của owner, không tự sửa.
+- **Ownership**: chỉ sửa file thuộc module của mình và folder `docs/<owner>/` của mình (xem bảng ownership trong `README.md`/`docs/development.md`). Thấy file của người khác sai hoặc lệch: thêm item backlog vào mục của owner, không tự sửa.
 - **Contract**: thay đổi phải được producer và consumer review.
 - **DONE**: chỉ đánh DONE khi có evidence chạy lại được. Không đánh DONE thay người khác.
 - **Privacy**: không đưa username/IP thật vào API, docs, fixture hay log được commit. Dữ liệu LIVE muốn commit phải được pseudonymize và có test chặn lộ.

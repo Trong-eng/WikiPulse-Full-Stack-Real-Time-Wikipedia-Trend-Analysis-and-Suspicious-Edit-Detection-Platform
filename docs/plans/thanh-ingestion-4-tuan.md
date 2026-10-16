@@ -2,7 +2,7 @@
 
 Trạng thái: ACTIVE · Owner: Thành · Reviewer: Trọng, Linh · Liên quan: W1–W4-THANH-01
 
-Phạm vi: W1–W4-THANH-01 trong [checkpoints](../checkpoints.md). Kế hoạch này chi tiết hóa phần việc của Thành trong [plans.md](../../plans.md); nó không thay đổi contract. Mọi đổi contract vẫn qua PR có Linh (consumer) review. Kết quả spike EventStreams ở [ingestion-spike.md](../ingestion-spike.md).
+Phạm vi: W1–W4-THANH-01 trong [checkpoints](../checkpoints.md). Kế hoạch này chi tiết hóa phần việc của Thành trong [plans.md](../../plans.md); nó không thay đổi contract. Mọi đổi contract vẫn qua PR có Linh (consumer) review. Kết quả spike EventStreams ở [ingestion-spike.md](../thanh/ingestion-spike.md).
 
 ## Quyết định xuyên suốt
 

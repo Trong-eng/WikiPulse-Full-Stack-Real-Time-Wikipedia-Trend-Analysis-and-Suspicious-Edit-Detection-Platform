@@ -6,7 +6,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 
 | Mốc | Owner nghiệm thu | Trạng thái | Tiêu chí | Bằng chứng |
 |---|---|---|---|---|
-| CP0 | Trọng | DONE | REPLAY thật qua Kafka/Spark/3 tầng Parquet/Cassandra/API/Overview | docs/verification.md; smoke status=passed ngày11/10/2026 |
+| CP0 | Trọng | DONE | REPLAY thật qua Kafka/Spark/3 tầng Parquet/Cassandra/API/Overview | docs/trong/verification.md; smoke status=passed ngày11/10/2026 |
 | CP1 | Cả nhóm; Trọng tổng hợp | TODO | Người khác clone/chạy lại CP0; nhận module/contracts/test đầu tiên | PR và log máy thứ hai |
 | CP2 | Cả nhóm | TODO | LIVE/REPLAY, windows/risk/trend, UI thật, HDFS khởi động | Fixture assertions + LIVE logs |
 | CP3 | Cả nhóm | TODO | E2E HDFS; late data/restart/retry/Gold finalized | Logs + output checks |
@@ -20,7 +20,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 | W1-TRONG-02 | Trọng | Thành, Nhân | 01 | Config/env/Compose core, topic và CQL init, Docker ARM64 | 3 | DONE | Build images ARM64; Compose config; E2E pass |
 | W1-TRONG-03 | Trọng | Linh, Nhân | 01,02 | Ghép minimal replay/Spark/Parquet/Cassandra/API hoạt động | 3 | DONE | Activity5/1; Bronze11/invalid2/Silver7/Gold2; smoke pass |
 | W1-TRONG-04 | Trọng | Mạnh | 02,03 | Makefile, fixtures, smoke cô lập, README và hướng dẫn bàn giao | 2 | DONE | README; make test84passed; lint/config pass |
-| W1-TRONG-05 | Trọng | Cả nhóm | 04 | Nghiệm thu kỹ thuật CP0, code review và bộ tài liệu handoff | 2 | DONE | docs/verification.md; team tự review contracts/rerun ở CP1 |
+| W1-TRONG-05 | Trọng | Cả nhóm | 04 | Nghiệm thu kỹ thuật CP0, code review và bộ tài liệu handoff | 2 | DONE | docs/trong/verification.md; team tự review contracts/rerun ở CP1 |
 
 ## Đầu việc 4 tuần của 5 role
 

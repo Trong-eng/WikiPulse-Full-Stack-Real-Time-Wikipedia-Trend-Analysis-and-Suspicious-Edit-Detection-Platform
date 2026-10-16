@@ -13,7 +13,7 @@ Replay báo lỗi rõ ràng và có test đầy đủ. Có envelope Kafka dùng 
 
 ## Các bước
 
-- [x] Spike EventStreams 30 phút → [ingestion-spike.md](../ingestion-spike.md)
+- [x] Spike EventStreams 30 phút → [ingestion-spike.md](../thanh/ingestion-spike.md)
 - [x] Chạy lại CP0 trên Windows 11 (CP1)
 - [x] Envelope dùng chung + sửa key khi `wiki: null`
 - [x] Replay: `run_replay`, exit code 0/1/2/3, `close()` không che exit code, đọc file có BOM
@@ -29,7 +29,9 @@ Replay báo lỗi rõ ràng và có test đầy đủ. Có envelope Kafka dùng 
 
 ## Nhật ký
 
-- 2026-10-15 — spike, CP1, envelope, replay error handling, LIVE sample, docs. Mỗi task có một subagent review riêng, cuối cùng có thêm một lượt review toàn branch. Commit `2c2a98e` (envelope); phần còn lại nằm ở các commit tiếp theo trên branch (chưa push). Evidence CP1 của Thành nằm ở mục Kết quả để Trọng tổng hợp ([BL-THANH-13](../backlog.md#trọng)).
+- 2026-10-15 — spike, CP1, envelope, replay error handling, LIVE sample, docs. Mỗi task có một subagent review riêng, cuối cùng có thêm một lượt review toàn branch. Commit `2c2a98e` (envelope); phần còn lại nằm ở các commit tiếp theo trên branch (chưa push lúc ghi; Thành fast-forward vào `main` và push cùng ngày, `origin/main` = `6951779`). Evidence CP1 của Thành nằm ở mục Kết quả để Trọng tổng hợp ([BL-THANH-13](../backlog.md#trọng)).
+- 2026-10-15 — thêm phần giải thích tiếng Việt ở đầu mọi file code trong `ingestion/` và `replay/` (không đổi hành vi; `--help` của replay giữ nguyên); subagent review, sửa 2 Important + 8 Minor về độ chính xác, kèm sửa 2 gạch đầu dòng (key, surrogate) trong mục Envelope của `replay/README.md`; header dạng comment cho `replay/Dockerfile` và `replay/requirements.txt` — commit `docs(ingestion,replay): Vietnamese module and function docstrings`
+- 2026-10-15 — chuyển docstring/comment của mọi hàm, class và hàm test trong `ingestion/`, `replay/` sang tiếng Việt (log, thông báo lỗi và `--help` giữ tiếng Anh); AST bỏ docstring giống HEAD, trừ description argparse. Subagent review lượt 2: bổ sung docstring còn thiếu, sửa độ chính xác và thuật ngữ, rút header `envelope.py`/`replay_producer.py` để không lặp docstring — commit `docs(ingestion,replay): Vietnamese module and function docstrings`
 
 ## Kết quả
 

@@ -34,5 +34,5 @@ Endpoint: `https://stream.wikimedia.org/v2/stream/recentchange`.
 
 ## Việc cần báo các owner khác
 
-Đã ghi thành item trong [backlog](backlog.md); owner xử lý ở đó, file này chỉ giữ số liệu đo được:
-[BL-THANH-19](backlog.md#linh) temporary account không được tính là anonymous · BL-THANH-20 canary vào `bronze/invalid` · BL-THANH-21 event thiếu `user` · [BL-THANH-05](backlog.md#cần-nhóm-quyết-định) ý nghĩa `event_count` khi categorize chiếm 36% · [BL-THANH-08](backlog.md#trọng) retention · [BL-THANH-24](backlog.md#mạnh) đồng hồ/NTP trước khi đo độ trễ.
+Đã ghi thành item trong [backlog](../backlog.md); owner xử lý ở đó, file này chỉ giữ số liệu đo được:
+[BL-THANH-19](../backlog.md#linh) temporary account không được tính là anonymous · BL-THANH-20 canary vào `bronze/invalid` · BL-THANH-21 event thiếu `user` · [BL-THANH-05](../backlog.md#cần-nhóm-quyết-định) ý nghĩa `event_count` khi categorize chiếm 36% · [BL-THANH-08](../backlog.md#trọng) retention · [BL-THANH-24](../backlog.md#mạnh) đồng hồ/NTP trước khi đo độ trễ.
