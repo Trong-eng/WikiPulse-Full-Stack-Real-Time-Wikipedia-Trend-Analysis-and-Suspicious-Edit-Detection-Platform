@@ -1,2 +1,4 @@
+# Thư viện cho image replay/collector (replay/Dockerfile): kafka-python để gửi vào Kafka,
+# pydantic là dependency của package wikipulse-core (shared/, khai báo trong pyproject.toml).
 kafka-python==2.1.2
 pydantic==2.10.6

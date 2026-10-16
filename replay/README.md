@@ -36,9 +36,11 @@ optional BOM.
 - payload: source JSON unchanged plus `ingested_at` (ISO UTC) and `collector_version`
   (`replay-<COLLECTOR_VERSION>`, default `replay-0.1.0`; LIVE uses `live-…`). Compose does not
   forward `COLLECTOR_VERSION` yet, so in containers it is always the default;
-- key: `wiki:page_id`, falling back to `wiki:title`, then `unknown` for a missing or null part;
+- key: `wiki:page_id`, falling back to `wiki:title` when page_id is missing or null; a missing,
+  null or empty wiki/title becomes `unknown` (page_id 0 is kept);
 - malformed or non-object JSON is sent unchanged and unkeyed so Spark quarantines it in
-  `bronze/invalid`; strings that are not valid UTF-8 (lone surrogate escapes) stay `\u`-escaped.
+  `bronze/invalid`; an event with a lone surrogate escape (e.g. `\ud800`) is still stamped and
+  keyed, but its whole payload is ASCII-escaped (`\uXXXX` for every non-ASCII character).
 
 ## Limits
 
