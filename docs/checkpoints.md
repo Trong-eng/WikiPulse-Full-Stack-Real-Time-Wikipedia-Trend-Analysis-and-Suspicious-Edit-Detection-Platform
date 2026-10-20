@@ -29,7 +29,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 | ID | Owner | Reviewer | Phụ thuộc | Đầu ra / điều kiện DONE | Giờ | Trạng thái | Evidence |
 |---|---|---|---|---|---|---|---|
 | W1-THANH-01 | Thành | Trọng, Linh | contracts | Tiếp quản replay/topics, kiểm tra fixture/key/producer errors | 10–15 | REVIEW | [docs/plans/W1-THANH-01.md](plans/W1-THANH-01.md) |
-| W1-LINH-01 | Linh | Trọng, Nhân | contracts | Tiếp quản schema/validation/ID/Silver/activity, đọc/test sample | 10–15 | TODO | PR + sample output |
+| W1-LINH-01 | Linh | Trọng, Nhân | contracts | Tiếp quản schema/validation/ID/Silver/activity, đọc/test sample | 10–15 | REVIEW | [docs/plans/W1-LINH-01.md](plans/W1-LINH-01.md) |
 | W1-NHAN-01 | Nhân | Trọng, Mạnh | contracts | Tiếp quản CQL/sink/API, review khóa và API schema | 10–15 | REVIEW | docs/serving-review.md; api tests 33 passed (4 integration trên Cassandra thật); CP0 chạy lại trên Windows ngày 15/10/2026 |
 | W1-MANH-01 | Mạnh | Trọng, Nhân | API contract | Tiếp quản 4 trang/client/Overview, chạy CP0 máy mình | 10–15 | TODO | UI screenshots + smoke |
 | W2-TRONG-01 | Trọng | Linh | CP1 | HDFS profile, readiness/config, hai lần tích hợp | 10–15 | TODO | Full profile start logs |

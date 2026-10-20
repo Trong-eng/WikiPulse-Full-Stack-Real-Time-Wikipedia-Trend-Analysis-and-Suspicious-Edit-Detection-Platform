@@ -58,3 +58,61 @@ docker run --rm -v "$PWD:/workspace" wikipulse-spark:0.1.0 \
 The suite covers validation, normalization, pseudonymization, canary handling,
 activity counts, duplicate/restart behavior, finalized Gold, and driver cleanup.
 Trend and suspicious-edit analytics belong to the subsequent weekly checkpoints.
+
+## Week-one verification
+
+From the repository root, build the current source before running the suite.
+Compose copies the source into the image; editing a local test does not update
+an already built image.
+
+```sh
+docker compose build spark
+docker compose run --rm --no-deps spark python -m pytest processing/spark/tests -q --capture=tee-sys
+```
+
+The additional contract checks exercise:
+
+- UTC conversion across date boundaries, millisecond precision, source-time
+  priority, epoch fallback, and UTC Parquet partitions.
+- Mixed valid/invalid batches, nullable fields, title-only/page-ID-only events,
+  and ingestion-time fallback to the Kafka timestamp.
+- Empty source IDs, stable fallback IDs for equivalent instants, distinct event
+  identities, and source-ID priority.
+- Salt-dependent user hashes and Silver Parquet round trips without raw user,
+  comment, or payload columns.
+- Minute boundaries, wiki isolation, event-type counters, and the flattened
+  activity schema consumed by the Cassandra writer.
+
+To inspect the pseudonymized LIVE fixture through the actual Spark parser,
+normalizer and activity aggregation:
+
+```sh
+docker compose run --rm --no-deps spark python -m pytest processing/spark/tests/test_transformations.py -q -k live_sample --capture=tee-sys
+```
+
+This test reads `tests/fixtures/recentchange_live_sample.jsonl` from disk. It
+checks accepted IDs, title-based events with no `page_id`, millisecond timestamps,
+nullable fields, pseudonymization, and independently specified activity totals.
+`LIVE_SAMPLE_REPORT=` prints aggregate counts and observations for the pending
+backlog items, without usernames, hashes, titles, or raw payloads. Missing-user
+observations use two synthetic events because the LIVE fixture does not contain
+that case. Observations are diagnostics; test success does not resolve them.
+
+## Known LIVE limitations
+
+See [the Linh backlog](../docs/backlog.md#linh) for the tracked findings:
+
+- **BL-THANH-19:** temporary accounts are not recognized by the current
+  `anon`/IP-based detection, so anonymous edit counts can be understated.
+- **BL-THANH-20:** a sparse canary with only schema/meta is kept in Bronze and
+  excluded from Silver, but also enters invalid quarantine as `MISSING_WIKI`.
+- **BL-THANH-21:** absent/null users currently receive the same non-null salted
+  hash. It must not be treated as evidence of a shared editor identity.
+
+The fixes and any consumer-facing changes need the reviews recorded in
+[the week-one plan](../docs/plans/W1-LINH-01.md). The current activity code counts
+valid `categorize`/`log` events in `event_count`; the edit counters count only
+`type=edit`, and `new_page_count` counts `type=new`. Display semantics are tracked
+in [BL-THANH-05](../docs/backlog.md#cần-nhóm-quyết-định).
+Canonical interface definitions remain in [contracts](../docs/contracts.md);
+run results and reviewer handoff remain in the week-one plan.
