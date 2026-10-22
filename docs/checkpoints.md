@@ -35,7 +35,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 | W2-TRONG-01 | Trọng | Linh | CP1 | HDFS profile, readiness/config, hai lần tích hợp | 10–15 | TODO | Full profile start logs |
 | W2-THANH-01 | Thành | Trọng, Linh | W1-THANH | SSE LIVE, backoff/reconnect/counters, chung envelope | 10–15 | TODO | LIVE Kafka records + reconnect test |
 | W2-LINH-01 | Linh | Trọng, Nhân | W1-LINH | Windows 1m/5m-slide1m, dedup/late, features/risk/trend | 10–15 | TODO | Golden fixture tests |
-| W2-NHAN-01 | Nhân | Linh, Mạnh | W2-LINH contract | Trends/suspicious/detail, query keys/capacity/errors | 10–15 | TODO | Endpoint + idempotent sink tests |
+| W2-NHAN-01 | Nhân | Linh, Mạnh | W2-LINH contract | Trends/suspicious/detail, query keys/capacity/errors | 10–15 | IN_PROGRESS | [docs/plans/W2-NHAN-01.md](plans/W2-NHAN-01.md) |
 | W2-MANH-01 | Mạnh | Nhân | API examples | Hoàn thiện 4 trang/filter/empty/error/provisional | 10–15 | TODO | UI acceptance evidence |
 | W3-TRONG-01 | Trọng | Linh | CP2 | Tích hợp full HDFS, persistence; K8s/monitor skeleton | 10–15 | TODO | Full E2E logs |
 | W3-THANH-01 | Thành | Linh | W2-THANH | Replay timing/speed, Kafka outage, fixtures regression | 10–15 | TODO | Producer/replay recovery tests |
