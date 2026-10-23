@@ -56,8 +56,9 @@ Format, mỗi item 1–3 dòng:
 
 ## Nhân
 
-- **BL-THANH-22** · PROPOSED · tech-debt · P3 · owner: Nhân — Đề xuất theo AGENTS.md: khi merge, đổi `docs/serving-review.md` thành plan `docs/plans/W1-NHAN-01.md`. Phần ghi chú thiết kế thì đặt ở `docs/nhan/`; review và nhật ký vẫn vào plan. Nguồn: branch `nhan/w1-cassandra-api-takeover` · Lịch: —
+- **BL-THANH-22** · DONE (PR #5) · tech-debt · P3 · owner: Nhân — Đề xuất theo AGENTS.md: khi merge, đổi `docs/serving-review.md` thành plan `docs/plans/W1-NHAN-01.md`. Phần ghi chú thiết kế thì đặt ở `docs/nhan/`; review và nhật ký vẫn vào plan. Nguồn: branch `nhan/w1-cassandra-api-takeover` · Lịch: —
   - 2026-10-16 Thành: PR #1 đã merge, `docs/serving-review.md` đang ở `main` và nằm ngoài bản đồ docs của AGENTS.md §4.
+  - 2026-10-22 Nhân: chuyển toàn bộ nội dung vào [W1-NHAN-01](plans/W1-NHAN-01.md), xóa `docs/serving-review.md`; checkpoint link tới plan. Không cần `docs/nhan/` vì phần thiết kế tuần 2 đã nằm trong contract (PR #3).
 - **BL-THANH-23** · PROPOSED · tech-debt · P3 · owner: Nhân — Đề xuất theo AGENTS.md: nháp `docs/contracts-w2-draft.md` sửa thẳng vào `docs/contracts.md` trên PR draft, không giữ file nháp riêng. Nguồn: branch `nhan/w2-serving-contract-draft` · Lịch: đề xuất W2-NHAN-01
 
 ## Mạnh
