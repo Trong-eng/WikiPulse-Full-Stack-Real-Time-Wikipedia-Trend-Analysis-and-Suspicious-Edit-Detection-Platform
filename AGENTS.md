@@ -41,6 +41,7 @@ Làm theo bên có ưu tiên cao hơn, đồng thời ghi item backlog cho owner
 | Chủ đề | File / pattern | Owner |
 |---|---|---|
 | Kế hoạch tổng, phân công 4 tuần | `plans.md` | Trọng |
+| Tổng kết tiến độ tuần gửi cấp trên (đóng băng sau khi gửi; chỉ tóm tắt và link tới checkpoints/plan) | `tong-ket-<N>.md` (root, `<N>` là số tuần) | Trọng (hoặc người Trọng giao tổng hợp tuần đó) |
 | Việc có lịch, trạng thái, link evidence | `docs/checkpoints.md` | owner từng dòng; Trọng tổng hợp |
 | Việc chưa có lịch, quyết định chờ chốt, nợ kỹ thuật, phát hiện cross-team, sau MVP | `docs/backlog.md` | người tạo item / owner item |
 | Contract giữa module, kể cả bản nháp | `docs/contracts.md` (nháp: sửa thẳng trên PR draft) | producer + consumer |

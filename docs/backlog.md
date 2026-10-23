@@ -27,6 +27,7 @@ Format, mỗi item 1–3 dòng:
 ## Trọng
 
 - **BL-THANH-06** · PROPOSED · bug · P2 · owner: Trọng — Makefile không chạy được trên Windows: `install` gọi `python3`, `PYTHON ?= .venv/bin/python`, `.venv/bin/ruff`; Windows mặc định không có `make`. Nguồn: `Makefile:1,8,30` · Lịch: —
+  - 2026-10-23 Thành: đã viết `scripts/wikipulse.ps1` (UTF-8 có BOM để PowerShell 5.1 đọc đúng comment tiếng Việt) với các target tương ứng `Makefile` (`help`, `install`, `build`, `up`, `init`, `replay`, `down`, `logs`, `config`, `test`, `test-spark`, `lint`, `smoke`). Script không tạo `.venv`, chỉ chạy khi `.venv` đã có ở root; `smoke` tự đặt `PYTHONUTF8=1` (BL-THANH-11). Đã chạy thử mọi target trên Windows 11, `smoke` passed; `Makefile` giữ nguyên. Lệnh gốc từng bước ở [tong-ket-1.md](../tong-ket-1.md#5-cách-chạy-lại-kết-quả-tuần-1-windows). Trọng duyệt: giữ thì thêm vào README/development.md và đóng item, không đồng ý thì xóa file.
 - **BL-THANH-07** · PROPOSED · tech-debt · P2 · owner: Trọng — Thêm `.gitattributes` `*.sh text eol=lf`, vì checkout có `autocrlf=true` sẽ làm hỏng script được mount vào container. Nhân đã có file này trên branch `nhan/w1-cassandra-api-takeover`. Nguồn: `scripts/create_topics.sh` · Lịch: —
   - 2026-10-16 Thành: `.gitattributes` (`*.sh text eol=lf`) đã lên `main` qua PR #1 của Nhân; Trọng xác nhận rồi đóng item.
 - **BL-THANH-08** · PROPOSED · tech-debt · P2 · owner: Trọng — Đặt retention cho topic raw: LIVE khoảng 3,4 GB/ngày, mà retention mặc định của Kafka là 7 ngày. `docs/development.md` dự kiến xử lý retention ở tuần 3. Nguồn: [ingestion-spike.md](thanh/ingestion-spike.md#lưu-lượng), `scripts/create_topics.sh` · Lịch: đề xuất W3-TRONG-01
@@ -39,6 +40,8 @@ Format, mỗi item 1–3 dòng:
 - **BL-THANH-31** · PROPOSED · tech-debt · P3 · owner: Trọng — Đưa script kiểm docs (link tương đối + mọi `*.md` khớp bản đồ docs trong AGENTS.md) vào `scripts/` và chạy trong `make test`/CI. Bản tạm nằm trong [thanh-agents-backlog](plans/thanh-agents-backlog.md#kết-quả). Nguồn: AGENTS.md §4 · Lịch: —
 - **BL-THANH-32** · PROPOSED · decision · P3 · owner: Trọng — AGENTS.md §4 thêm folder docs theo người `docs/<owner>/`. Trọng quyết `docs/verification.md` và `docs/implementation-log.md` (lịch sử CP0 do Trọng viết) ở lại gốc `docs/` như tài liệu chung hay chuyển vào `docs/trong/`; nếu chuyển thì trong cùng PR sửa link, dòng bảng §4 của AGENTS.md và pattern của script kiểm docs. Nguồn: [thanh-agents-backlog](plans/thanh-agents-backlog.md#quyết-định) · Lịch: —
   - 2026-10-16 Thành: đã chuyển cả hai file vào `docs/trong/` theo yêu cầu của Thành, sửa tham chiếu trong `docs/checkpoints.md` (CP0, W1-TRONG-05), AGENTS.md §4 và script kiểm docs. `docs/development.md` giữ ở gốc vì là hướng dẫn setup/branch chung. Thay đổi được push thẳng lên `main` theo yêu cầu của Thành, không qua PR: Trọng xem commit, giữ thì đóng item, không đồng ý thì revert.
+- **BL-THANH-33** · PROPOSED · decision · P2 · owner: Trọng — AGENTS.md §4 thêm dòng bản đồ docs cho `tong-ket-<N>.md` (tổng kết tuần gửi cấp trên, ở root, đóng băng sau khi gửi). Thành thêm theo yêu cầu của Thành khi viết `tong-ket-1.md`; Trọng duyệt giữ, đổi chỗ (vd. `docs/tong-ket/`) hoặc revert. Nguồn: [tong-ket-1.md](../tong-ket-1.md) · Lịch: —
+- **BL-THANH-34** · PROPOSED · finding · P1 · owner: Trọng — CP1 chưa đóng: 4 việc W1 (THANH, LINH, NHAN, MANH) đều REVIEW mà chưa có review. Ngày 23/10 bốn nhánh `nhan/w1-nhan-01-plan`, `nhan/w2-serving-contract-draft` (PR #3 còn draft), `manh/w1-manh-01-dashboard-takeover`, `linh_tuan_1` được gộp thẳng vào `main` theo yêu cầu của Thành, không qua PR. Cần review chéo sau merge và tổng hợp evidence máy thứ hai. Nguồn: `docs/checkpoints.md` (CP1), [tong-ket-1.md](../tong-ket-1.md#4-rủi-ro-và-đề-xuất) · Lịch: —
 
 ## Thành
 
@@ -47,6 +50,8 @@ Format, mỗi item 1–3 dòng:
 - **BL-THANH-16** · OPEN · tech-debt · P2 · owner: Thành — `encode_event` trả `(None, raw)` cho mọi loại lỗi parse, nên counter `parse_errors` của collector không phân biệt được các loại. Nguồn: `ingestion/envelope.py` · Lịch: W2-THANH-01
 - **BL-THANH-17** · OPEN · tech-debt · P3 · owner: Thành — Các edge case của envelope: `now` không có timezone ra ISO không offset; `page_id=""` ra key `enwiki:`; `COLLECTOR_VERSION=""` ra `replay-`; `ingestion/` chưa có `__init__.py`. Nguồn: `ingestion/envelope.py` · Lịch: —
 - **BL-THANH-18** · OPEN · tech-debt · P3 · owner: Thành — `except Exception` trong `run_replay` bọc cả lỗi lập trình thành `send_error`; nên thu hẹp về `KafkaError`. Nguồn: `replay/replay_producer.py` `run_replay` · Lịch: —
+- **BL-THANH-35** · DONE (commit `541cf9b`, kiểm ngày 23/10) · tech-debt · P1 · owner: Thành — Sau khi gộp 4 nhánh ngày 23/10 mới chạy lại unit test (121 passed), ruff và `docker compose config`; chưa chạy lại test Spark vì Docker Desktop tắt (thử bật lại báo "Docker Desktop is unable to start"). Số Spark trong `tong-ket-1.md` lấy từ lần chạy ngày 20/10 của Linh. Chạy `docker compose run --rm --no-deps spark python -m pytest processing/spark/tests -q` trước khi push. Nguồn: `processing/README.md` · Lịch: —
+  - 2026-10-23 Thành: Docker đã chạy. Spark 26 passed; Cassandra thật (cassandra:4.1.8, container tạm `wikipulse-it` theo [W1-NHAN-01](plans/W1-NHAN-01.md#kết-quả)) 4 passed, `api/tests` 33 passed; unit 121 passed. Venv cũ thiếu `pyasyncore==1.0.4` (dependency Nhân thêm ở PR #1) nên lần đầu lỗi `DependencyException`; cài lại theo `pyproject.toml` là chạy được. `tong-ket-1.md` đã sửa câu số liệu.
 
 ## Linh
 
@@ -56,6 +61,7 @@ Format, mỗi item 1–3 dòng:
   - 2026-10-20 Linh: đã nhận và tái hiện bằng Spark; canary không vào Silver/activity. Evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live); cần review cách phân loại canary/quarantine trước khi thay đổi.
 - **BL-THANH-21** · OPEN · finding · P3 · owner: Linh — Event thiếu `user` đều nhận chung một `user_hash` = sha2(salt + `|` + ""); nên để null. Nguồn: `processing/spark/wikipulse/transformations.py:151-153` · Lịch: —
   - 2026-10-20 Linh: đã nhận và tái hiện bằng hai event tổng hợp (thiếu user và user=null), vì fixture LIVE không có ca này. Evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live); giữ OPEN để review nullable semantics với consumer.
+- **BL-THANH-36** · PROPOSED · tech-debt · P3 · owner: Linh — Branch `linh_tuan_1` và commit message `linh_commit` chưa theo AGENTS.md §6 (`<owner>/<ID>-<slug>`, message mô tả việc). Lần sau dùng ví dụ `linh/w2-linh-01-windows`. Nguồn: commit `7463171` · Lịch: —
 
 ## Nhân
 
@@ -68,6 +74,7 @@ Format, mỗi item 1–3 dòng:
 ## Mạnh
 
 - **BL-THANH-24** · PROPOSED · finding · P2 · owner: Mạnh — Đồng hồ máy dev có thể chậm ít nhất ~10 s so với `meta.dt`. Kiểm `w32tm /query /status` (Windows) và đồng bộ NTP trước khi đo độ trễ provisional 30–60 s. Nguồn: [ingestion-spike.md](thanh/ingestion-spike.md#việc-cần-báo-các-owner-khác) · Lịch: đề xuất W3-MANH-01
+- **BL-THANH-37** · PROPOSED · tech-debt · P2 · owner: Mạnh — 4 ảnh W1 trong `docs/bao-cao-ky-thuat/hinh/W1-Mạnh/` chưa đưa vào `main.tex` (còn `\dukiensua` ở `main.tex:1024`), thiếu ảnh trang Suspicious Edits; lệnh `AppTest` trong plan bị lược nên khó tái hiện; chưa có plan `W2-MANH-01`. Nguồn: [W1-MANH-01](plans/W1-MANH-01.md), `docs/bao-cao-ky-thuat/README.md` · Lịch: đề xuất W2-MANH-01
 
 ## Sau MVP
 

@@ -36,6 +36,7 @@ Mọi người và AI agent ghi việc vào cùng một chỗ. Mỗi việc có 
 - 2026-10-16 — thêm quy tắc docs theo người `docs/<owner>/`, chuyển spike vào `docs/thanh/`, sửa link và script kiểm docs; sửa lỗi có sẵn BL-13/BL-31 bị chèn lẫn; thêm BL-THANH-32. Subagent review: siết tiêu chí tầng chung / folder riêng, dòng `docs/<owner>/` không dùng cho plan/review/nhật ký, script in UTF-8 — commit `docs: per-owner docs folders, move ingestion spike to docs/thanh`
 - 2026-10-16 — theo yêu cầu Thành: tạo `docs/trong/`, chuyển `verification.md` và `implementation-log.md` vào đó; sửa tham chiếu trong `docs/checkpoints.md` (2 dòng của Trọng), `docs/trong/implementation-log.md`, AGENTS.md §4, backlog BL-13/BL-32 và script kiểm docs
 - 2026-10-16 — Thành cho phép commit và push thẳng lên `main` (sau khi fast-forward PR #1, #2 của Nhân); ghi chú BL-07, BL-22 — commit `docs: per-owner docs folders, move ingestion spike to docs/thanh`
+- 2026-10-23 — theo yêu cầu Thành: gộp 4 nhánh của nhóm vào `main` (local, chưa push); viết `tong-ket-1.md` (tổng kết tuần 1 cho cấp trên) với 2 subagent khảo sát, 1 subagent debate, 1 subagent review; thêm dòng `tong-ket-<N>.md` vào bảng bản đồ docs AGENTS.md §4 và các item BL-THANH-33..37; chạy lại toàn bộ test trên code đã gộp (BL-35 DONE); thêm mục 5 "Cách chạy lại" (local + Docker, từng lệnh đã chạy thử), ghi đề xuất `.ps1` vào BL-06; viết `scripts/wikipulse.ps1` theo yêu cầu Thành (chỉ chạy khi đã có `.venv`), chạy thử mọi target; subagent review, sửa 5 Important + 5 Minor — commit `docs: week-1 progress report, Windows ps1 runner`
 
 ## Kết quả
 
@@ -68,7 +69,7 @@ for f in files:
             heads = re.findall(r"^#+\s+(.*)$", dest.read_text(encoding="utf-8"), re.M)
             if anchor not in {slug(h) for h in heads}:
                 broken.append((f, target))
-patterns = [r"(.+/)?README\.md", r"plans\.md", r"AGENTS\.md", r"CLAUDE\.md", r"docs/plans/[^/]+\.md",
+patterns = [r"(.+/)?README\.md", r"plans\.md", r"tong-ket-\d+\.md", r"AGENTS\.md", r"CLAUDE\.md", r"docs/plans/[^/]+\.md",
             r"docs/(checkpoints|backlog|contracts|architecture|data-flow|data-dictionary|development)\.md",
             r"docs/(trong|thanh|linh|nhan|manh)/[a-z0-9-]+\.md",
             r"docs/bao-cao-ky-thuat/.*"]
