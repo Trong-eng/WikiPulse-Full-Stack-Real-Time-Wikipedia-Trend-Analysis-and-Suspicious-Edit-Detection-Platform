@@ -50,9 +50,12 @@ Format, mỗi item 1–3 dòng:
 
 ## Linh
 
-- **BL-THANH-19** · PROPOSED · finding · P1 · owner: Linh — LIVE không có field `anon` và không có user dạng IP. Editor ẩn danh là temporary account `~2026-NNNNN-NN` (11% event của enwiki+viwiki). `is_anonymous` hiện chỉ dựa vào `anon`/regex IP, nên `anonymous_edit_count` gần bằng 0 và ANONYMOUS_EDIT không bao giờ bắn. Nguồn: `processing/spark/wikipulse/transformations.py:161-166`, [ingestion-spike.md](thanh/ingestion-spike.md#shape-event-khác-fixture-cp0) · Lịch: đề xuất W2-LINH-01
-- **BL-THANH-20** · PROPOSED · finding · P2 · owner: Linh — Canary thật chỉ có `{"$schema","meta"}`, nên rơi vào `bronze/invalid` với `MISSING_WIKI` (2 dòng mỗi lần phát). Filter `domain != canary` không bao giờ gặp canary thật, và canary trong fixture CP0 (có `wiki=enwiki`) không giống LIVE. Mẫu thật: `tests/fixtures/recentchange_live_sample.jsonl`. Nguồn: `processing/spark/wikipulse/transformations.py:101,139` · Lịch: đề xuất W2-LINH-01
-- **BL-THANH-21** · PROPOSED · finding · P3 · owner: Linh — Event thiếu `user` đều nhận chung một `user_hash` = sha2(salt + `|` + ""); nên để null. Nguồn: `processing/spark/wikipulse/transformations.py:151-153` · Lịch: —
+- **BL-THANH-19** · OPEN · finding · P1 · owner: Linh — LIVE không có field `anon` và không có user dạng IP. Editor ẩn danh là temporary account `~2026-NNNNN-NN` (11% event của enwiki+viwiki). `is_anonymous` hiện chỉ dựa vào `anon`/regex IP, nên `anonymous_edit_count` gần bằng 0 và ANONYMOUS_EDIT không bao giờ bắn. Nguồn: `processing/spark/wikipulse/transformations.py:161-166`, [ingestion-spike.md](thanh/ingestion-spike.md#shape-event-khác-fixture-cp0) · Lịch: W2-LINH-01
+  - 2026-10-20 Linh: đã nhận và tái hiện bằng Spark trên fixture LIVE; evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live). Chưa sửa định nghĩa anonymous trong tuần 1.
+- **BL-THANH-20** · OPEN · finding · P2 · owner: Linh — Canary thật chỉ có `{"$schema","meta"}`, nên rơi vào `bronze/invalid` với `MISSING_WIKI` (2 dòng mỗi lần phát). Filter `domain != canary` không bao giờ gặp canary thật, và canary trong fixture CP0 (có `wiki=enwiki`) không giống LIVE. Mẫu thật: `tests/fixtures/recentchange_live_sample.jsonl`. Nguồn: `processing/spark/wikipulse/transformations.py:101,139` · Lịch: W2-LINH-01
+  - 2026-10-20 Linh: đã nhận và tái hiện bằng Spark; canary không vào Silver/activity. Evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live); cần review cách phân loại canary/quarantine trước khi thay đổi.
+- **BL-THANH-21** · OPEN · finding · P3 · owner: Linh — Event thiếu `user` đều nhận chung một `user_hash` = sha2(salt + `|` + ""); nên để null. Nguồn: `processing/spark/wikipulse/transformations.py:151-153` · Lịch: —
+  - 2026-10-20 Linh: đã nhận và tái hiện bằng hai event tổng hợp (thiếu user và user=null), vì fixture LIVE không có ca này. Evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live); giữ OPEN để review nullable semantics với consumer.
 
 ## Nhân
 
