@@ -37,6 +37,7 @@ Mọi người và AI agent ghi việc vào cùng một chỗ. Mỗi việc có 
 - 2026-10-16 — theo yêu cầu Thành: tạo `docs/trong/`, chuyển `verification.md` và `implementation-log.md` vào đó; sửa tham chiếu trong `docs/checkpoints.md` (2 dòng của Trọng), `docs/trong/implementation-log.md`, AGENTS.md §4, backlog BL-13/BL-32 và script kiểm docs
 - 2026-10-16 — Thành cho phép commit và push thẳng lên `main` (sau khi fast-forward PR #1, #2 của Nhân); ghi chú BL-07, BL-22 — commit `docs: per-owner docs folders, move ingestion spike to docs/thanh`
 - 2026-10-23 — theo yêu cầu Thành: gộp 4 nhánh của nhóm vào `main` (local, chưa push); viết `tong-ket-1.md` (tổng kết tuần 1 cho cấp trên) với 2 subagent khảo sát, 1 subagent debate, 1 subagent review; thêm dòng `tong-ket-<N>.md` vào bảng bản đồ docs AGENTS.md §4 và các item BL-THANH-33..37; chạy lại toàn bộ test trên code đã gộp (BL-35 DONE); thêm mục 5 "Cách chạy lại" (local + Docker, từng lệnh đã chạy thử), ghi đề xuất `.ps1` vào BL-06; viết `scripts/wikipulse.ps1` theo yêu cầu Thành (chỉ chạy khi đã có `.venv`), chạy thử mọi target; subagent review, sửa 5 Important + 5 Minor — commit `docs: week-1 progress report, Windows ps1 runner`
+- 2026-10-23 — theo yêu cầu Thành: `tong-ket-1.md` bỏ cột "Mức" (trạng thái nghiệm thu/review) và mục Rủi ro; mục "Cách chạy lại" thành mục 4; sửa 2 link trong backlog — commit `docs(tong-ket-1): drop status column and risk section`
 
 ## Kết quả
 
