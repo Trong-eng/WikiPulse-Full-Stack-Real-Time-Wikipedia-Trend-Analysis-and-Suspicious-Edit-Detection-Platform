@@ -47,6 +47,14 @@ Thống nhất giữa Linh (producer Spark), Nhân (Cassandra/API) và Mạnh (d
 - Ẩn danh gồm cả temporary account (`is_anonymous=true`), phụ thuộc BL-THANH-19. Event thiếu/null user thì `user_hash=null`, không gộp thành một editor giả (BL-THANH-21).
 - Trends và risk cần hai item trên xong trước khi nghiệm thu scoring.
 
+Chi tiết producer W2-LINH-01:
+
+- Temporary account khớp `^~[0-9]{4}-[0-9]+-[0-9]+$` được tính anonymous kể cả khi `anon=false`. User thiếu/null/rỗng/toàn khoảng trắng có hash null; user khác giữ nguyên chuỗi khi hash.
+- `is_revert` chỉ áp dụng `type=edit`: comment bắt đầu (bỏ khoảng trắng đầu, không phân biệt hoa thường) bằng `Revert`, `Reverted`, `Reverting`, `Undid revision`, `Undo revision`, `Rollback`, `Rolled back`, với ranh giới từ. Đây là heuristic tiếng Anh có fixture; không dò một từ nằm bất kỳ trong câu và không cam kết nhận diện mọi ngôn ngữ. Chỉ giữ boolean, không lưu comment trong Silver/output business.
+- Canary domain `canary` được nhận diện trước validation trường business: giữ Bronze, loại khỏi Silver/activity và không đếm như invalid vì thiếu wiki/title.
+- `LARGE_DELETION` áp dụng khi `byte_delta <= -large_deletion_bytes` (bao gồm ngưỡng); null không kích hoạt. Các rule chỉ tính edit; event khác có score 0/reasons rỗng.
+- Với cùng page_key trong cửa sổ trends, metadata lấy từ event lớn nhất theo `(event_time, event_id, page_title, namespace)` để retry/arrival order không tách thành nhiều hàng logic.
+
 ### Trends — Linh → Nhân
 
 Cửa sổ 5 phút trượt 1 phút theo event time, watermark 10 phút, Update qua `foreachBatch` như activity. Chỉ tính event `type=edit`, gồm cả bot. Một dòng cho mỗi `(wiki, window_start, page_key)`:
@@ -126,6 +134,12 @@ CREATE TABLE events_by_id (
 ```
 
 TTL đề xuất 7 ngày, chốt ở W3-NHAN-01 sau khi đo dung lượng.
+
+### Bàn giao producer cho sink — W2-LINH-01
+
+`AnalyticsBatchWriter` trong `processing/spark/wikipulse/sinks.py` nhận store có ba method `upsert_trends(rows)`, `upsert_suspicious_edits(rows)`, `upsert_events(rows)`. `rows` là iterator dictionary đúng các schema trên, timestamps UTC; không collect toàn batch; exception được truyền ra để checkpoint retry. Callback tương ứng là `write_trends_batch`, `write_suspicious_batch`, `write_events_batch`, đều nhận `(batch_df, batch_id)`. Nhân sở hữu implementation database, khóa upsert và thứ tự ghi chỉ mục; kiểm thử producer dùng capturing store, không coi đó là bằng chứng Cassandra W2 đã hoạt động.
+
+Trong lúc store W2 chưa triển khai, producer mặc định ghi output Parquet cùng schema. Provisional trends lưu changelog tổng tuyệt đối theo batch_id; đọc bản có batch_id lớn nhất cho từng `(wiki, window_start, page_key)`, không cộng các batch. Gold trends dùng native append sau watermark. Hướng dẫn mode, path và checkpoint ở `processing/README.md`. Khi chọn Cassandra, thiếu bất kỳ method nào là lỗi startup; không tự fallback hoặc bỏ output.
 
 ### API — Nhân → Mạnh
 

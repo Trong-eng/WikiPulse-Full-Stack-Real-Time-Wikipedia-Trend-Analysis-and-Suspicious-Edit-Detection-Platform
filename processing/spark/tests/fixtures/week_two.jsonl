@@ -1,0 +1,8 @@
+{"meta":{"id":"w2-a","dt":"2026-01-01T00:00:10Z"},"wiki":"enwiki","page_id":10,"title":"Alpha","type":"edit","user":"FixtureAlpha","length":{"old":100,"new":200}}
+{"meta":{"id":"w2-b","dt":"2026-01-01T00:01:10Z"},"wiki":"enwiki","page_id":10,"title":"Alpha","type":"edit","user":"~2026-12345-1","length":{"old":1000,"new":500},"comment":"Reverted previous edit"}
+{"meta":{"id":"w2-c","dt":"2026-01-01T00:02:10Z"},"wiki":"enwiki","page_id":10,"title":"Alpha","type":"edit","user":null,"bot":true}
+{"meta":{"id":"w2-d","dt":"2026-01-01T00:01:00Z"},"wiki":"viwiki","title":"Beta","type":"edit","user":"FixtureBeta","bot":true,"anon":true,"length":{"old":600,"new":99},"comment":"Undid revision 123 by fixture"}
+{"meta":{"id":"w2-e","dt":"2026-01-01T00:02:20Z"},"wiki":"enwiki","page_id":10,"title":"Alpha","type":"new","anon":true,"user":"FixtureNew","length":{"new":20}}
+{"meta":{"id":"w2-f","dt":"2026-01-01T00:02:30Z"},"wiki":"enwiki","page_id":10,"title":"Alpha","type":"log","user":"FixtureLog","comment":"Reverted previous edit"}
+{"meta":{"id":"w2-g","dt":"2026-01-01T00:03:00Z"},"wiki":"enwiki","title":"No editor","type":"edit","length":{"old":10,"new":10}}
+{"$schema":"fixture","meta":{"id":"w2-canary","dt":"2026-01-01T00:15:00Z","domain":"canary"}}

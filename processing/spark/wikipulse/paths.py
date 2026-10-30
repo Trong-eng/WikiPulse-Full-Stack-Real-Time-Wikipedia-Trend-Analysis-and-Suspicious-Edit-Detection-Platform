@@ -33,3 +33,19 @@ class PipelinePaths:
 
     def checkpoint(self, query_name):
         return f"{self.checkpoint_root}/{query_name}"
+
+    @property
+    def gold_trends(self):
+        return f"{self.data_root}/gold/trends"
+
+    @property
+    def provisional_trends(self):
+        return f"{self.data_root}/provisional/trends"
+
+    @property
+    def suspicious(self):
+        return f"{self.data_root}/serving/suspicious_edits"
+
+    @property
+    def event_details(self):
+        return f"{self.data_root}/serving/events"

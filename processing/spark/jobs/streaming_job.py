@@ -39,6 +39,8 @@ def ensure_directory(spark, path):
 
 
 def start_pipeline_queries(spark, settings, store, queries):
+    from processing.spark.wikipulse.analytics_queries import start_analytics_queries, validate_sink
+    from processing.spark.wikipulse.scoring import DEFAULT_PATH, load_scoring
     from processing.spark.wikipulse.transformations import (
         SILVER_SCHEMA,
         activity_windows,
@@ -50,6 +52,9 @@ def start_pipeline_queries(spark, settings, store, queries):
         parse_events,
     )
 
+    mode = os.environ.get("SPARK_ANALYTICS_SINK", "parquet")
+    validate_sink(mode, store)
+    scoring = load_scoring(os.environ.get("SPARK_SCORING_PATH", str(DEFAULT_PATH)))
     paths = PipelinePaths.from_settings(settings)
     source = (
         spark.readStream.format("kafka")
@@ -96,6 +101,7 @@ def start_pipeline_queries(spark, settings, store, queries):
         gold_rows(activity), "activity_gold", paths.gold_activity,
         ("metric_date", "metric_hour", "wiki"),
     )
+    start_analytics_queries(silver_source, settings, queries, config=scoring, mode=mode, store=store)
 
 
 def run_pipeline(
@@ -121,7 +127,7 @@ def run_pipeline(
         query_starter(spark, settings, store, queries)
         if progress_path:
             publish_progress(progress_path, queries)
-        LOGGER.info("All %d CP0 streaming queries started", len(queries))
+        LOGGER.info("All %d streaming queries started", len(queries))
         supervise_queries(spark, queries, shutdown, progress_path)
     except KeyboardInterrupt:
         shutdown.set()

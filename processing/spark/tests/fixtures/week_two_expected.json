@@ -1,0 +1,18 @@
+{
+  "window_start": "2026-01-01T00:00:00",
+  "silver_count": 7,
+  "trends": [
+    {"wiki":"enwiki","page_key":"10","edit_count":3,"unique_editors":2,"abs_byte_delta":600,"trend_score":0.07},
+    {"wiki":"enwiki","page_key":"title:No editor","edit_count":1,"unique_editors":0,"abs_byte_delta":0,"trend_score":0.01},
+    {"wiki":"viwiki","page_key":"title:Beta","edit_count":1,"unique_editors":1,"abs_byte_delta":501,"trend_score":0.035025}
+  ],
+  "risk": {
+    "w2-a": {"score":0,"reasons":[]},
+    "w2-b": {"score":60,"reasons":["LARGE_DELETION","REVERT_PATTERN","ANONYMOUS_EDIT"]},
+    "w2-c": {"score":0,"reasons":[]},
+    "w2-d": {"score":50,"reasons":["LARGE_DELETION","REVERT_PATTERN"]},
+    "w2-e": {"score":0,"reasons":[]},
+    "w2-f": {"score":0,"reasons":[]},
+    "w2-g": {"score":0,"reasons":[]}
+  }
+}

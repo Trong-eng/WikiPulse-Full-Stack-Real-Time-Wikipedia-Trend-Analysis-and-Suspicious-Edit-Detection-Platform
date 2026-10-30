@@ -33,6 +33,7 @@ RAW_EVENT_SCHEMA = StructType(
             StructField("old", LongType()), StructField("new", LongType()),
         ])),
         StructField("user", StringType()),
+        StructField("comment", StringType()),
         StructField("anon", BooleanType()),
         StructField("bot", BooleanType()),
         StructField("minor", BooleanType()),
@@ -63,6 +64,7 @@ SILVER_SCHEMA = StructType(
         StructField("is_anonymous", BooleanType()),
         StructField("is_bot", BooleanType()),
         StructField("is_minor", BooleanType()),
+        StructField("is_revert", BooleanType()),
         StructField("kafka_topic", StringType()),
         StructField("kafka_partition", IntegerType()),
         StructField("kafka_offset", LongType()),
@@ -94,7 +96,8 @@ def parse_events(kafka_df):
     )
     return parsed.withColumn(
         "error_code",
-        F.when(
+        F.when(F.lower(F.trim("_document.meta.domain")) == "canary", F.lit(None).cast("string"))
+        .when(
             F.col("_document").isNull() | F.col("_document._corrupt_record").isNotNull(),
             F.lit("INVALID_JSON"),
         ).when(F.col("_event_time").isNull(), F.lit("MISSING_EVENT_TIME"))
@@ -148,9 +151,9 @@ def normalize_events(parsed_df, settings):
         domain.alias("domain"),
         F.col("_page_title").alias("page_title"),
         F.coalesce(F.lower(F.trim("_document.type")), F.lit("unknown")).alias("event_type"),
-        F.sha2(F.concat(
-            F.lit(settings.user_hash_salt + "|"), F.coalesce("_document.user", F.lit(""))
-        ), 256).alias("user_hash"),
+        F.when(F.length(F.trim("_document.user")) > 0, F.sha2(F.concat(
+            F.lit(settings.user_hash_salt + "|"), F.col("_document.user")
+        ), 256)).alias("user_hash"),
         F.col("_document.page_id").alias("page_id"),
         F.col("_document.revision.old").alias("revision_old"),
         F.col("_document.revision.new").alias("revision_new"),
@@ -158,14 +161,21 @@ def normalize_events(parsed_df, settings):
         F.col("_document.length.new").alias("length_new"),
         (F.col("_document.length.new") - F.col("_document.length.old")).alias("byte_delta"),
         F.col("_document.namespace").alias("namespace"),
-        F.coalesce(
+        (F.coalesce(
             "_document.anon",
             F.coalesce("_document.user", F.lit("")).rlike(
                 r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^[0-9A-Fa-f]*:[0-9A-Fa-f:]+$"
             ),
-        ).alias("is_anonymous"),
+        ) | F.coalesce("_document.user", F.lit("")).rlike(
+            r"^~[0-9]{4}-[0-9]+-[0-9]+$"
+        )).alias("is_anonymous"),
         F.coalesce("_document.bot", F.lit(False)).alias("is_bot"),
         F.coalesce("_document.minor", F.lit(False)).alias("is_minor"),
+        ((F.coalesce(F.lower(F.trim("_document.type")), F.lit("")) == "edit")
+         & F.coalesce("_document.comment", F.lit("")).rlike(
+             r"(?i)^\s*(?:revert(?:ed|ing)?\b|undid\s+revision\b|undo\s+revision\b"
+             r"|rollback\b|rolled\s+back\b)"
+         )).alias("is_revert"),
         "kafka_topic", "kafka_partition", "kafka_offset",
         F.lit(settings.pipeline_version).alias("pipeline_version"),
         F.to_date("_event_time").alias("event_date"),

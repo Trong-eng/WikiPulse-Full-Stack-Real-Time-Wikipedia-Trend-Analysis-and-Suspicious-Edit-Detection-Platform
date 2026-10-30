@@ -3,7 +3,8 @@ ENV PYTHONUNBUFFERED=1 JAVA_HOME=/usr/lib/jvm/default-java SPARK_LOCAL_IP=127.0.
 RUN apt-get update && apt-get install -y --no-install-recommends default-jre-headless curl \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /workspace
-RUN pip install --no-cache-dir pyspark==3.5.6 cassandra-driver==3.29.2 pydantic==2.10.6 pytest==8.3.5
+COPY processing/spark/requirements-scoring.txt /tmp/requirements-scoring.txt
+RUN pip install --no-cache-dir pyspark==3.5.6 cassandra-driver==3.29.2 pydantic==2.10.6 pytest==8.3.5 -r /tmp/requirements-scoring.txt
 # Bake the Kafka connector into the image so startup does not depend on Maven availability.
 RUN set -e; mkdir -p /opt/kafka-jars && cd /opt/kafka-jars && \
     for artifact in \

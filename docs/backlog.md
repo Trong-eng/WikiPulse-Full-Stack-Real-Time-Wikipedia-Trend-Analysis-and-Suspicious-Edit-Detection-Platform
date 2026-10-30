@@ -26,6 +26,8 @@ Format, mỗi item 1–3 dòng:
 
 ## Trọng
 
+- **BL-LINH-01** · PROPOSED · tech-debt · P2 · owner: Trọng — Forward `SPARK_ANALYTICS_SINK`/`SPARK_SCORING_PATH` vào Compose và ghi `.env.example`; cập nhật architecture/data-flow cho 4 query analytics sau Silver. Mặc định Parquet hoạt động; cấu hình khác hiện truyền bằng container env/override. Nguồn: [processing README](../processing/README.md#week-two-analytics), [W2-LINH-01](plans/W2-LINH-01.md) · Lịch: đề xuất W2-TRONG-01
+
 - **BL-THANH-06** · PROPOSED · bug · P2 · owner: Trọng — Makefile không chạy được trên Windows: `install` gọi `python3`, `PYTHON ?= .venv/bin/python`, `.venv/bin/ruff`; Windows mặc định không có `make`. Nguồn: `Makefile:1,8,30` · Lịch: —
   - 2026-10-23 Thành: đã viết `scripts/wikipulse.ps1` (UTF-8 có BOM để PowerShell 5.1 đọc đúng comment tiếng Việt) với các target tương ứng `Makefile` (`help`, `install`, `build`, `up`, `init`, `replay`, `down`, `logs`, `config`, `test`, `test-spark`, `lint`, `smoke`). Script không tạo `.venv`, chỉ chạy khi `.venv` đã có ở root; `smoke` tự đặt `PYTHONUTF8=1` (BL-THANH-11). Đã chạy thử mọi target trên Windows 11, `smoke` passed; `Makefile` giữ nguyên. Lệnh gốc từng bước ở [tong-ket-1.md](../tong-ket-1.md#4-cách-chạy-lại-kết-quả-tuần-1-windows). Trọng duyệt: giữ thì thêm vào README/development.md và đóng item, không đồng ý thì xóa file.
 - **BL-THANH-07** · PROPOSED · tech-debt · P2 · owner: Trọng — Thêm `.gitattributes` `*.sh text eol=lf`, vì checkout có `autocrlf=true` sẽ làm hỏng script được mount vào container. Nhân đã có file này trên branch `nhan/w1-cassandra-api-takeover`. Nguồn: `scripts/create_topics.sh` · Lịch: —
@@ -57,13 +59,18 @@ Format, mỗi item 1–3 dòng:
 
 - **BL-THANH-19** · OPEN · finding · P1 · owner: Linh — LIVE không có field `anon` và không có user dạng IP. Editor ẩn danh là temporary account `~2026-NNNNN-NN` (11% event của enwiki+viwiki). `is_anonymous` hiện chỉ dựa vào `anon`/regex IP, nên `anonymous_edit_count` gần bằng 0 và ANONYMOUS_EDIT không bao giờ bắn. Nguồn: `processing/spark/wikipulse/transformations.py:161-166`, [ingestion-spike.md](thanh/ingestion-spike.md#shape-event-khác-fixture-cp0) · Lịch: W2-LINH-01
   - 2026-10-20 Linh: đã nhận và tái hiện bằng Spark trên fixture LIVE; evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live). Chưa sửa định nghĩa anonymous trong tuần 1.
+  - 2026-10-30 Linh: đã sửa nhận diện temporary account theo v0.2; golden/regression và sample LIVE pass. Evidence: [W2-LINH-01](plans/W2-LINH-01.md#kết-quả).
 - **BL-THANH-20** · OPEN · finding · P2 · owner: Linh — Canary thật chỉ có `{"$schema","meta"}`, nên rơi vào `bronze/invalid` với `MISSING_WIKI` (2 dòng mỗi lần phát). Filter `domain != canary` không bao giờ gặp canary thật, và canary trong fixture CP0 (có `wiki=enwiki`) không giống LIVE. Mẫu thật: `tests/fixtures/recentchange_live_sample.jsonl`. Nguồn: `processing/spark/wikipulse/transformations.py:101,139` · Lịch: W2-LINH-01
   - 2026-10-20 Linh: đã nhận và tái hiện bằng Spark; canary không vào Silver/activity. Evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live); cần review cách phân loại canary/quarantine trước khi thay đổi.
-- **BL-THANH-21** · OPEN · finding · P3 · owner: Linh — Event thiếu `user` đều nhận chung một `user_hash` = sha2(salt + `|` + ""); nên để null. Nguồn: `processing/spark/wikipulse/transformations.py:151-153` · Lịch: —
+  - 2026-10-30 Linh: canary được nhận diện trước validation trường business; giữ Bronze, không vào invalid/Silver. Evidence: [W2-LINH-01](plans/W2-LINH-01.md#kết-quả).
+- **BL-THANH-21** · OPEN · finding · P3 · owner: Linh — Event thiếu `user` đều nhận chung một `user_hash` = sha2(salt + `|` + ""); nên để null. Nguồn: `processing/spark/wikipulse/transformations.py:151-153` · Lịch: W2-LINH-01
   - 2026-10-20 Linh: đã nhận và tái hiện bằng hai event tổng hợp (thiếu user và user=null), vì fixture LIVE không có ca này. Evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live); giữ OPEN để review nullable semantics với consumer.
+  - 2026-10-30 Linh: user thiếu/null/blank có hash null, unique_editors bỏ qua null đúng v0.2. Evidence: [W2-LINH-01](plans/W2-LINH-01.md#kết-quả).
 - **BL-THANH-36** · PROPOSED · tech-debt · P3 · owner: Linh — Branch `linh_tuan_1` và commit message `linh_commit` chưa theo AGENTS.md §6 (`<owner>/<ID>-<slug>`, message mô tả việc). Lần sau dùng ví dụ `linh/w2-linh-01-windows`. Nguồn: commit `7463171` · Lịch: —
 
 ## Nhân
+
+- **BL-LINH-02** · PROPOSED · finding · P1 · owner: Nhân — Producer W2 đã có ba DataFrame và `AnalyticsBatchWriter`; nối store `upsert_trends`, `upsert_suspicious_edits`, `upsert_events`, CQL và endpoints theo v0.2. Cassandra mode fail startup nếu thiếu method; default hiện là Parquet để kiểm chứng producer, không phải serving W2 qua API. Nguồn: [contracts](contracts.md#bàn-giao-producer-cho-sink--w2-linh-01), [W2-LINH-01](plans/W2-LINH-01.md) · Lịch: đề xuất W2-NHAN-01
 
 - **BL-THANH-22** · DONE (PR #5) · tech-debt · P3 · owner: Nhân — Đề xuất theo AGENTS.md: khi merge, đổi `docs/serving-review.md` thành plan `docs/plans/W1-NHAN-01.md`. Phần ghi chú thiết kế thì đặt ở `docs/nhan/`; review và nhật ký vẫn vào plan. Nguồn: branch `nhan/w1-cassandra-api-takeover` · Lịch: —
   - 2026-10-16 Thành: PR #1 đã merge, `docs/serving-review.md` đang ở `main` và nằm ngoài bản đồ docs của AGENTS.md §4.

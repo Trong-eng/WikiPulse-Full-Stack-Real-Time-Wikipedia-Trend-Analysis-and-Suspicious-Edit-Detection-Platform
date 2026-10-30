@@ -1,10 +1,11 @@
-# Spark CP0 — Linh
+# Spark activity và analytics — Linh
 
 The week-one job counts wiki activity in event-time windows of one minute.
 Run it with `python -m processing.spark.jobs.streaming_job` inside the Spark image.
 The shared `wikipulse_core.config.Settings` supplies runtime configuration.
 
-The entrypoint owns five independent streaming queries and checkpoints:
+The entrypoint owns nine independent streaming queries and checkpoints. Five
+preserve activity/CP0; four implement the week-two analytics outputs:
 
 | Query | Output | Mode |
 | --- | --- | --- |
@@ -13,6 +14,10 @@ The entrypoint owns five independent streaming queries and checkpoints:
 | `silver_events` | `<DATA_BASE_PATH>/<RUN_ID>/silver/events` | native append Parquet |
 | `activity_cassandra` | `wiki_activity_by_window` | Update, absolute upserts |
 | `activity_gold` | `<DATA_BASE_PATH>/<RUN_ID>/gold/activity` | native append Parquet |
+| `trends_provisional_parquet` | `<DATA_BASE_PATH>/<RUN_ID>/provisional/trends/batch_id=<N>` | Update, absolute changelog |
+| `suspicious_parquet` | `<DATA_BASE_PATH>/<RUN_ID>/serving/suspicious_edits` | native append Parquet |
+| `events_parquet` | `<DATA_BASE_PATH>/<RUN_ID>/serving/events` | native append Parquet |
+| `trends_gold` | `<DATA_BASE_PATH>/<RUN_ID>/gold/trends` | native append Parquet, finalized |
 
 Every checkpoint is `<SPARK_CHECKPOINT_PATH>/<RUN_ID>/<query>`.
 Bronze and Silver are partitioned by `event_date/event_hour`; Gold uses
@@ -56,8 +61,8 @@ docker run --rm -v "$PWD:/workspace" wikipulse-spark:0.1.0 \
 ```
 
 The suite covers validation, normalization, pseudonymization, canary handling,
-activity counts, duplicate/restart behavior, finalized Gold, and driver cleanup.
-Trend and suspicious-edit analytics belong to the subsequent weekly checkpoints.
+activity counts, duplicate/restart behavior, finalized Gold, and driver cleanup,
+plus the week-two analytics contract and streaming tests below.
 
 ## Week-one verification
 
@@ -96,23 +101,91 @@ nullable fields, pseudonymization, and independently specified activity totals.
 `LIVE_SAMPLE_REPORT=` prints aggregate counts and observations for the pending
 backlog items, without usernames, hashes, titles, or raw payloads. Missing-user
 observations use two synthetic events because the LIVE fixture does not contain
-that case. Observations are diagnostics; test success does not resolve them.
+that case. These observations are diagnostics; the separate week-two regression
+tests assert the corrected behavior for temporary accounts, canaries and missing users.
 
-## Known LIVE limitations
+## Week-two analytics
+
+The interface and exact rule semantics are in [contracts v0.2](../docs/contracts.md#tuần-2--trends-suspicious-edits-event-detail-v02).
+Silver now adds `is_revert`; temporary accounts count as anonymous, missing/null/
+blank users have a null hash, and sparse canaries stay in Bronze without entering
+invalid quarantine. Comment text is used transiently to derive `is_revert` and is
+discarded before Silver. Revert recognition currently covers the documented English
+patterns; risk scores prioritize review and do not establish vandalism.
+
+Trends consume only edits (including bots), in five-minute event-time windows
+sliding every minute. Unique editors use `approx_count_distinct` excluding nulls;
+byte magnitude sums absolute deltas, with zero for all-null groups. Scoring uses
+fixed caps, not microbatch min/max. A deterministic latest metadata aggregate keeps
+one row per stable page key. Event detail covers every Silver event; suspicious
+output contains only edits with positive risk. Unknown length does not imply a
+deletion, and bots do not receive the anonymous-edit reason.
+
+`config/scoring.yaml` is loaded once at startup through `yaml.safe_load`. Invalid
+keys, nonfinite/negative weights, weights not summing to 1, nonpositive caps or
+thresholds, noninteger risk weights and max_score outside 1–100 fail before queries
+start. PyYAML is pinned in `spark/requirements-scoring.txt` and installed by the
+Spark Dockerfile. To run scoring tests on the host, install that requirements file;
+the standard lightweight suite does not require PyYAML.
+
+Container environment (module-owned, independent of shared Settings):
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `SPARK_SCORING_PATH` | Repository `config/scoring.yaml` | Read-only scoring file, fixed for the run |
+| `SPARK_ANALYTICS_SINK` | `parquet` | `parquet` for producer handoff, `cassandra` for an implemented W2 store |
+
+Pass these into the container explicitly (`docker compose run -e NAME=value ...`
+or a Compose override). The shared Compose environment does not yet forward these
+two names from `.env`. Stop the existing Spark instance before starting a replacement;
+never run two drivers with the same checkpoints. Standard Python exceptions cause
+nonzero exit; missing Cassandra W2 methods fail startup with their names.
+
+**Schema/config changes require a fresh RUN_ID, data/checkpoint namespace and an
+isolated serving namespace.** Use `PIPELINE_VERSION=0.2.0` for a W2 run. Never reuse
+v0.1 Silver/checkpoints or change scoring/sink mode partway through a run. Activity
+and its Cassandra path remain active in both analytics modes.
+
+Parquet mode is the runnable producer boundary while Nhân implements W2 Cassandra.
+Trend updates are written under `batch_id=<N>`; retry overwrites the same batch
+directory. Wait for `_SUCCESS` before reading a batch. These files are a changelog:
+keep the greatest batch_id per `(wiki, window_start, page_key)` across batches,
+not just the last directory, and never sum snapshots. This file handoff is not an
+atomic multi-sink transaction or a replacement for Cassandra/API serving.
+Suspicious/event outputs are native append streams from deduplicated Silver.
+Gold trends uses the same formula but emits finalized windows after watermark;
+an idle last window does not finalize by wall clock.
+
+In Cassandra mode, inject/implement a store with `upsert_trends`,
+`upsert_suspicious_edits`, `upsert_events` as well as the existing activity method.
+The default `CassandraActivityStore` currently lacks these W2 methods and will fail
+validation in this mode. Four query names become `trends_cassandra`,
+`suspicious_cassandra`, `events_cassandra`, `trends_gold`; their checkpoints remain
+independent. Row adapters stream UTC dictionary values through `toLocalIterator`;
+store errors fail the query, and retries resend absolute totals.
+
+Golden input/expected files are in `spark/tests/fixtures/week_two*`. The tests
+cover five overlapping windows, threshold edges, null/bot/temporary accounts,
+caps, stable page keys, all four output queries, late-but-open updates, checkpoint
+restart and finalized windows rejecting too-late data:
+
+```sh
+docker compose build spark
+docker compose run --rm --no-deps spark python -m pytest processing/spark/tests -q
+```
+
+## LIVE integration status
 
 See [the Linh backlog](../docs/backlog.md#linh) for the tracked findings:
 
-- **BL-THANH-19:** temporary accounts are not recognized by the current
-  `anon`/IP-based detection, so anonymous edit counts can be understated.
-- **BL-THANH-20:** a sparse canary with only schema/meta is kept in Bronze and
-  excluded from Silver, but also enters invalid quarantine as `MISSING_WIKI`.
-- **BL-THANH-21:** absent/null users currently receive the same non-null salted
-  hash. It must not be treated as evidence of a shared editor identity.
+- **BL-THANH-19/20/21:** addressed in the week-two producer with regression tests.
+- LIVE collector, Cassandra W2 tables/store/API and dashboard integration remain
+  their respective owners' tasks; producer tests do not claim these are complete.
 
-The fixes and any consumer-facing changes need the reviews recorded in
-[the week-one plan](../docs/plans/W1-LINH-01.md). The current activity code counts
+Evidence and remaining integration tasks are in
+[the week-two plan](../docs/plans/W2-LINH-01.md). The current activity code counts
 valid `categorize`/`log` events in `event_count`; the edit counters count only
 `type=edit`, and `new_page_count` counts `type=new`. Display semantics are tracked
 in [BL-THANH-05](../docs/backlog.md#cần-nhóm-quyết-định).
 Canonical interface definitions remain in [contracts](../docs/contracts.md);
-run results and reviewer handoff remain in the week-one plan.
+run results and reviewer handoff remain in the corresponding weekly plans.
