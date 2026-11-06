@@ -20,7 +20,8 @@ def failed_smoke(monkeypatch, tmp_path):
     monkeypatch.setattr(smoke_test.os, "environ", {})
 
     def compose_process(command, **kwargs):
-        calls.append({"command": command, "env": dict(kwargs["env"])})
+        calls.append({"command": command, "env": dict(kwargs["env"]),
+                      "encoding": kwargs.get("encoding")})
         return subprocess.CompletedProcess(
             command, 1 if command[4] == "up" else 0, stdout="controlled startup failure"
         )
@@ -49,7 +50,9 @@ def test_smoke_overrides_developer_service_endpoints_and_topics(monkeypatch, fai
         "TRIGGER_INTERVAL": "5 seconds",
         "WATERMARK_DELAY": "10 minutes",
         "WIKI_ALLOWLIST": "enwiki,viwiki",
-        "PIPELINE_VERSION": "0.1.0",
+        "PIPELINE_VERSION": "0.2.0",
+        "SPARK_ANALYTICS_SINK": "parquet",
+        "SPARK_SCORING_PATH": "/workspace/config/scoring.yaml",
         "USER_HASH_SALT": "local-demo-change-me",
         "MAX_OFFSETS_PER_TRIGGER": "1000",
     }
@@ -67,6 +70,33 @@ def test_smoke_overrides_developer_service_endpoints_and_topics(monkeypatch, fai
     assert env["RUN_ID"] != "dev"
     assert env["COMPOSE_PROJECT_NAME"] == f"wikipulse-{env['RUN_ID']}"
     assert env["SMOKE_UNRELATED_SETTING"] == "preserved"
+
+
+def test_hdfs_smoke_overrides_developer_compose_and_storage(monkeypatch, failed_smoke):
+    for key in ("COMPOSE_FILE", "COMPOSE_PROFILES", "HDFS_BASE_PATH", "HDFS_CHECKPOINT_PATH"):
+        monkeypatch.setenv(key, "developer-stack-value")
+    with pytest.raises(RuntimeError, match="Compose failed"):
+        smoke_test.run_smoke(build=False, hdfs=True)
+    env = failed_smoke[0]["env"]
+    assert env["HDFS_BASE_PATH"] == "hdfs://namenode:9000/wikipulse"
+    assert env["HDFS_CHECKPOINT_PATH"] == "hdfs://namenode:9000/checkpoints"
+    assert env["COMPOSE_PROFILES"] == "full"
+    assert env["COMPOSE_FILE"].split(smoke_test.os.pathsep) == [
+        str(smoke_test.ROOT / "docker-compose.yml"),
+        str(smoke_test.ROOT / "docker-compose.hdfs.yml"),
+    ]
+    assert all(call["env"]["COMPOSE_FILE"] == env["COMPOSE_FILE"] for call in failed_smoke)
+
+
+def test_core_smoke_disables_developer_profiles_and_extra_files(monkeypatch, failed_smoke):
+    monkeypatch.setenv("COMPOSE_FILE", "unrelated-stack.yml")
+    monkeypatch.setenv("COMPOSE_PROFILES", "live,full")
+    with pytest.raises(RuntimeError, match="Compose failed"):
+        smoke_test.run_smoke(build=False)
+    env = failed_smoke[0]["env"]
+    assert env["COMPOSE_FILE"] == str(smoke_test.ROOT / "docker-compose.yml")
+    assert env["COMPOSE_PROFILES"] == ""
+    assert failed_smoke[0]["encoding"] == "utf-8"
 
 
 def test_same_second_smokes_use_distinct_projects_and_only_clean_their_own_namespace(
@@ -125,14 +155,15 @@ def test_smoke_executes_dashboard_inspection_after_stable_activity(monkeypatch, 
         elif args[:4] == ["exec", "-T", "spark", "cat"]:
             output = json.dumps({
                 "active_queries": {"activity_gold": True},
-                "queries": {"activity_gold": {"eventTime": {
+                "queries": {name: {"eventTime": {
                     "watermark": "2026-01-01T00:01:00+00:00"
-                }}},
+                }} for name in ("activity_gold", "trends_gold", "trends_provisional_parquet")},
             })
         elif (
             args[:1] in [["up"], ["run"], ["logs"], ["down"]]
             or args[:5] == ["exec", "-T", "spark", "python", "scripts/inspect_lake.py"]
             or args == ["exec", "-T", "dashboard", "python", "scripts/inspect_dashboard.py"]
+            or args == ["exec", "-T", "spark", "python", "scripts/check_spark_ready.py"]
         ):
             output = "passed"
         else:

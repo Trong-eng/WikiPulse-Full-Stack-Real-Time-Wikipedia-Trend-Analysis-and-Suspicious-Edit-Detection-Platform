@@ -1,0 +1,12 @@
+# Pair with docker-compose.yml and --profile full; see storage/hdfs/README.md.
+services:
+  spark:
+    environment:
+      DATA_BASE_PATH: ${HDFS_BASE_PATH:-hdfs://namenode:9000/wikipulse}
+      SPARK_CHECKPOINT_PATH: ${HDFS_CHECKPOINT_PATH:-hdfs://namenode:9000/checkpoints}
+      HADOOP_CONF_DIR: /etc/wikipulse-hadoop
+    volumes:
+      - ./storage/hdfs/core-site.xml:/etc/wikipulse-hadoop/core-site.xml:ro
+      - ./storage/hdfs/hdfs-site.xml:/etc/wikipulse-hadoop/hdfs-site.xml:ro
+    depends_on:
+      init-hdfs: {condition: service_completed_successfully}
