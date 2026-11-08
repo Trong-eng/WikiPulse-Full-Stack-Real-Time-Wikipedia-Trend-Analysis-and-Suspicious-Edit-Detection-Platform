@@ -1,0 +1,1 @@
+{"meta": {"id": "w3-d", "dt": "2026-01-01T23:59:50Z", "domain": "enwiki.example.invalid"}, "wiki": "enwiki", "type": "edit", "page_id": 10, "title": "Synthetic page 10", "namespace": 0, "user": "synthetic-w3-d", "anon": false, "bot": false, "minor": false, "length": {"old": 1000, "new": 1050}, "revision": {"old": 1, "new": 2}, "comment": "", "ingested_at": "2026-01-02T00:00:30Z"}

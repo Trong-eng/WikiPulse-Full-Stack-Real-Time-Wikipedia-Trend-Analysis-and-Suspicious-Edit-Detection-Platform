@@ -39,7 +39,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 | W2-MANH-01 | Mạnh | Nhân | API examples | Hoàn thiện 4 trang/filter/empty/error/provisional | 10–15 | TODO | UI acceptance evidence |
 | W3-TRONG-01 | Trọng | Linh | CP2 | Tích hợp full HDFS, persistence; K8s/monitor skeleton | 10–15 | TODO | Full E2E logs |
 | W3-THANH-01 | Thành | Linh | W2-THANH | Replay timing/speed, Kafka outage, fixtures regression | 10–15 | TODO | Producer/replay recovery tests |
-| W3-LINH-01 | Linh | Nhân | HDFS full | Ba tầng HDFS, partitions, Gold finalized/late/checkpoint | 10–15 | TODO | Parquet reads + restart checks |
+| W3-LINH-01 | Linh | Nhân | HDFS full | Ba tầng HDFS, partitions, Gold finalized/late/checkpoint | 10–15 | DONE | [docs/plans/W3-LINH-01.md](plans/W3-LINH-01.md) |
 | W3-NHAN-01 | Nhân | Trọng, Mạnh | W2-NHAN | Retry/upsert, latest window/detail, capacity test | 10–15 | TODO | Correct row counts after retry |
 | W3-MANH-01 | Mạnh | Trọng | CP2 | E2E hai mode, privacy/freshness/API outage, demo flow | 10–15 | TODO | Regression checklist |
 | W4-TRONG-01 | Trọng | Cả nhóm | CP3 | Freeze, clone sạch máy khác, release candidate, limitations | 10–15 | TODO | CP4 evidence |

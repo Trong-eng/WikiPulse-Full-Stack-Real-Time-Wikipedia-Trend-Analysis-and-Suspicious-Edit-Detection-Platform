@@ -1,0 +1,76 @@
+# Standalone Linh development lab; not the shared full-stack profile.
+name: wikipulse-linh-w3-lab
+
+x-hdfs: &hdfs
+  image: apache/hadoop:3.4.1
+  user: "0:0"
+  environment:
+    HADOOP_HEAPSIZE_MAX: "512"
+  entrypoint: ["/bin/bash", "-c"]
+
+services:
+  namenode:
+    <<: *hdfs
+    hostname: namenode
+    command:
+      - >-
+        set -e;
+        mkdir -p /data/hdfs/name;
+        if [ ! -f /data/hdfs/name/current/VERSION ]; then
+          hdfs namenode -format -nonInteractive;
+        fi;
+        exec hdfs namenode
+    volumes:
+      - namenode-data:/data/hdfs/name
+      - ../../../storage/hdfs/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ../../../storage/hdfs/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "hdfs dfsadmin -safemode get | grep -q 'Safe mode is OFF'"]
+      interval: 5s
+      timeout: 10s
+      retries: 36
+
+  datanode:
+    <<: *hdfs
+    hostname: datanode
+    command: ["mkdir -p /data/hdfs/data && exec hdfs datanode"]
+    volumes:
+      - datanode-data:/data/hdfs/data
+      - ../../../storage/hdfs/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ../../../storage/hdfs/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+    depends_on:
+      namenode:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "hdfs dfsadmin -report | grep -q 'Live datanodes (1)'"]
+      interval: 5s
+      timeout: 10s
+      retries: 36
+
+  spark:
+    image: wikipulse-spark:w3-lab
+    build:
+      context: ../../..
+      dockerfile: processing/spark/Dockerfile
+    profiles: [tools]
+    environment:
+      PIPELINE_MODE: REPLAY
+      PIPELINE_VERSION: 0.2.0
+      RUN_ID: ${W3_RUN_ID:-linh-w3-prep-20261104}
+      DATA_BASE_PATH: hdfs://namenode:9000/wikipulse
+      SPARK_CHECKPOINT_PATH: hdfs://namenode:9000/checkpoints
+      HADOOP_CONF_DIR: /etc/hadoop/conf
+      SPARK_ANALYTICS_SINK: parquet
+    volumes:
+      - ../../../storage/hdfs/core-site.xml:/etc/hadoop/conf/core-site.xml:ro
+      - ../../../storage/hdfs/hdfs-site.xml:/etc/hadoop/conf/hdfs-site.xml:ro
+    command: ["python", "processing/spark/dev/hdfs_probe.py", "write"]
+    depends_on:
+      namenode:
+        condition: service_healthy
+      datanode:
+        condition: service_healthy
+
+volumes:
+  namenode-data:
+  datanode-data:

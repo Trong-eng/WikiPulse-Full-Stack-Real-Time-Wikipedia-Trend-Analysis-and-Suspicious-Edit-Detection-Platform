@@ -26,6 +26,9 @@ Format, mỗi item 1–3 dòng:
 
 ## Trọng
 
+- **BL-LINH-03** · PROPOSED · finding · P1 · owner: Trọng — GitHub main `ca3d192` và nền W2 `78acbf6` chưa có profile full/NameNode/DataNode trong Compose. W3-LINH-01 cần full HDFS với readiness, named volumes và cấu hình Spark cho data/checkpoint URI riêng. Linh chuẩn bị lab độc lập trong processing để kiểm thử trước; cần Trọng bàn giao tích hợp dùng chung. Nguồn: [W3-LINH-01](plans/W3-LINH-01.md), `storage/hdfs/README.md` · Lịch: đề xuất W3-TRONG-01
+  - 2026-11-08 Linh: main `312c086` đã có profile full; phụ thuộc kỹ thuật đã được gỡ, giữ item để Trọng xác nhận theo ownership.
+
 - **BL-LINH-01** · DONE (merge trực tiếp theo yêu cầu; evidence W2-TRONG-01) · tech-debt · P2 · owner: Trọng — Forward `SPARK_ANALYTICS_SINK`/`SPARK_SCORING_PATH` vào Compose và ghi `.env.example`; cập nhật architecture/data-flow cho 4 query analytics sau Silver. Mặc định Parquet hoạt động; cấu hình khác hiện truyền bằng container env/override. Nguồn: [processing README](../processing/README.md#week-two-analytics), [W2-LINH-01](plans/W2-LINH-01.md) · Lịch: W2-TRONG-01
 
 - **BL-THANH-06** · PROPOSED · bug · P2 · owner: Trọng — Makefile không chạy được trên Windows: `install` gọi `python3`, `PYTHON ?= .venv/bin/python`, `.venv/bin/ruff`; Windows mặc định không có `make`. Nguồn: `Makefile:1,8,30` · Lịch: —
@@ -57,7 +60,8 @@ Format, mỗi item 1–3 dòng:
 
 ## Linh
 
-- **BL-TRONG-01** · PROPOSED · tech-debt · P3 · owner: Linh — Cập nhật đoạn `processing/README.md` nói Compose chưa forward `SPARK_ANALYTICS_SINK`/`SPARK_SCORING_PATH`: W2-TRONG-01 đã nối hai biến và cập nhật `.env.example`; hướng dẫn chạy chung ở README/HDFS README. Nguồn: [W2-TRONG-01](plans/W2-TRONG-01.md) · Lịch: —
+- **BL-TRONG-01** · DONE (evidence W3-LINH-01; chưa commit) · tech-debt · P3 · owner: Linh — Cập nhật đoạn `processing/README.md` nói Compose chưa forward `SPARK_ANALYTICS_SINK`/`SPARK_SCORING_PATH`: W2-TRONG-01 đã nối hai biến và cập nhật `.env.example`; hướng dẫn chạy chung ở README/HDFS README. Nguồn: [W2-TRONG-01](plans/W2-TRONG-01.md) · Lịch: W3-LINH-01
+  - 2026-11-08 Linh: README đã sửa theo Compose mới, thêm cách chạy nghiệm thu HDFS riêng của Linh; cấu hình core/full được kiểm chứng trên Windows.
 
 - **BL-THANH-19** · OPEN · finding · P1 · owner: Linh — LIVE không có field `anon` và không có user dạng IP. Editor ẩn danh là temporary account `~2026-NNNNN-NN` (11% event của enwiki+viwiki). `is_anonymous` hiện chỉ dựa vào `anon`/regex IP, nên `anonymous_edit_count` gần bằng 0 và ANONYMOUS_EDIT không bao giờ bắn. Nguồn: `processing/spark/wikipulse/transformations.py:161-166`, [ingestion-spike.md](thanh/ingestion-spike.md#shape-event-khác-fixture-cp0) · Lịch: W2-LINH-01
   - 2026-10-20 Linh: đã nhận và tái hiện bằng Spark trên fixture LIVE; evidence tại [W1-LINH-01](plans/W1-LINH-01.md#sample-live). Chưa sửa định nghĩa anonymous trong tuần 1.

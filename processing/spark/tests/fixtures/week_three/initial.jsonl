@@ -1,0 +1,5 @@
+{"meta": {"id": "w3-a", "dt": "2026-01-01T23:59:30Z", "domain": "enwiki.example.invalid"}, "wiki": "enwiki", "type": "edit", "page_id": 10, "title": "Synthetic page 10", "namespace": 0, "user": "synthetic-w3-a", "anon": false, "bot": false, "minor": false, "length": {"old": 1000, "new": 1100}, "revision": {"old": 1, "new": 2}, "comment": "", "ingested_at": "2026-01-02T00:00:30Z"}
+{"meta": {"id": "w3-b", "dt": "2026-01-02T00:00:20Z", "domain": "viwiki.example.invalid"}, "wiki": "viwiki", "type": "edit", "page_id": 20, "title": "Synthetic page 20", "namespace": 0, "user": "synthetic-w3-b", "anon": true, "bot": false, "minor": false, "length": {"old": 1000, "new": 400}, "revision": {"old": 1, "new": 2}, "comment": "", "ingested_at": "2026-01-02T00:00:30Z"}
+{"meta": {"dt": "2026-01-02T00:00:25Z"}, "wiki": "enwiki", "type": "edit"}
+{"meta": {"domain": "canary"}}
+{not json

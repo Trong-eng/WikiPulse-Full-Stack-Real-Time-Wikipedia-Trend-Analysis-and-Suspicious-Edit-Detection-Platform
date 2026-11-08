@@ -135,9 +135,9 @@ Container environment (module-owned, independent of shared Settings):
 | `SPARK_SCORING_PATH` | Repository `config/scoring.yaml` | Read-only scoring file, fixed for the run |
 | `SPARK_ANALYTICS_SINK` | `parquet` | `parquet` for producer handoff, `cassandra` for an implemented W2 store |
 
-Pass these into the container explicitly (`docker compose run -e NAME=value ...`
-or a Compose override). The shared Compose environment does not yet forward these
-two names from `.env`. Stop the existing Spark instance before starting a replacement;
+The shared Compose environment forwards both variables from `.env` or the shell
+since W2-TRONG-01. `docker compose run -e NAME=value ...` also overrides them for
+a one-off container. Stop the existing Spark instance before starting a replacement;
 never run two drivers with the same checkpoints. Standard Python exceptions cause
 nonzero exit; missing Cassandra W2 methods fail startup with their names.
 
@@ -173,6 +173,120 @@ restart and finalized windows rejecting too-late data:
 docker compose build spark
 docker compose run --rm --no-deps spark python -m pytest processing/spark/tests -q
 ```
+
+## Week-three HDFS acceptance
+
+Use the shared full profile and overlay described in
+[the HDFS README](../storage/hdfs/README.md). Both data and checkpoints must use
+HDFS URIs, with a new RUN_ID/serving namespace when migrating from local storage.
+Keep the watermark, schema, scoring and sink mode fixed for a checkpoint's lifetime.
+Each of the nine query names owns a separate checkpoint; persisted Silver remains
+the boundary between deduplication and downstream aggregations.
+
+From the repo root in PowerShell:
+
+```powershell
+$env:PYTHONUTF8 = '1'
+..\.venv\Scripts\python.exe -m processing.spark.acceptance.run_hdfs
+```
+
+This command builds the current Spark/API/replay images, creates a unique Compose
+project with random host ports and its own Kafka/Cassandra/HDFS volumes, then
+runs the production query starter against real services. It does not change the
+developer `.env` or existing data. `--no-build` is only valid after building the
+current source; `--keep` retains the test stack for inspection. The default cleans
+up only the generated project. Each phase has a 300-second command deadline.
+
+| Phase | Independent expectation |
+|---|---|
+| initial | UTC midnight fixture, malformed JSON/missing page quarantined, sparse canary only in Bronze; 5 Bronze / 2 Silver, Gold target still empty |
+| late | Same ID replayed twice, one with changed timestamp; one distinct late-but-open edit; 8 Bronze / 3 Silver, target count 2 |
+| retry_failure | Inject an error **after** a real Cassandra activity upsert succeeds; batch must fail |
+| recovered | New JVM resumes the failed batch with the same checkpoint; target activity count 3, never 6; 9 Bronze / 4 Silver |
+| finalized | Recreate both HDFS containers retaining volumes; publish clock event advancing watermark; target activity 3 and trend 0.08375 finalize |
+| after_restart | Recreate HDFS again; replay an old duplicate, a distinct too-late event and a fresh event; Bronze 13, Silver 6, finalized target unchanged |
+| idle_restart | New JVM, no new input; counts and finalized rows unchanged |
+
+Every phase starts a fresh Spark driver; the persistent IDs of all nine queries
+must stay equal while their execution run IDs change. Phases drain the Kafka
+queries before downstream Silver readers. They also check unique Kafka coordinates
+in Bronze, exact Silver IDs, privacy fields, logical key uniqueness, actual HDFS
+partition directory paths and UTC partition values, including Gold windows across
+midnight. Data and state survive two HDFS container recreations. The separately
+stored literal expected results are in `spark/tests/fixtures/week_three_expected.json`.
+
+The fixture intentionally keeps the timestamp-changing duplicate inside the
+dedup horizon. IDs are not retained forever: after state eviction, an ID carrying
+a sufficiently new timestamp can be treated as a new event. Too-late rows remain
+in Bronze but cannot reopen finalized Gold. An idle last window still requires
+new event time to advance watermark; wall-clock waiting cannot finalize it.
+
+Evidence is `artifacts/w3-<timestamp>-<id>/report.json`, per-phase logs and
+`commands.log`. Failed assertions exit nonzero. The failure injection exists only
+in this acceptance module; it does not change the production sink. It proves
+activity retry after an uncertain write, not a cross-sink exactly-once transaction.
+Analytics Cassandra callbacks and LIVE collection remain their owners' work.
+
+Run the shared UI/API/full-stack regression separately:
+
+```powershell
+..\.venv\Scripts\python.exe scripts/smoke_test.py --hdfs
+```
+
+See [W3-LINH-01](../docs/plans/W3-LINH-01.md) for results and remaining integration scope.
+
+## Week-three development environment
+
+The standalone lab in `spark/dev/compose.hdfs.yaml` prepares HDFS access for Linh's
+tests. It runs one NameNode and one DataNode with replication 1 and separate named
+volumes, using the existing `storage/hdfs` XML files. It does not implement the
+shared `full` profile or launch Kafka/Cassandra/API. Hadoop daemon startup follows
+the [Apache Hadoop 3.4.1 setup](https://hadoop.apache.org/docs/r3.4.1/hadoop-project-dist/hadoop-common/ClusterSetup.html).
+The lab formats only a new NameNode volume with no `current/VERSION`.
+
+From the repository root in PowerShell:
+
+```powershell
+$lab = 'processing/spark/dev/compose.hdfs.yaml'
+docker compose -f $lab config --quiet
+docker compose -f $lab pull namenode datanode
+docker compose -f $lab build spark
+docker compose -f $lab up -d --wait namenode datanode
+docker compose -f $lab exec -T namenode hdfs dfsadmin -report
+$env:W3_RUN_ID = 'linh-w3-prep-' + (Get-Date -Format 'yyyyMMddHHmmss')
+docker compose -f $lab run --rm spark python processing/spark/dev/hdfs_probe.py write
+docker compose -f $lab restart namenode datanode
+docker compose -f $lab up -d --wait namenode datanode
+docker compose -f $lab run --rm spark python processing/spark/dev/hdfs_probe.py read
+docker compose -f $lab stop
+```
+
+Use the same `W3_RUN_ID` for the write/read pair, and a fresh value for another write.
+The probe refuses to overwrite existing output. `stop` retains containers/volumes;
+`up -d --wait namenode datanode` starts the lab again. The project is
+`wikipulse-linh-w3-lab`, isolated from the application stack. No host ports are
+published; Spark accesses `namenode:9000` and the DataNode inside the Docker network.
+
+The probe writes **synthetic environment rows**, reads Parquet partitions through
+the Hadoop client, and checks a separate writable checkpoint namespace. It does
+not validate production Bronze/Silver/Gold schemas, streaming recovery, late data
+or finalized results. Those acceptance steps remain in
+[W3-LINH-01](../docs/plans/W3-LINH-01.md). Keep the new HDFS namespace separate from
+W1/W2 local output; the default lab Spark command is the environment probe.
+
+On this Windows workspace the existing venv is in the parent directory:
+
+```powershell
+..\.venv\Scripts\python.exe -m pip check
+..\.venv\Scripts\python.exe -m pytest -q -m 'not integration and not spark'
+docker compose -f processing/spark/dev/compose.hdfs.yaml run --rm --no-deps -e HADOOP_CONF_DIR=/tmp/wikipulse-no-hadoop-conf spark python -m pytest processing/spark/tests -q
+```
+
+Python/Java/Hadoop for Spark run inside the image. No Windows Hadoop installation,
+`winutils.exe`, or host PySpark installation is needed for these commands.
+The existing baseline suite writes local `tmp_path` fixtures; disable the lab's
+Hadoop configuration for that command so unqualified paths use `file:///`.
+The HDFS probe must keep the mounted Hadoop configuration enabled.
 
 ## LIVE integration status
 

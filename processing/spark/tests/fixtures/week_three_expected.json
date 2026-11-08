@@ -1,0 +1,190 @@
+{
+  "initial": {
+    "counts": {
+      "bronze": 5,
+      "invalid": 2,
+      "silver": 2,
+      "gold_activity": 0,
+      "gold_trends": 0,
+      "events": 2,
+      "suspicious": 1
+    },
+    "silver_ids": [
+      "w3-a",
+      "w3-b"
+    ],
+    "activity": {
+      "event_count": 1,
+      "edit_count": 1,
+      "new_page_count": 0,
+      "anonymous_edit_count": 0,
+      "bot_edit_count": 0
+    },
+    "trend": {
+      "edit_count": 1,
+      "unique_editors": 1,
+      "abs_byte_delta": 100,
+      "trend_score": 0.025
+    },
+    "finalized": false
+  },
+  "late": {
+    "counts": {
+      "bronze": 8,
+      "invalid": 2,
+      "silver": 3,
+      "gold_activity": 0,
+      "gold_trends": 0,
+      "events": 3,
+      "suspicious": 2
+    },
+    "silver_ids": [
+      "w3-a",
+      "w3-b",
+      "w3-c"
+    ],
+    "activity": {
+      "event_count": 2,
+      "edit_count": 2,
+      "new_page_count": 0,
+      "anonymous_edit_count": 1,
+      "bot_edit_count": 0
+    },
+    "trend": {
+      "edit_count": 2,
+      "unique_editors": 2,
+      "abs_byte_delta": 600,
+      "trend_score": 0.06
+    },
+    "finalized": false
+  },
+  "recovered": {
+    "counts": {
+      "bronze": 9,
+      "invalid": 2,
+      "silver": 4,
+      "gold_activity": 0,
+      "gold_trends": 0,
+      "events": 4,
+      "suspicious": 2
+    },
+    "silver_ids": [
+      "w3-a",
+      "w3-b",
+      "w3-c",
+      "w3-d"
+    ],
+    "activity": {
+      "event_count": 3,
+      "edit_count": 3,
+      "new_page_count": 0,
+      "anonymous_edit_count": 1,
+      "bot_edit_count": 0
+    },
+    "trend": {
+      "edit_count": 3,
+      "unique_editors": 3,
+      "abs_byte_delta": 650,
+      "trend_score": 0.08375
+    },
+    "finalized": false
+  },
+  "finalized": {
+    "counts": {
+      "bronze": 10,
+      "invalid": 2,
+      "silver": 5,
+      "gold_activity": 2,
+      "gold_trends": 10,
+      "events": 5,
+      "suspicious": 2
+    },
+    "silver_ids": [
+      "w3-a",
+      "w3-b",
+      "w3-c",
+      "w3-clock",
+      "w3-d"
+    ],
+    "activity": {
+      "event_count": 3,
+      "edit_count": 3,
+      "new_page_count": 0,
+      "anonymous_edit_count": 1,
+      "bot_edit_count": 0
+    },
+    "trend": {
+      "edit_count": 3,
+      "unique_editors": 3,
+      "abs_byte_delta": 650,
+      "trend_score": 0.08375
+    },
+    "finalized": true
+  },
+  "after_restart": {
+    "counts": {
+      "bronze": 13,
+      "invalid": 2,
+      "silver": 6,
+      "gold_activity": 2,
+      "gold_trends": 10,
+      "events": 6,
+      "suspicious": 2
+    },
+    "silver_ids": [
+      "w3-a",
+      "w3-b",
+      "w3-c",
+      "w3-clock",
+      "w3-d",
+      "w3-fresh"
+    ],
+    "activity": {
+      "event_count": 3,
+      "edit_count": 3,
+      "new_page_count": 0,
+      "anonymous_edit_count": 1,
+      "bot_edit_count": 0
+    },
+    "trend": {
+      "edit_count": 3,
+      "unique_editors": 3,
+      "abs_byte_delta": 650,
+      "trend_score": 0.08375
+    },
+    "finalized": true
+  },
+  "idle_restart": {
+    "counts": {
+      "bronze": 13,
+      "invalid": 2,
+      "silver": 6,
+      "gold_activity": 2,
+      "gold_trends": 10,
+      "events": 6,
+      "suspicious": 2
+    },
+    "silver_ids": [
+      "w3-a",
+      "w3-b",
+      "w3-c",
+      "w3-clock",
+      "w3-d",
+      "w3-fresh"
+    ],
+    "activity": {
+      "event_count": 3,
+      "edit_count": 3,
+      "new_page_count": 0,
+      "anonymous_edit_count": 1,
+      "bot_edit_count": 0
+    },
+    "trend": {
+      "edit_count": 3,
+      "unique_editors": 3,
+      "abs_byte_delta": 650,
+      "trend_score": 0.08375
+    },
+    "finalized": true
+  }
+}
