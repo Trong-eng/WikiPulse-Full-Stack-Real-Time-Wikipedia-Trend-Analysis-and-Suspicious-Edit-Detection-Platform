@@ -44,7 +44,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 | W3-MANH-01 | Mạnh | Trọng | CP2 | E2E hai mode, privacy/freshness/API outage, demo flow | 10–15 | TODO | Regression checklist |
 | W4-TRONG-01 | Trọng | Cả nhóm | CP3 | Freeze, clone sạch máy khác, release candidate, limitations | 10–15 | TODO | CP4 evidence |
 | W4-THANH-01 | Thành | Trọng | CP3 | Sửa ingestion/replay bugs, runbook và demo nguồn | 10–15 | TODO | Final tests/docs |
-| W4-LINH-01 | Linh | Trọng, Nhân | CP3 | Correctness fixes, công thức/giới hạn, golden results | 10–15 | TODO | Final tests/docs |
+| W4-LINH-01 | Linh | Trọng, Nhân | CP3 | Correctness fixes, công thức/giới hạn, golden results | 10–15 | REVIEW | [docs/plans/W4-LINH-01.md](plans/W4-LINH-01.md) |
 | W4-NHAN-01 | Nhân | Trọng, Mạnh | CP3 | Serving/API regression, OpenAPI/data dictionary/runbook | 10–15 | TODO | Final tests/docs |
 | W4-MANH-01 | Mạnh | Cả nhóm | CP3 | Regression/demo video/README verification/release checklist | 10–15 | TODO | Demo + acceptance report |
 

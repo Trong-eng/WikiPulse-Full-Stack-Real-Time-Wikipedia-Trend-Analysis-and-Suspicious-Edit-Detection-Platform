@@ -288,6 +288,82 @@ The existing baseline suite writes local `tmp_path` fixtures; disable the lab's
 Hadoop configuration for that command so unqualified paths use `file:///`.
 The HDFS probe must keep the mounted Hadoop configuration enabled.
 
+## Week-four development environment
+
+Preparation and results are tracked in [W4-LINH-01](../docs/plans/W4-LINH-01.md).
+Reuse the existing Python venv and Docker Linux runtime. Start Docker Desktop
+before running container commands. Run from the repository root in PowerShell:
+
+```powershell
+$env:PYTHONUTF8 = '1'
+..\.venv\Scripts\python.exe -m pip check
+..\.venv\Scripts\python.exe -m pytest -q -m 'not integration and not spark' --ignore=tests/test_hdfs_bootstrap.py --ignore=tests/test_deployment.py
+docker compose -f docker-compose.yml -f docker-compose.hdfs.yml --profile full config --quiet
+docker run --rm --mount "type=bind,source=$($PWD.Path),target=/workspace,readonly" -e PYTHONDONTWRITEBYTECODE=1 --entrypoint python wikipulse-spark:0.1.0 -m pytest processing/spark/tests tests/test_hdfs_bootstrap.py -q -p no:cacheprovider
+```
+
+The container command mounts the current checkout read-only, so tests use current
+source even when the image was built in week three. Test output/state uses container
+temporary storage. The image must already exist; on a new machine build it with
+`docker compose build spark`. Rebuild when Dockerfile or dependencies change.
+Windows excludes the POSIX bootstrap tests (run in the Linux command above) and
+deployment tests that use `/dev/null`; Compose configuration validation is separate.
+
+Reuse the week-three acceptance runner for later real Kafka/HDFS/Cassandra activity
+regression. Run without `--no-build` to rebuild current source; it creates an isolated
+project and cleans up its own volumes. The historical lab and its volumes can remain
+stopped until needed. Never run concurrent drivers against the same checkpoints.
+Keep analytics in Parquet mode until the W2 Cassandra store is implemented.
+Environment preparation and producer tests do not establish group CP3 or LIVE/API
+analytics readiness. Week four is for correctness fixes and handoff, with no new
+features or contract changes planned.
+
+## Week-four formulas and handoff limits
+
+Default trend score is
+`0.50 * min(edit_count / 50, 1) + 0.25 * min(unique_editors / 20, 1) + 0.25 * min(abs_byte_delta / 10000, 1)`.
+Only edits enter five-minute windows sliding every minute; windows include their
+start and exclude their end. Bots count. Unique editors use Spark's approximate
+distinct count of non-null salted hashes (default relative standard deviation
+0.05); large populations are estimates. Missing users do not add a distinct editor.
+Absolute byte deltas sum magnitudes, so deletion and addition do not cancel; null
+deltas contribute nothing, and an all-null group has zero magnitude.
+
+For example, two edits by one editor with total magnitude 40 score **0.0335**.
+The W3 finalized target has three edits, three editors and magnitude 650:
+`0.03 + 0.0375 + 0.01625 = 0.08375`. Metadata is chosen by descending
+`(event_time, event_id, page_title, namespace)` within the stable page key;
+arrival order does not choose the title.
+
+Default risk is `min(30 * deletion + 20 * revert + 10 * anonymous_nonbot, 100)`.
+Each indicator is either zero or one. Deletion means delta <= -500 (inclusive);
+unknown lengths do not trigger deletion. Revert uses the documented anchored
+English comment patterns. Anonymous includes temporary accounts. All rules require
+an edit. A bot can receive deletion/revert reasons, while the anonymous reason
+excludes bots. All three reasons score **60**, or **50** for the equivalent bot;
+non-edits score zero. The default rules cannot reach 100; that is a configurable
+ceiling. Risk prioritizes review and does not establish vandalism.
+
+Literal W2/W3 expected JSON and [spark/tests/test_week_four.py](spark/tests/test_week_four.py) provide the golden
+references. W4 adds combined-rule, bot/non-edit, exact window-boundary and
+metadata tie/order checks. Floating point scores use approximate comparisons.
+Run results and evidence paths belong in the W4 plan.
+
+Operational limits for handoff:
+
+- Watermark is event time, not wall time. Idle final windows require later valid
+  event times to finalize. Late rows cannot reopen finalized Gold.
+- Deduplication retains bounded state, not permanent event history. An evicted
+  identifier with a sufficiently new timestamp can be accepted again.
+- Trend snapshots are absolute totals. Select the greatest completed batch ID per
+  key; summing snapshots corrupts counts. Multi-sink writes are not one transaction.
+- Activity retry is verified after a real successful upsert followed by failure.
+  Analytics Cassandra retry/API and LIVE integration await their module owners.
+- HDFS replication 1 and single-node Kafka/Cassandra/Spark are demo infrastructure;
+  acceptance establishes persistence/recovery cases, not HA or a production benchmark.
+- Rebuild images after source changes for full-stack acceptance. Use fresh isolated
+  namespaces after schema/scoring/sink changes; retain configuration throughout a run.
+
 ## LIVE integration status
 
 See [the Linh backlog](../docs/backlog.md#linh) for the tracked findings:
