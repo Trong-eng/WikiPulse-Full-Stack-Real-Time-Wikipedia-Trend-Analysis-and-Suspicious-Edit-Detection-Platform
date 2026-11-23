@@ -1,12 +1,17 @@
 """Bootstrap must never format an existing or damaged NameNode volume."""
 
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+pytestmark = pytest.mark.skipif(
+    os.name != "posix" or not shutil.which("bash"),
+    reason="Shell stubs require POSIX execution; full smoke checks HDFS in Linux containers",
+)
 
 
 @pytest.mark.parametrize("state,code,formatted", [

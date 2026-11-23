@@ -66,8 +66,8 @@ Smoke khởi tạo project riêng, publish fixture hai phase, assert counts cả
 
 ```bash
 .venv/bin/python scripts/smoke_test.py --keep
-# Cleanup đúng project name in report, không dùng project mặc định:
-docker compose -p wikipulse-smoke-YYYYMMDDHHMMSS down --volumes
+# Dọn đúng project có trong report.json, gồm cả hậu tố UUID:
+docker compose -p "$SMOKE_PROJECT" down --volumes --remove-orphans
 ```
 
 `make down` giữ volumes. `make logs` xem logs. `make replay` chạy cùng fixture có ID ổn định; dedup chỉ được cam kết trong watermark horizon, không replay vô hạn vào run cũ. Chạy mới/schema mới cần namespace/output/checkpoint/keyspace mới hoặc dùng smoke cô lập.
@@ -81,6 +81,8 @@ Compose forward `SPARK_ANALYTICS_SINK` (mặc định `parquet`) và `SPARK_SCOR
 `make up-full` bật HDFS và chờ health; `make down-full` giữ volumes. Cách chọn project/URI, migrate namespace, readiness và restart: [HDFS README](storage/hdfs/README.md). Core mặc định vẫn local, không tự bật HDFS.
 
 Hạ tầng W3 có [Kubernetes skeleton](deploy/kubernetes/README.md) cho các dịch vụ stateless và [profile monitoring](monitoring/README.md) để theo dõi readiness HTTP. Compose là đường nghiệm thu full stack.
+
+Kịch bản demo REPLAY, bằng chứng clone sạch và các điều kiện nghiệm thu còn thiếu nằm trong [plan bàn giao W4](docs/plans/W4-TRONG-01.md).
 
 ## Cấu trúc và ownership
 

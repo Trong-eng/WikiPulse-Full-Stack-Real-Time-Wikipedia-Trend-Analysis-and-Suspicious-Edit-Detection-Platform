@@ -11,3 +11,5 @@ Trọng: shared/config, Compose/Makefile/scripts và integration. Thành: ingest
 Startup build lần đầu tải dependencies/images. `make down` giữ volumes để restart. Tạo RUN_ID và keyspace mới khi đổi schema/nguồn. Shared Cassandra code dùng low-volume driver iteration. TTL và capacity Cassandra do Nhân theo W3-NHAN-01.
 
 `KAFKA_RAW_RETENTION_MS` cấu hình retention lúc tạo topic raw mới, mặc định `86400000` (24 giờ). `make init` chạy lại theo kiểu idempotent và giữ cấu hình topic đã có. Sau thời gian retention, Kafka có thể xóa segment cũ theo chu kỳ broker. Resume Spark từ offset đã hết hạn cần run/checkpoint mới hoặc nguồn replay phù hợp.
+
+Windows có thể chạy `scripts/wikipulse.ps1` cho test/lint/config và gọi `.venv\Scripts\python.exe scripts\smoke_test.py --hdfs` để nghiệm thu HDFS. Unit bootstrap dùng mô phỏng POSIX nên chỉ chạy khi host hỗ trợ Bash/POSIX. Full smoke kiểm bootstrap thật bên trong Linux containers.
