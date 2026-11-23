@@ -202,6 +202,8 @@ cuối kỳ không phải soạn lại từ đầu. Quy ước:
 15/10/2026 & Nhân & Khởi tạo khung báo cáo; viết phần CP0 (kiến trúc, luồng dữ liệu, serving, kiểm thử) \\
 15/10/2026 & Nhân & Thêm use case (biểu đồ, đặc tả), biểu đồ hoạt động; viết lại Chương 2 kèm hình minh họa; chuyển
 tên file, lệnh sang Phụ lục A \\
+23/11/2026 & Nhân & Lược đồ năm bảng mới, API ba nghiệp vụ và định dạng lỗi chung, đặc tả ba use case; kết quả trên dữ
+liệu mẫu, retry, dung lượng và hạn lưu 7 ngày (W2-NHAN-01, W3-NHAN-01) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -738,9 +740,67 @@ Hậu điều kiện & Kafka có thêm các sự kiện mẫu; phát lại nhi�
 \end{tabularx}
 \end{table}
 
-\subsubsection{Đặc tả use case \enquote{Xem trang xu hướng}}\chualam
-\subsubsection{Đặc tả use case \enquote{Xem chỉnh sửa cần ưu tiên}}\chualam
-\subsubsection{Đặc tả use case \enquote{Xem chi tiết một sự kiện}}\chualam
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả use case \enquote{Xem trang xu hướng}}\label{tab:uc-xuhuong}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{3.2cm}X@{}}
+\toprule
+Tác nhân & Người xem \\
+Tiền điều kiện & Hệ thống đang chạy, Spark ghi kết quả xu hướng vào Cassandra \\
+Luồng chính & 1. Người xem mở trang Trending, chọn wiki.\newline
+2. Dashboard gọi API lấy top-N trang của cửa sổ 5 phút mới nhất.\newline
+3. API tra bảng chỉ mục để biết cửa sổ mới nhất của wiki, đọc toàn bộ các trang trong cửa sổ đó, sắp theo điểm xu
+hướng giảm dần (hòa thì theo số chỉnh sửa, rồi theo mã trang) và trả N dòng đầu kèm mốc đầu, cuối của cửa sổ.\newline
+4. Dashboard hiện bảng trang xu hướng, gắn nhãn \enquote{tạm tính}. \\
+Luồng thay thế & 2a. Người xem chọn một cửa sổ cụ thể: API đọc đúng cửa sổ đó.\newline
+3a. Chưa có cửa sổ nào: trả danh sách rỗng, mốc cửa sổ để trống.\newline
+3b. Cửa sổ có hơn 5.000 trang: API báo vượt dung lượng thay vì trả bảng xếp hạng bị cắt.\newline
+3c. Cassandra không phản hồi: API báo \enquote{phụ thuộc chưa sẵn sàng}. \\
+Hậu điều kiện & Không thay đổi dữ liệu \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả use case \enquote{Xem chỉnh sửa cần ưu tiên}}\label{tab:uc-uutien}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{3.2cm}X@{}}
+\toprule
+Tác nhân & Người xem \\
+Tiền điều kiện & Hệ thống đang chạy, Spark ghi các chỉnh sửa có điểm ưu tiên lớn hơn 0 vào Cassandra \\
+Luồng chính & 1. Người xem mở trang Suspicious Edits, chọn wiki, số phút gần nhất (1--15) và điểm tối thiểu.\newline
+2. Dashboard gọi API.\newline
+3. API lấy danh sách các phút có chỉnh sửa đáng chú ý trong khoảng đã chọn từ bảng chỉ mục, đọc từng phút, lọc theo
+điểm tối thiểu, sắp theo điểm rồi theo thời điểm giảm dần.\newline
+4. Dashboard hiện danh sách kèm lý do (xóa nhiều nội dung, hoàn tác, sửa ẩn danh) và câu nhắc \enquote{điểm dùng để
+ưu tiên xem xét, không kết luận phá hoại}. \\
+Luồng thay thế & 3a. Không có chỉnh sửa nào: trả danh sách rỗng.\newline
+3b. Tổng số dòng các phút cần đọc vượt 5.000: API báo vượt dung lượng.\newline
+1a. Số phút hoặc điểm tối thiểu ngoài giới hạn: API từ chối, chỉ rõ tham số sai. \\
+Hậu điều kiện & Không thay đổi dữ liệu; phản hồi không chứa định danh người sửa \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả use case \enquote{Xem chi tiết một sự kiện}}\label{tab:uc-chitiet}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{3.2cm}X@{}}
+\toprule
+Tác nhân & Người xem \\
+Tiền điều kiện & Người xem có định danh sự kiện, thường lấy từ danh sách chỉnh sửa cần ưu tiên \\
+Luồng chính & 1. Người xem chọn một sự kiện.\newline
+2. API đọc đúng một dòng theo định danh sự kiện.\newline
+3. API trả thông tin trang, phiên bản cũ và mới, độ dài, chênh lệch byte, các cờ ẩn danh, bot, sửa nhỏ, điểm và lý
+do ưu tiên. \\
+Luồng thay thế & 2a. Không tìm thấy (sai định danh, hoặc sự kiện cũ hơn 7 ngày đã hết hạn lưu): API trả lỗi
+\enquote{không tìm thấy sự kiện}.\newline
+3a. Sự kiện không dính dấu hiệu nào: điểm 0, danh sách lý do rỗng. \\
+Hậu điều kiện & Không thay đổi dữ liệu \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\dukiensua{Bước hiển thị trên dashboard của ba use case trên làm ở W2-MANH-01; phần API đã chạy.}
 \subsubsection{Đặc tả use case \enquote{Thu thập luồng thật (LIVE)}}\chualam
 
 \subsection{Yêu cầu chức năng}
@@ -754,9 +814,9 @@ F1 & Phát lại dữ liệu mẫu vào Kafka, giữ nguyên định danh và th
 F2 & Nhận luồng thật từ Wikimedia, tự nối lại khi mất kết nối & Tuần 2 \\
 F3 & Kiểm tra, tách riêng bản ghi hỏng, chuẩn hóa, loại trùng & Đã làm \\
 F4 & Đếm hoạt động theo wiki, cửa sổ 1 phút; có số tạm tính và số đã chốt & Đã làm \\
-F5 & Trang xu hướng: cửa sổ 5 phút trượt mỗi 1 phút, top-N theo wiki & Tuần 2 \\
-F6 & Ưu tiên xem xét chỉnh sửa theo ba dấu hiệu: xóa nhiều nội dung, hoàn tác qua lại, sửa ẩn danh & Tuần 2 \\
-F7 & Tra cứu chi tiết một sự kiện & Tuần 2--3 \\
+F5 & Trang xu hướng: cửa sổ 5 phút trượt mỗi 1 phút, top-N theo wiki & API đã làm \\
+F6 & Ưu tiên xem xét chỉnh sửa theo ba dấu hiệu: xóa nhiều nội dung, hoàn tác qua lại, sửa ẩn danh & API đã làm \\
+F7 & Tra cứu chi tiết một sự kiện & API đã làm \\
 F8 & Dashboard 4 trang: Overview, Trending, Suspicious Edits, System Status & Overview đã làm \\
 F9 & Lưu ba tầng trên HDFS & Tuần 2--3 \\
 \bottomrule
@@ -988,7 +1048,79 @@ CK$\downarrow$ & \textbf{window\_start} & {\color{wpgray}timestamp} & sắp mớ
         sửa cộng trang mới không vượt tổng; ẩn danh, bot không vượt số chỉnh sửa). Dòng sai làm batch thất bại để Spark
         chạy lại, thay vì ghi số sai.
 \end{itemize}
-\dukiensua{Thêm bảng xu hướng, chỉnh sửa đáng ngờ, chi tiết sự kiện ở tuần 2 (W2-NHAN-01); TTL ở tuần 3 (W3-NHAN-01).}
+
+Ba nghiệp vụ còn lại dùng năm bảng (Hình~\ref{fig:bangw2}). Mỗi câu hỏi của API có đúng một bảng trả lời bằng cách đọc
+một partition; không truy vấn nào phải quét cả bảng.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\node[erd] (tr) at (0,0) {\textbf{page\_trends\_by\_window}\nodepart{two}\begin{tabular}{@{}l@{\;}l@{\;}l@{}}
+PK & \textbf{wiki} & {\color{wpgray}text} \\
+PK & \textbf{window\_start} & {\color{wpgray}timestamp} \\
+CK & \textbf{page\_key} & {\color{wpgray}text} \\
+ & window\_end, page\_title, namespace & \\
+ & edit\_count, unique\_editors & {\color{wpgray}bigint} \\
+ & abs\_byte\_delta & {\color{wpgray}bigint} \\
+ & trend\_score & {\color{wpgray}double} \\
+ & updated\_at & {\color{wpgray}timestamp} \\
+\end{tabular}};
+\node[erd] (tw) at (8.2,0) {\textbf{trend\_windows\_by\_wiki}\nodepart{two}\begin{tabular}{@{}l@{\;}l@{\;}l@{}}
+PK & \textbf{wiki} & {\color{wpgray}text} \\
+CK$\downarrow$ & \textbf{window\_start} & {\color{wpgray}timestamp} \\
+ & updated\_at & {\color{wpgray}timestamp} \\
+\end{tabular}};
+\node[erd] (se) at (0,-3.3) {\textbf{suspicious\_edits\_by\_bucket}\nodepart{two}\begin{tabular}{@{}l@{\;}l@{\;}l@{}}
+PK & \textbf{wiki} & {\color{wpgray}text} \\
+PK & \textbf{bucket\_start} & {\color{wpgray}timestamp} \\
+CK & \textbf{event\_id} & {\color{wpgray}text} \\
+ & event\_time, page\_key, page\_title & \\
+ & revision\_new, byte\_delta & {\color{wpgray}bigint} \\
+ & is\_anonymous, is\_bot & {\color{wpgray}boolean} \\
+ & risk\_score & {\color{wpgray}int} \\
+ & risk\_reasons & {\color{wpgray}set<text>} \\
+ & updated\_at & {\color{wpgray}timestamp} \\
+\end{tabular}};
+\node[erd] (sb) at (8.2,-3.3) {\textbf{suspicious\_buckets\_by\_wiki}\nodepart{two}\begin{tabular}{@{}l@{\;}l@{\;}l@{}}
+PK & \textbf{wiki} & {\color{wpgray}text} \\
+CK$\downarrow$ & \textbf{bucket\_start} & {\color{wpgray}timestamp} \\
+ & updated\_at & {\color{wpgray}timestamp} \\
+\end{tabular}};
+\node[erd] (ev) at (3.6,-6.9) {\textbf{events\_by\_id}\quad{\color{wpgray}(TTL 7 ngày)}\nodepart{two}\begin{tabular}{@{}l@{\;}l@{\;}l@{}}
+PK & \textbf{event\_id} & {\color{wpgray}text} \\
+ & wiki, event\_time, page\_key, page\_title, namespace, event\_type & \\
+ & revision\_old/new, length\_old/new, byte\_delta & {\color{wpgray}bigint} \\
+ & is\_anonymous, is\_bot, is\_minor & {\color{wpgray}boolean} \\
+ & risk\_score, risk\_reasons & \\
+ & pipeline\_version, processed\_at & \\
+\end{tabular}};
+\draw[dep] (tw.west) -- node[lab,above]{chỉ tới} ($(tr.north east)!0.5!(tr.south east)$);
+\draw[dep] (sb.west) -- node[lab,above]{chỉ tới} ($(se.north east)!0.5!(se.south east)$);
+\end{tikzpicture}
+\caption{Năm bảng cho xu hướng, chỉnh sửa cần ưu tiên và chi tiết sự kiện. PK: khóa partition; CK: khóa sắp xếp
+($\downarrow$ là giảm dần). Mũi tên nét đứt: bảng chỉ mục liệt kê các cửa sổ (hoặc phút) đã có dữ liệu ở bảng chính.}
+\label{fig:bangw2}
+\end{figure}
+
+\begin{itemize}
+  \item \textbf{Bảng chỉ mục thay cho quét bảng.} Cassandra không trả lời được \enquote{cửa sổ mới nhất của enwiki là cửa
+        sổ nào} nếu chỉ có bảng chính, vì khóa partition gồm cả wiki lẫn mốc thời gian. Mỗi wiki vì vậy có thêm một
+        partition liệt kê các cửa sổ (hoặc các phút) đã có dữ liệu, mới nhất trước.
+  \item \textbf{Thứ tự ghi.} Trong mỗi batch, các dòng dữ liệu được ghi trước, chỉ mục ghi sau. Người đọc thấy một cửa sổ
+        trong chỉ mục thì chắc chắn dữ liệu của cửa sổ đó đã có; batch hỏng giữa chừng và được chạy lại cũng chỉ ghi
+        đè cùng các khóa.
+  \item \textbf{Điểm không nằm trong khóa.} Điểm xu hướng và điểm ưu tiên thay đổi theo từng batch. Nếu đưa điểm vào khóa,
+        mỗi lần điểm đổi sẽ sinh ra một dòng mới và dòng cũ vẫn còn. Vì vậy API đọc cả partition rồi tự sắp xếp.
+  \item \textbf{Giới hạn 5.000 dòng.} Đọc cả partition chỉ an toàn khi partition nhỏ. API đọc tối đa 5.001 dòng; nếu
+        thật sự có hơn 5.000 dòng thì báo vượt dung lượng chứ không trả bảng xếp hạng thiếu. Với chỉnh sửa cần ưu tiên,
+        giới hạn tính trên tổng số dòng của mọi phút được đọc.
+  \item \textbf{Hạn lưu chi tiết sự kiện.} Bảng chi tiết sự kiện tự xóa dòng sau 7 ngày. Lịch sử đầy đủ vẫn nằm ở Bronze
+        và Silver; số đo làm căn cứ cho mốc 7 ngày ở Mục~\ref{sec:dungluong}.
+  \item \textbf{Kiểm tra trước khi ghi.} Như bảng hoạt động, mỗi dòng phải đúng tập trường của contract (dòng có thêm định
+        danh người dùng hay nội dung bình luận bị từ chối), cửa sổ xu hướng dài đúng 5 phút, phút của chỉnh sửa khớp
+        thời điểm sự kiện, lý do ưu tiên thuộc ba mã đã định. Chỉ những trường Spark luôn điền mới bị kiểm tra bắt
+        buộc, để một trường được phép trống không làm luồng thất bại lặp lại.
+\end{itemize}
 
 \subsection{Ghi kết quả từ Spark sang Cassandra}
 Ở mỗi batch, tiến trình chính của Spark duyệt lần lượt từng dòng kết quả (không nạp cả batch vào bộ nhớ) và ghi vào
@@ -1004,9 +1136,9 @@ chung, nên hệ thống không cam kết \enquote{đúng một lần} trên c�
 \textbf{Endpoint} & \textbf{Mô tả} & \textbf{Trạng thái} \\ \midrule
 \code{/health} & Kiểm tra Cassandra thật sự trả lời được & Đã làm \\
 \code{/api/v1/activity} & Hoạt động theo cửa sổ; chọn wiki, một cửa sổ cụ thể, số dòng tối đa 100 & Đã làm \\
-\code{/api/v1/trends} & Top-N trang xu hướng & Tuần 2 \\
-\code{/api/v1/suspicious-edits} & Chỉnh sửa cần ưu tiên xem xét & Tuần 2 \\
-\code{/api/v1/events/\{id\}} & Chi tiết một sự kiện & Tuần 2--3 \\
+\code{/api/v1/trends} & Top-N trang xu hướng của một cửa sổ 5 phút (mặc định cửa sổ mới nhất) & Đã làm \\
+\code{/api/v1/suspicious-edits} & Chỉnh sửa cần ưu tiên trong 1--15 phút gần nhất, lọc theo điểm tối thiểu & Đã làm \\
+\code{/api/v1/events/\{id\}} & Chi tiết một sự kiện & Đã làm \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1014,9 +1146,26 @@ chung, nên hệ thống không cam kết \enquote{đúng một lần} trên c�
 Mọi phản hồi dữ liệu kèm thời điểm tạo, nguồn, chế độ chạy và nhãn \enquote{tạm tính}; mọi thời điểm theo UTC. Không có
 dữ liệu thì trả danh sách rỗng, không phải lỗi. Tham số sai (wiki ngoài danh sách, cửa sổ thiếu múi giờ, số dòng ngoài
 1--100) bị từ chối. Cassandra không trả lời thì API báo \enquote{phụ thuộc chưa sẵn sàng}; API vẫn khởi động được khi
-Cassandra chưa lên và tự hồi phục khi Cassandra sẵn sàng. Endpoint chưa làm trả mã \enquote{chưa triển khai} kèm người
-phụ trách và tuần, để dashboard hiện đúng trạng thái thay vì dữ liệu giả.
-\dukiensua{Thống nhất định dạng lỗi cho mọi endpoint và thêm ba endpoint ở tuần 2.}
+Cassandra chưa lên và tự hồi phục khi Cassandra sẵn sàng. Danh sách chỉnh sửa cần ưu tiên luôn kèm câu nhắc điểm chỉ
+để ưu tiên xem xét, và không bao giờ chứa định danh người sửa, kể cả dạng đã băm.
+
+Mọi lỗi có cùng một dạng: một mã lỗi cố định để chương trình đọc, một câu mô tả cho người đọc, và thông tin thêm tùy
+loại (Bảng~\ref{tab:loi}). Lỗi tham số do thư viện web tự phát hiện (ví dụ số dòng bằng 0) cũng được đổi về dạng này,
+để dashboard chỉ cần một cách đọc lỗi.
+
+\begin{table}[H]
+\centering\small
+\caption{Các loại lỗi của API}\label{tab:loi}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
+\toprule
+\textbf{HTTP} & \textbf{Mã} & \textbf{Khi nào; thông tin thêm} \\ \midrule
+422 & \code{INVALID\_QUERY} & Tham số sai; kèm danh sách tham số sai và lý do \\
+404 & \code{EVENT\_NOT\_FOUND} & Không có sự kiện với định danh đã cho \\
+503 & \code{DEPENDENCY\_UNAVAILABLE} & Cassandra không trả lời; kèm tên dịch vụ lỗi \\
+503 & \code{CAPACITY\_EXCEEDED} & Phải đọc hơn 5.000 dòng để trả lời \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{Dashboard}
 Bốn trang: Overview (đã đọc dữ liệu thật: chọn wiki và cửa sổ, tự làm mới sau 15 giây), Trending, Suspicious Edits,
@@ -1072,6 +1221,7 @@ viwiki: event / edit / trang mới / ẩn danh / bot & 1 / 0 / 1 / 0 / 0 \\
 \textbf{Ngày} & \textbf{Máy} & \textbf{Kết quả} \\ \midrule
 11/10/2026 & Apple M3, ARM64 & 84 test nhẹ đạt; 16 test Spark đạt; kiểm thử end-to-end đạt (Trọng) \\
 15/10/2026 & Windows 11, x86\_64 & CP0 chạy lại, số khớp Bảng~\ref{tab:cp0}; phát lại lần hai không đổi số; 33 test API đạt, gồm 4 test trên Cassandra thật (Nhân) \\
+23/11/2026 & Windows 11, x86\_64 & 179 test nhẹ đạt; 76 test API đạt, gồm 8 test trên Cassandra thật; end-to-end ghi Cassandra cho ba nghiệp vụ mới khớp Bảng~\ref{tab:w2fixture} (Nhân) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1085,11 +1235,70 @@ Python 3.11 nên không bị, còn máy phát triển dùng 3.12 phải cài th�
 toàn bộ hệ thống trên máy mình sớm (mốc CP1), vì lỗi môi trường không lộ ra khi chỉ chạy trên một máy.
 \end{ghichu}
 
-\section{Xu hướng và ưu tiên xem xét trên fixture vàng}\chualam
+\section{Xu hướng và ưu tiên xem xét trên fixture vàng}
+Ngày 23/11/2026, nhóm dựng một hệ thống riêng với Spark ghi cả ba nghiệp vụ mới vào Cassandra, phát lại toàn bộ 11 bản ghi
+mẫu rồi hỏi qua API. Cả chín truy vấn Spark đều chạy. Mọi số liệu API trả về (Bảng~\ref{tab:w2fixture}) trùng với bộ
+kỳ vọng viết tay độc lập mà phần xử lý dùng để kiểm tra đầu ra Parquet. Như vậy cùng một kết quả đi qua được cả hai
+đường lưu: Parquet và Cassandra.
+
+\begin{table}[H]
+\centering\small
+\caption{Kết quả qua API trên dữ liệu mẫu (enwiki)}\label{tab:w2fixture}
+\begin{tabularx}{\linewidth}{@{}Xr@{}}
+\toprule
+\textbf{Chỉ tiêu} & \textbf{Kết quả} \\ \midrule
+Chi tiết sự kiện lưu trong Cassandra & 7 (bằng số sự kiện Silver) \\
+Cửa sổ 00:00--00:05, trang 10: chỉnh sửa / người sửa / byte thay đổi / điểm & 4 / 3 / 1.890 / 0,12475 \\
+Cửa sổ 00:00--00:05, trang 11: chỉnh sửa / người sửa / byte thay đổi / điểm & 1 / 1 / 5 / 0,022625 \\
+Chỉnh sửa cần ưu tiên: xóa nhiều nội dung / hoàn tác / sửa ẩn danh & điểm 30 / 20 / 10 \\
+Sự kiện không dính dấu hiệu nào & điểm 0, không có lý do \\
+Định danh không tồn tại & lỗi \enquote{không tìm thấy sự kiện} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+Cửa sổ 23:56--00:01 của ngày hôm trước cũng chứa trọn phút 00:00, nơi có mọi chỉnh sửa enwiki của dữ liệu mẫu, nên
+cho đúng các số như cửa sổ 00:00; đây là cửa sổ đã chốt sau khi watermark vượt qua.
+\dukiensua{Thêm ảnh chụp trang Trending, Suspicious Edits khi W2-MANH-01 xong.}
+
 \section{Độ trễ end-to-end}\chualam
-\section{Khởi động lại, retry và dữ liệu đến muộn}\chualam
+\section{Khởi động lại, retry và dữ liệu đến muộn}
+Retry được kiểm tra cho cả bốn loại dữ liệu phục vụ: hoạt động và xu hướng trên Cassandra thật (keyspace tạm, xóa sau
+khi chạy), chỉnh sửa cần ưu tiên và chi tiết sự kiện trên bản giả lập ở tầng driver vốn giữ đúng cách ghi đè theo khóa.
+Ghi cùng một dòng hai lần, rồi ghi lại với giá trị mới, thì mỗi khóa vẫn chỉ có một dòng mang giá trị mới nhất. Ghi lại các
+batch xu hướng không tạo thêm cửa sổ trong chỉ mục. \enquote{Cửa sổ mới nhất} lấy từ chỉ mục luôn là cửa sổ vừa ghi.
+Danh sách lý do rỗng đọc ra đúng là rỗng, không thành giá trị trống. Truy vấn theo khoảng phút chạy được mà không cần
+cho phép quét bảng.
+\dukiensua{Khởi động lại Spark, Kafka, HDFS và dữ liệu đến muộn: phần của W3-LINH-01, W3-TRONG-01.}
+
 \section{Chạy LIVE liên tục}\chualam
-\section{Tải và dung lượng}\chualam
+\section{Tải và dung lượng}\label{sec:dungluong}
+\subsection{Dung lượng Cassandra và hạn lưu chi tiết sự kiện}
+Số đo lấy trên một node Cassandra 4.1.8 chạy trong Docker trên máy Windows 11. Công cụ đo ghi dữ liệu tổng hợp đúng cấu
+trúc contract vào một keyspace tạm, qua cùng lớp truy cập mà Spark dùng. Sau đó công cụ ép Cassandra ghi xuống đĩa, đọc
+dung lượng thật, rồi xóa keyspace (Bảng~\ref{tab:dungluong}).
+
+\begin{table}[H]
+\centering\small
+\caption{Dung lượng và tốc độ ghi đo được}\label{tab:dungluong}
+\begin{tabularx}{\linewidth}{@{}Xrrrr@{}}
+\toprule
+\textbf{Bảng} & \textbf{Dòng} & \textbf{Byte trên đĩa} & \textbf{Byte/dòng} & \textbf{Dòng/giây} \\ \midrule
+Chi tiết sự kiện & 20.000 & 2.890.920 & 144,5 & 78 \\
+Xu hướng (một cửa sổ) & 5.000 & 84.194 & 16,8 & 79 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Hai dòng của bảng đo hai thứ khác nhau. Dòng đầu là số sự kiện, quyết định hạn lưu. Dòng thứ hai là một cửa sổ xu hướng
+đúng bằng giới hạn 5.000 trang, dùng để kiểm tra rằng đọc cả partition lớn nhất được phép vẫn nhanh: lấy top-20 mất
+156~ms. Dữ liệu tổng hợp lặp lại nhiều nên nén tốt hơn dữ liệu thật; số byte của bảng xu hướng chỉ để thấy partition
+nhỏ, không dùng để ước tính.
+
+Với hai wiki đang theo dõi, luồng thật đo được ở tuần 1 là khoảng 2,2 sự kiện/giây cho enwiki và 0,10 cho viwiki,
+tức khoảng 200.000 sự kiện mỗi ngày. Nhân với 145 byte được khoảng 29~MB mỗi ngày, khoảng 200~MB khi giữ đủ 7 ngày.
+Nhóm vì vậy chọn hạn lưu 7 ngày cho chi tiết sự kiện. Tốc độ ghi tuần tự 78 dòng/giây gấp khoảng 34 lần lưu lượng
+hai wiki và vẫn cao hơn cả luồng toàn cầu (29,3 sự kiện/giây).
+\dukiensua{Tải Spark và độ trễ dưới tải: W3-LINH-01.}
 
 % ============================================================================
 % CHƯƠNG 6: KẾT LUẬN
@@ -1100,7 +1309,8 @@ toàn bộ hệ thống trên máy mình sớm (mốc CP1), vì lỗi môi trư�
 Đến ngày 15/10/2026, khung end-to-end đã chạy thật ở chế độ REPLAY: Kafka nhận sự kiện, Spark kiểm tra, loại trùng,
 tổng hợp theo event time và ghi ba tầng Parquet, Cassandra phục vụ số tạm tính qua API, dashboard hiển thị trang
 Overview. Kết quả khớp bộ kỳ vọng độc lập trên hai máy khác kiến trúc. Các nguyên tắc đúng khi retry (upsert tổng tuyệt
-đối), riêng tư (không có định danh ngoài Bronze) và không dùng dữ liệu giả đã có test bảo vệ.
+đối), riêng tư (không có định danh ngoài Bronze) và không dùng dữ liệu giả đã có test bảo vệ. Đến ngày 23/11/2026, xu hướng, chỉnh sửa cần ưu tiên và chi tiết sự kiện cũng đi được từ Spark
+qua Cassandra tới API, khớp bộ kỳ vọng trên dữ liệu mẫu (Bảng~\ref{tab:w2fixture}).
 \dukiensua{Viết lại khi chốt CP4.}
 
 \section{Hạn chế}
@@ -1115,10 +1325,8 @@ Các mục dưới đây đã có trong kế hoạch nhưng chưa thực hiện;
 
 \subsection{Collector LIVE với nối lại và đếm lỗi (W2-THANH-01)}\chualam
 \subsection{Cửa sổ trượt, đặc trưng xu hướng và điểm rủi ro (W2-LINH-01)}\chualam
-\subsection{API xu hướng, chỉnh sửa đáng ngờ và chi tiết sự kiện (W2-NHAN-01)}\chualam
 \subsection{Hoàn thiện bốn trang dashboard (W2-MANH-01)}\chualam
 \subsection{Profile HDFS và tích hợp ba tầng (W2-TRONG-01, W3-LINH-01)}\chualam
-\subsection{Retry, latest window, TTL và kiểm thử dung lượng (W3-NHAN-01)}\chualam
 \subsection{Khung Kubernetes và monitoring (W3-TRONG-01)}\chualam
 \subsection{Đóng băng, clone sạch và demo (tuần 4)}\chualam
 
@@ -1143,6 +1351,7 @@ Kiểm tra, chuẩn hóa, loại trùng, đếm & \code{processing/spark/wikipul
 Ghi kết quả sang Cassandra & \code{processing/spark/wikipulse/sinks.py} \\
 Thư mục theo mã lần chạy & \code{processing/spark/wikipulse/paths.py} \\
 Lược đồ Cassandra & \code{storage/cassandra/schema.cql} \\
+Công cụ đo dung lượng Cassandra & \code{storage/cassandra/measure\_capacity.py} \\
 API & \code{api/app/main.py}, \code{api/app/models.py} \\
 Dashboard & \code{dashboard/app.py}, \code{dashboard/views/} \\
 Contract giữa các module & \code{docs/contracts.md} \\

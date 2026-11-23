@@ -200,10 +200,16 @@ def test_smoke_checks_activity_through_persistence_boundary(monkeypatch, tmp_pat
         elif url.endswith("/health"):
             output = json.dumps({
                 "status": "ok", "source": "cassandra", "pipeline_mode": "REPLAY",
-                "implementation_status": "activity_only", "dependencies": {"cassandra": "ready"},
+                "implementation_status": "activity_trends_suspicious_events",
+                "dependencies": {"cassandra": "ready"},
             })
+        elif url.endswith("/api/v1/trends"):
+            output = json.dumps({"data": [], "window_start": None, "window_end": None,
+                                 "provisional": True})
+        elif url.endswith("/api/v1/suspicious-edits"):
+            output = json.dumps({"data": [], "disclaimer": "x", "provisional": True})
         else:
-            raise urllib.error.HTTPError(url, 501, "deferred", None, None)
+            raise urllib.error.HTTPError(url, 404, "EVENT_NOT_FOUND", None, None)
         return io.BytesIO(output.encode())
 
     monkeypatch.setattr(smoke_test, "ROOT", tmp_path)
@@ -240,7 +246,8 @@ def test_dashboard_inspector_selects_fixture_instant_from_iso_z_wire_values(monk
         if request.url.path == "/health":
             return httpx.Response(200, json={
                 "status": "ok", "source": "cassandra", "pipeline_mode": "REPLAY",
-                "implementation_status": "activity_only", "dependencies": {"cassandra": "ready"},
+                "implementation_status": "activity_trends_suspicious_events",
+                "dependencies": {"cassandra": "ready"},
             })
         assert request.url.path == "/api/v1/activity", request.url
         wiki = request.url.params["wiki"]

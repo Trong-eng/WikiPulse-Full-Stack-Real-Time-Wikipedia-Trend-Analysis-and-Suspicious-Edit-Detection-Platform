@@ -1,4 +1,5 @@
 import logging
+import re
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
@@ -42,9 +43,82 @@ def activity_row():
     }
 
 
+@pytest.fixture
+def trend_row():
+    """One row as the W2-LINH-01 trends DataFrame emits it (naive UTC from Spark)."""
+    return {
+        "wiki": "enwiki",
+        "page_key": "10",
+        "page_title": "Example page",
+        "namespace": 0,
+        "window_start": datetime(2026, 1, 1, 0, 0),
+        "window_end": datetime(2026, 1, 1, 0, 5),
+        "edit_count": 4,
+        "unique_editors": 3,
+        "abs_byte_delta": 1890,
+        "trend_score": 0.12475,
+        "updated_at": datetime(2026, 1, 1, 0, 6),
+    }
+
+
+@pytest.fixture
+def suspicious_row():
+    return {
+        "wiki": "enwiki",
+        "event_id": "fixture-004",
+        "page_key": "10",
+        "page_title": "Example page",
+        "bucket_start": datetime(2026, 1, 1, 0, 0, tzinfo=timezone.utc),
+        "event_time": datetime(2026, 1, 1, 0, 0, 30, tzinfo=timezone.utc),
+        "updated_at": datetime(2026, 1, 1, 0, 1, tzinfo=timezone.utc),
+        "revision_new": 1004,
+        "byte_delta": -1200,
+        "is_anonymous": False,
+        "is_bot": False,
+        "risk_score": 30,
+        "risk_reasons": ["LARGE_DELETION"],
+    }
+
+
+@pytest.fixture
+def event_row():
+    return {
+        "event_id": "fixture-004",
+        "wiki": "enwiki",
+        "event_time": datetime(2026, 1, 1, 0, 0, 30, tzinfo=timezone.utc),
+        "page_key": "10",
+        "page_title": "Example page",
+        "namespace": 0,
+        "event_type": "edit",
+        "revision_old": 1003,
+        "revision_new": 1004,
+        "length_old": 5000,
+        "length_new": 3800,
+        "byte_delta": -1200,
+        "is_anonymous": False,
+        "is_bot": False,
+        "is_minor": False,
+        "risk_score": 30,
+        "risk_reasons": ["LARGE_DELETION"],
+        "pipeline_version": "0.2.0",
+        "processed_at": datetime(2026, 1, 1, 0, 1, tzinfo=timezone.utc),
+    }
+
+
 class FakeResult(list):
     def one(self):
         return self[0] if self else None
+
+
+# Contract v0.2 tables: (partition key, clustering key, clustering descending).
+SERVING_TABLES = {
+    "page_trends_by_window": (("wiki", "window_start"), ("page_key",), False),
+    "trend_windows_by_wiki": (("wiki",), ("window_start",), True),
+    "suspicious_edits_by_bucket": (("wiki", "bucket_start"), ("event_id",), False),
+    "suspicious_buckets_by_wiki": (("wiki",), ("bucket_start",), True),
+    "events_by_id": (("event_id",), (), False),
+}
+CONDITION = re.compile(r"(\w+)\s*(=|<=|>=|<|>)\s*\?")
 
 
 class CassandraBoundary:
@@ -52,6 +126,8 @@ class CassandraBoundary:
 
     def __init__(self):
         self.rows = {}
+        self.tables = {name: {} for name in SERVING_TABLES}
+        self.reads = []
         self.connect_failures = 0
         self.query_failure = False
         self.clusters = []
@@ -100,6 +176,10 @@ class FakeSession:
             return FakeResult()
         if "from system.local" in normalized:
             return FakeResult([SimpleNamespace(release_version="4.1")])
+        assert "allow filtering" not in normalized
+        table = re.search(r"(?:into|from) (\w+)", normalized).group(1)
+        if table in SERVING_TABLES:
+            return self.serving_table(table, statement, parameters)
         if normalized.startswith("insert into"):
             columns = statement.split("(", 1)[1].split(")", 1)[0]
             row = dict(zip((column.strip() for column in columns.split(",")), parameters))
@@ -129,6 +209,50 @@ class FakeSession:
         selected.sort(key=lambda row: utc_value(row["window_start"]), reverse=True)
         selected = selected[: parameters[-1]]
         return FakeResult([SimpleNamespace(**row) for row in selected])
+
+    def serving_table(self, table, statement, parameters):
+        """Upsert by primary key; reads must restrict the full partition key, like CQL."""
+        partition, clustering, descending = SERVING_TABLES[table]
+        rows = self.boundary.tables[table]
+        if statement.lstrip().lower().startswith("insert"):
+            columns = [c.strip() for c in statement.split("(", 1)[1].split(")", 1)[0].split(",")]
+            row = dict(zip(columns, parameters))
+            rows[tuple(key_value(row[c]) for c in partition + clustering)] = row
+            return FakeResult()
+        self.boundary.reads.append(table)
+        columns = [c.strip() for c in statement.split("SELECT", 1)[1].split("FROM", 1)[0].split(",")]
+        where = statement.split("WHERE", 1)[1].split("LIMIT", 1)[0]
+        conditions = CONDITION.findall(where)
+        values = list(parameters)
+        assert [name for name, op in conditions if op == "="][: len(partition)] == list(partition)
+        compare = {
+            "=": lambda a, b: a == b, "<=": lambda a, b: a <= b, ">=": lambda a, b: a >= b,
+            "<": lambda a, b: a < b, ">": lambda a, b: a > b,
+        }
+        selected = list(rows.values())
+        for name, op in conditions:
+            wanted = key_value(values.pop(0))
+            selected = [row for row in selected if compare[op](key_value(row[name]), wanted)]
+        if clustering:
+            selected.sort(key=lambda row: key_value(row[clustering[0]]), reverse=descending)
+        if "LIMIT" in statement:
+            selected = selected[: values.pop(0)]
+        return FakeResult(
+            [SimpleNamespace(**{c: stored(row.get(c)) for c in columns}) for row in selected]
+        )
+
+
+def key_value(value):
+    return utc_value(value) if isinstance(value, datetime) else value
+
+
+def stored(value):
+    """Return what cassandra-driver returns: naive UTC timestamps, None for an empty set."""
+    if isinstance(value, datetime):
+        return utc_value(value).replace(tzinfo=None)
+    if isinstance(value, (list, set, tuple)):
+        return sorted(value) or None
+    return value
 
 
 def utc_value(value):

@@ -26,9 +26,9 @@ CQL: `wiki_activity_by_window`, PRIMARY KEY ((wiki), window_start), clustering D
 
 - GET /health: readiness Cassandra; HTTP 503 khi dependency không sẵn sàng, có mode và implementation status.
 - GET /api/v1/activity?wiki=enwiki&window=<ISO-UTC optional>&limit=20: wiki mặc định enwiki; limit 1–100. `window` là window_start, thiếu thì các cửa sổ mới nhất sẵn có, sắp xếp giảm dần.
-- GET /api/v1/trends; GET /api/v1/suspicious-edits; GET /api/v1/events/{event_id}: tuần 1 trả HTTP 501 với `code=NOT_IMPLEMENTED` và role/tuần phụ trách; từ W2-NHAN-01 theo mục Tuần 2.
+- GET /api/v1/trends; GET /api/v1/suspicious-edits; GET /api/v1/events/{event_id}: tuần 1 trả HTTP 501 `NOT_IMPLEMENTED`; từ W2-NHAN-01 trả dữ liệu Cassandra theo mục Tuần 2, không còn endpoint nào trả 501.
 
-Envelope activity: `{data: ActivityRow[], generated_at: ISO-UTC, source: "cassandra", pipeline_mode: "REPLAY"|"LIVE", provisional: true}`. ActivityRow có 9 trường như output Spark. Dữ liệu trống HTTP 200 data []; timestamp serialization có UTC timezone. Cassandra lỗi khi query: HTTP 503 `{detail: {code: "DEPENDENCY_UNAVAILABLE", source: "cassandra"}}` (có trong OpenAPI). Query sai (limit, wiki ngoài allowlist, window thiếu timezone): HTTP 422. API không giả kết quả và không seed serving vào đường demo.
+Envelope activity: `{data: ActivityRow[], generated_at: ISO-UTC, source: "cassandra", pipeline_mode: "REPLAY"|"LIVE", provisional: true}`. ActivityRow có 9 trường như output Spark. Dữ liệu trống HTTP 200 data []; timestamp serialization có UTC timezone. Cassandra lỗi khi query: HTTP 503 `{detail: {code: "DEPENDENCY_UNAVAILABLE", message, source: "cassandra"}}` (có trong OpenAPI). Query sai (limit, wiki ngoài allowlist, window thiếu timezone): HTTP 422 `INVALID_QUERY`. Từ W2-NHAN-01 mọi lỗi theo [định dạng chung](#định-dạng-lỗi--nhân--mạnh); `/health` có `implementation_status: "activity_trends_suspicious_events"`. API không giả kết quả và không seed serving vào đường demo.
 
 ## Lưu trữ, health và command
 
@@ -130,10 +130,10 @@ CREATE TABLE events_by_id (
     length_old bigint, length_new bigint, byte_delta bigint,
     is_anonymous boolean, is_bot boolean, is_minor boolean,
     risk_score int, risk_reasons set<text>, pipeline_version text, processed_at timestamp
-);
+) WITH default_time_to_live = 604800;
 ```
 
-TTL đề xuất 7 ngày, chốt ở W3-NHAN-01 sau khi đo dung lượng.
+TTL chốt 7 ngày (`WITH default_time_to_live = 604800`, W3-NHAN-01): đo trên Cassandra 4.1.8 được 145 byte/dòng sau nén; allowlist enwiki+viwiki khoảng 2,3 event/s ≈ 200.000 dòng/ngày ≈ 29 MB/ngày, tức khoảng 200 MB khi đầy 7 ngày. Bronze/Silver vẫn giữ lịch sử đầy đủ; quá 7 ngày, event detail trả 404. Các bảng trends/suspicious chưa đặt TTL vì đọc theo cửa sổ gần nhất; xem [W3-NHAN-01](plans/W3-NHAN-01.md).
 
 ### Bàn giao producer cho sink — W2-LINH-01
 
@@ -157,6 +157,6 @@ Mọi lỗi dùng `{"detail": {"code": "...", "message": "...", ...}}`; `code` v
 | 404 | `EVENT_NOT_FOUND` | Không có event_id | |
 | 503 | `DEPENDENCY_UNAVAILABLE` | Cassandra lỗi | `source` (đã có ở v0.1) |
 | 503 | `CAPACITY_EXCEEDED` | Partition vượt cap 5.000 dòng | |
-| 501 | `NOT_IMPLEMENTED` | Endpoint chưa làm | `feature`, `role`, `owner` |
+| 501 | `NOT_IMPLEMENTED` | Dành cho endpoint chưa làm; từ W2-NHAN-01 không endpoint nào dùng | `feature`, `role`, `owner` |
 
-Response 501 hiện có của v0.1 không bọc trong `detail` và chưa có `message`. W2-NHAN-01 đưa nó về dạng trên; dashboard nên đọc được cả hai dạng cho đến khi PR đó merge.
+Thứ tự hòa của suspicious edits: cùng `risk_score` và `event_time` thì `event_id` tăng dần, để hai lần gọi trả cùng thứ tự. `window` của suspicious edits được làm tròn xuống phút; các bucket đọc là `(window − minutes, window]`.

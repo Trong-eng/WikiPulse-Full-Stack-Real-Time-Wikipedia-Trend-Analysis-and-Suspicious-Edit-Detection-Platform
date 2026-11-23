@@ -194,18 +194,22 @@ def run_smoke(keep: bool = False, build: bool = True, hdfs: bool = False) -> dic
             wait_for(check_activity, "activity unchanged after restart")
             report["restart_inspection"] = wait_for(inspect_lake, "persistent HDFS outputs", 300)
             report["restored_checkpoint_queries"] = sorted(after)
-        for endpoint in ("trends", "suspicious-edits", "events/fixture-001"):
-            try:
-                get(f"{api}/api/v1/{endpoint}")
-                raise AssertionError(f"{endpoint} must be explicitly deferred")
-            except urllib.error.HTTPError as exc:
-                assert exc.code == 501
+        # Contract v0.2 (W2-NHAN-01). Serving rows exist only with SPARK_ANALYTICS_SINK=cassandra,
+        # so this checks the envelope shape in both sink modes.
+        trends = get(f"{api}/api/v1/trends")
+        assert {"data", "window_start", "window_end", "provisional"} <= set(trends), trends
+        suspicious = get(f"{api}/api/v1/suspicious-edits")
+        assert "disclaimer" in suspicious and isinstance(suspicious["data"], list), suspicious
+        try:
+            assert get(f"{api}/api/v1/events/fixture-001")["data"]["event_id"] == "fixture-001"
+        except urllib.error.HTTPError as exc:
+            assert exc.code == 404, exc.code
         report.update({"status": "passed", "api_url": api, "dashboard_url": ui,
                        "checks": ["API readiness", "UI readiness", "Spark readiness (9 queries)",
                                   "activity counts two wikis",
                                   "dashboard counts/window/readiness",
                                   "dedup/invalid/canary", "Bronze/Silver/Gold + analytics",
-                                  "HTTP501 deferred"]})
+                                  "trends/suspicious/event API contract v0.2"]})
         if hdfs:
             report["checks"].append("HDFS, Kafka and Cassandra recreation: data and 9 checkpoints preserved")
         return report
