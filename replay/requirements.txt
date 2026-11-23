@@ -2,3 +2,4 @@
 # pydantic là dependency của package wikipulse-core (shared/, khai báo trong pyproject.toml).
 kafka-python==2.1.2
 pydantic==2.10.6
+requests==2.32.3

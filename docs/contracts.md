@@ -4,7 +4,7 @@ Các quy ước này là điểm nối cho 5 người. Thay đổi phải đư�
 
 ## Kafka — Thành → Linh
 
-Topics: `wikipedia.recentchange.raw`, `wikipedia.recentchange.dlq`, `wikipedia.pipeline.alerts`; một broker, replication factor 1, ba partitions cho raw. JSON payload Wikimedia được giữ nguyên và bổ sung `ingested_at` ISO UTC, `collector_version`. Key: `wiki:page_id`, fallback `wiki:title`. `PIPELINE_MODE=REPLAY` mặc định; collector LIVE chỉ có entrypoint bàn giao ở tuần 1.
+Topics: `wikipedia.recentchange.raw`, `wikipedia.recentchange.dlq`, `wikipedia.pipeline.alerts`; một broker, replication factor 1, ba partitions cho raw. JSON payload Wikimedia được giữ nguyên và bổ sung `ingested_at` ISO UTC, `collector_version`. Key: `wiki:page_id`, fallback `wiki:title`. `PIPELINE_MODE=REPLAY` mặc định; collector LIVE yêu cầu mode `LIVE`, tiếp tục vị trí SSE đã được Kafka xác nhận khi reconnect trong cùng tiến trình; restart tiến trình bắt đầu từ stream hiện tại. Giới hạn delivery và lọc allowlist chờ nhóm chốt tại [backlog](backlog.md#cần-nhóm-quyết-định); chi tiết vận hành ở [collector README](../ingestion/collector/README.md).
 
 Fixture JSONL nằm ở `tests/fixtures/recentchange.jsonl`. File chứa cả JSON lỗi có chủ đích. Replay giữ ID/event timestamp; tốc độ chỉ đổi nhịp gửi. Expected results ở `tests/fixtures/expected_activity.json`. Canary domain `canary` được giữ Bronze và bỏ trước business metrics.
 
