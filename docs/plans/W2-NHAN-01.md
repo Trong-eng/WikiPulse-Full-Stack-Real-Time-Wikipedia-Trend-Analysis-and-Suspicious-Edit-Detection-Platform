@@ -36,7 +36,7 @@ Ba endpoint trends, suspicious edits, event detail đọc dữ liệu thật t�
 
 - 2026-10-15 — soạn bản nháp contract tuần 2 — PR #3
 - 2026-10-22 — Linh và Mạnh góp ý trên PR #3; gộp bản chốt vào `docs/contracts.md`, xóa file nháp (BL-THANH-23) — PR #3
-- 2026-11-23 — CQL 5 bảng, store ghi/đọc, 3 endpoint, lỗi thống nhất, test fake + Cassandra thật, E2E cassandra mode; sửa tối thiểu smoke (501 → kiểm envelope v0.2); báo cáo: lược đồ, API, đặc tả use case, kết quả — branch `nhan/w2-nhan-01-serving`
+- 2026-11-23 — CQL 5 bảng, store ghi/đọc, 3 endpoint, lỗi thống nhất, test fake + Cassandra thật, E2E cassandra mode; sửa tối thiểu smoke (501 → kiểm envelope v0.2); báo cáo: lược đồ, API, đặc tả use case, kết quả — PR #6
 
 ## Kết quả
 

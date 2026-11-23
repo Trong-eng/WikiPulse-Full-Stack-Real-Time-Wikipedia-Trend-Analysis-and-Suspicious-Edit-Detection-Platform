@@ -26,7 +26,7 @@ Chứng minh trên Cassandra thật: retry không đếm trùng, "mới nhất" 
 
 ## Nhật ký
 
-- 2026-11-23 — test retry/latest/detail/capacity trên fake + Cassandra thật; script đo dung lượng; chốt TTL — branch `nhan/w2-nhan-01-serving` (cùng PR với W2-NHAN-01 vì dùng chung test)
+- 2026-11-23 — test retry/latest/detail/capacity trên fake + Cassandra thật; script đo dung lượng; chốt TTL — PR #6 (cùng PR với W2-NHAN-01 vì dùng chung test)
 
 ## Kết quả
 
