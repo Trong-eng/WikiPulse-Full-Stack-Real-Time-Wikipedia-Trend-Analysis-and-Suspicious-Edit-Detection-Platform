@@ -87,3 +87,61 @@ def test_exact_window_accepts_non_utc_offsets(real_store, activity_row):
     )
     assert [row["window_start"] for row in exact] == [activity_row["window_start"]]
     assert real_store.get_activity("enwiki", window=shifted(activity_row, 9)["window_start"]) == []
+
+
+# --- Contract v0.2 (W2-NHAN-01 / W3-NHAN-01)
+
+
+def moved(row, minutes, **changes):
+    return {
+        **{k: v + timedelta(minutes=minutes) if hasattr(v, "tzinfo") else v for k, v in row.items()},
+        **changes,
+    }
+
+
+def test_trend_retries_keep_one_row_per_page_and_latest_uses_the_index(real_store, trend_row):
+    real_store.upsert_trends([trend_row, trend_row, {**trend_row, "page_key": "11",
+                                                     "trend_score": 0.02}])
+    real_store.upsert_trends([moved(trend_row, 1), {**moved(trend_row, 1), "edit_count": 9}])
+
+    window, rows = real_store.get_trends("enwiki")
+    assert window == moved(trend_row, 1)["window_start"].replace(tzinfo=timezone.utc)
+    assert [(row["page_key"], row["edit_count"]) for row in rows] == [("10", 9)]
+    window, rows = real_store.get_trends("enwiki", window=trend_row["window_start"])
+    assert [row["page_key"] for row in rows] == ["10", "11"]
+
+
+def test_trend_capacity_is_enforced_on_a_real_partition(real_store, trend_row):
+    from wikipulse_core.serving import CAPACITY_LIMIT, CapacityExceeded
+
+    real_store.upsert_trends({**trend_row, "page_key": str(n)} for n in range(CAPACITY_LIMIT))
+    _, rows = real_store.get_trends("enwiki", limit=100)
+    assert len(rows) == 100
+    real_store.upsert_trends([{**trend_row, "page_key": "one-too-many"}])
+    with pytest.raises(CapacityExceeded):
+        real_store.get_trends("enwiki")
+
+
+def test_suspicious_bucket_range_needs_no_allow_filtering(real_store, suspicious_row):
+    real_store.upsert_suspicious_edits(
+        moved(suspicious_row, minute, event_id=f"e{minute}") for minute in range(8)
+    )
+    rows = real_store.get_suspicious_edits("enwiki", minutes=3)
+    assert [row["event_id"] for row in rows] == ["e7", "e6", "e5"]
+    anchored = real_store.get_suspicious_edits(
+        "enwiki", window=suspicious_row["bucket_start"] + timedelta(minutes=1), minutes=15
+    )
+    assert [row["event_id"] for row in anchored] == ["e1", "e0"]
+    assert anchored[0]["risk_reasons"] == ["LARGE_DELETION"]
+
+
+def test_event_detail_round_trip_ttl_and_empty_reason_set(real_store, event_row):
+    real_store.upsert_events([{**event_row, "risk_score": 0, "risk_reasons": []}])
+    detail = real_store.get_event("fixture-004")
+    assert (detail["risk_score"], detail["risk_reasons"]) == (0, [])
+    assert detail["event_time"] == event_row["event_time"]
+    assert real_store.get_event("missing") is None
+    ttl = real_store._connect().execute(
+        "SELECT TTL(wiki) FROM events_by_id WHERE event_id = 'fixture-004'"
+    ).one()[0]
+    assert 604000 < ttl <= 604800

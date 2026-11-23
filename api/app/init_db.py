@@ -25,7 +25,10 @@ def initialize_database(
         raise ValueError("CASSANDRA_KEYSPACE must be a CQL identifier")
     if max_attempts < 1 or retry_delay < 0:
         raise ValueError("Retry attempts must be positive and delay must be nonnegative")
-    schema = SCHEMA_PATH.read_text().replace("__KEYSPACE__", settings.cassandra_keyspace)
+    schema = "\n".join(
+        line for line in SCHEMA_PATH.read_text(encoding="utf-8").splitlines()
+        if not line.lstrip().startswith("--")
+    ).replace("__KEYSPACE__", settings.cassandra_keyspace)
     statements = [statement.strip() for statement in schema.split(";") if statement.strip()]
     for attempt in range(1, max_attempts + 1):
         cluster = None
