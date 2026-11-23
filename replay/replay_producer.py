@@ -15,6 +15,7 @@ Cách chạy, flags và ý nghĩa từng exit code: xem `replay/README.md`.
 """
 
 import argparse
+import json
 import logging
 import math
 import os
@@ -85,6 +86,31 @@ def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def source_time(line: str) -> float | None:
+    """Thời gian nguồn ưu tiên meta.dt có múi giờ, sau đó epoch giây."""
+    try:
+        event = json.loads(line)
+        if not isinstance(event, dict):
+            return None
+        meta = event.get("meta")
+        value = meta.get("dt") if isinstance(meta, dict) else None
+        if isinstance(value, str):
+            try:
+                parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                if parsed.utcoffset() is not None:
+                    return parsed.timestamp()
+            except (ValueError, OverflowError, OSError):
+                pass
+        value = event.get("timestamp")
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            if math.isfinite(value):
+                datetime.fromtimestamp(value, timezone.utc)
+                return float(value)
+    except (ValueError, TypeError, OverflowError, OSError):
+        pass
+    return None
+
+
 def run_replay(
     lines: Iterable[str],
     send: Callable[[bytes | None, bytes], None],
@@ -92,6 +118,8 @@ def run_replay(
     start: int = 0,
     end: int | None = None,
     delay: float = 0.0,
+    timing: str = "fixed",
+    speed: float = 1.0,
     now: Callable[[], datetime] = _utc_now,
     sleep: Callable[[float], None] = time.sleep,
 ) -> ReplayStats:
@@ -102,7 +130,11 @@ def run_replay(
     chỉ ảnh hưởng nhịp gửi, không đổi nội dung hay thứ tự. `send` lỗi thì báo `ReplaySendError`.
     `now` và `sleep` có thể thay khi test.
     """
+    if timing not in {"fixed", "original"}:
+        raise ValueError("invalid timing")
+    replay_delay(0, speed)
     stats = ReplayStats()
+    anchor = None
     for index, line in enumerate(lines):
         if index < start:
             continue
@@ -111,6 +143,19 @@ def run_replay(
         if not line.strip():
             stats.skipped_blank += 1
             continue
+        if timing == "original":
+            current = source_time(line)
+            if current is not None:
+                if anchor is not None and current > anchor:
+                    wait = (current - anchor) / speed
+                    if not math.isfinite(wait):
+                        raise ValueError("timing delay exceeds supported range")
+                    while wait > 3600:
+                        sleep(3600)
+                        wait -= 3600
+                    if wait:
+                        sleep(wait)
+                anchor = current if anchor is None else max(anchor, current)
         key, value = encode_event(line.strip(), now())
         try:
             send(key, value)
@@ -119,7 +164,7 @@ def run_replay(
         stats.sent += 1
         stats.last_index = index
         logger.info("event_published index=%s", index)
-        if delay:
+        if timing == "fixed" and delay:
             sleep(delay)
     return stats
 
@@ -140,6 +185,7 @@ def main() -> None:
     parser.add_argument("--end", type=int, default=None, help="Zero-based exclusive record index")
     parser.add_argument("--interval", type=float, default=1.0)
     parser.add_argument("--speed", type=float, default=float(os.getenv("REPLAY_SPEED_FACTOR", "1")))
+    parser.add_argument("--timing", choices=("fixed", "original"), default="fixed")
     args = parser.parse_args()
     try:
         delay = replay_delay(args.interval, args.speed)
@@ -175,7 +221,7 @@ def main() -> None:
             stats = run_replay(
                 source,
                 lambda key, value: producer.send(topic, key=key, value=value).get(timeout=30),
-                start=args.start, end=args.end, delay=delay,
+                start=args.start, end=args.end, delay=delay, timing=args.timing, speed=args.speed,
             )
         producer.flush(timeout=30)
     except ReplaySendError as exc:
@@ -183,6 +229,9 @@ def main() -> None:
         logger.error("replay_failed reason=send_error index=%s sent=%s topic=%s error=%r",
                      exc.index, exc.stats.sent, topic, exc.__cause__)
         raise SystemExit(EXIT_SEND_FAILED)
+    except ValueError:
+        failed = True
+        parser.error("timing delay exceeds supported range")
     except KafkaError as exc:
         failed = True
         logger.error("replay_failed reason=flush_error sent=%s topic=%s error=%r",

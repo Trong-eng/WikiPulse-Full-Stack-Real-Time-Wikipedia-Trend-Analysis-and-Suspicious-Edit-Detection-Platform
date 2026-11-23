@@ -15,6 +15,12 @@ docker compose run --rm replay python -m replay.replay_producer --start 10 --int
 | `--start` / `--end` | `0` / none | zero-based record range `[start, end)`; blank lines count as records |
 | `--interval` | `1.0` | seconds slept after every send, including the last |
 | `--speed` | `REPLAY_SPEED_FACTOR` or `1` | divides the interval; only the sending cadence changes |
+| `--timing` | `fixed` | `original` waits by event-time differences divided by speed; fixed preserves existing interval behavior |
+
+Original timing prefers timezone-aware `meta.dt`, falling back to numeric epoch `timestamp`. The
+first selected event is sent immediately; missing/invalid timestamps and timestamps earlier than
+the latest observed timestamp introduce no delay. The anchor never moves backwards, and the
+original payload, ID and event time remain unchanged. Very long delays are interruptible chunks.
 
 Sends are synchronous (`acks=all`; a record can block up to ~60 s: 30 s `max_block_ms` plus a
 30 s ack wait) so a fixture run is deterministic. The first failed send stops the run; the
@@ -34,8 +40,8 @@ optional BOM.
 `ingestion/envelope.py` is shared with the week-two LIVE collector:
 
 - payload: source JSON unchanged plus `ingested_at` (ISO UTC) and `collector_version`
-  (`replay-<COLLECTOR_VERSION>`, default `replay-0.1.0`; LIVE uses `live-…`). Compose does not
-  forward `COLLECTOR_VERSION` yet, so in containers it is always the default;
+  (`replay-<COLLECTOR_VERSION>`, default `replay-0.1.0`; LIVE uses `live-…`). Compose forwards
+  `COLLECTOR_VERSION` to replay and collector;
 - key: `wiki:page_id`, falling back to `wiki:title` when page_id is missing or null; a missing,
   null or empty wiki/title becomes `unknown` (page_id 0 is kept);
 - malformed or non-object JSON is sent unchanged and unkeyed so Spark quarantines it in

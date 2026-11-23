@@ -118,6 +118,55 @@ def test_delay_follows_each_send():
     assert sleeps == [0.5, 0.5, 0.5]
 
 
+def test_original_timing_uses_event_time_speed_and_monotonic_anchor():
+    import json
+
+    from replay.replay_producer import run_replay
+
+    events = [
+        {"meta": {"dt": "2026-01-01T00:00:00.500Z"}, "timestamp": 1},
+        {"timestamp": 1767225602},
+        {"meta": {"dt": "2025-12-31T19:00:01-05:00"}},
+        {},
+        {"meta": {"dt": "2026-01-01T00:00:03.000+00:00"}},
+    ]
+    sleeps, sent = [], []
+    run_replay([json.dumps(x) for x in events], lambda k, v: sent.append(v),
+               timing="original", speed=2, sleep=sleeps.append)
+    assert sleeps == [0.75, 0.5]
+    assert len(sent) == 5
+
+
+def test_original_timing_selection_and_invalid_json():
+    from replay.replay_producer import run_replay
+
+    lines = ['{"timestamp":1767225600}', '{"timestamp":1767225605}', 'invalid',
+             '{"timestamp":1767225608}']
+    sleeps, sent = [], []
+    run_replay(lines, lambda k, v: sent.append(v), start=1, timing="original", speed=1,
+               sleep=sleeps.append)
+    assert sleeps == [3.0]
+    assert sent[1] == b"invalid"
+
+
+def test_original_timing_rejects_out_of_range_epoch_and_bad_values():
+    from replay.replay_producer import source_time
+
+    for line in ('{"timestamp":1e308}', '{"timestamp":true}', '{"timestamp":"1"}',
+                 '{"timestamp":NaN}', '{"timestamp":Infinity}'):
+        assert source_time(line) is None
+    assert source_time('{"meta":{"dt":"bad"},"timestamp":1}') == 1
+    assert source_time('{"meta":{"dt":"2026-01-01T00:00:00"},"timestamp":1}') == 1
+
+
+def test_original_timing_rejects_unrepresentable_delay():
+    from replay.replay_producer import run_replay
+
+    with pytest.raises(ValueError, match="timing delay"):
+        run_replay(['{"timestamp":0}', '{"timestamp":1}'], lambda k, v: None,
+                   timing="original", speed=5e-324, sleep=lambda _: None)
+
+
 def test_main_maps_unreachable_broker_to_exit_3(monkeypatch):
     """Không có broker lúc tạo producer thì thoát mã 3."""
     import kafka
@@ -236,6 +285,11 @@ def test_main_success_sends_all_records_and_closes(run_main):
     producer = FakeProducer.instances[0]
     assert [key for _, key in producer.sent] == [b"enwiki:1", None, b"viwiki:B"]
     assert producer.closed
+
+
+def test_main_original_timing_accepts_selected_range(run_main):
+    assert run_main("--timing", "original", "--start", "1", "--end", "3") == 0
+    assert len(FakeProducer.instances[0].sent) == 2
 
 
 def test_main_send_failure_exits_1_after_stopping_and_closing(run_main):
