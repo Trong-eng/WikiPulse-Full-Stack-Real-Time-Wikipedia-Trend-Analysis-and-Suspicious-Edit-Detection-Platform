@@ -25,7 +25,7 @@ Bàn giao phần Cassandra/sink/API: có test chặn API và CQL lệch khỏi c
 
 ## Nhật ký
 
-- 2026-11-23 — mở việc sau khi PR #6 merge; OpenAPI snapshot, test hồi quy, runbook; chạy hồi quy đầy đủ và thử từng lệnh runbook trên stack thật; báo cáo — branch `nhan/w4-nhan-01-serving-regression`
+- 2026-11-23 — mở việc sau khi PR #6 merge; OpenAPI snapshot, test hồi quy, runbook; chạy hồi quy đầy đủ và thử từng lệnh runbook trên stack thật; báo cáo — PR #7
 
 ## Kết quả
 
