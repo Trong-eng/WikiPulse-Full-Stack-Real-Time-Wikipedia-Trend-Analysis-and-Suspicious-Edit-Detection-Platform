@@ -26,6 +26,9 @@ Format, mỗi item 1–3 dòng:
 
 ## Trọng
 
+- **BL-THANH-38** · PROPOSED · bug · P2 · owner: Trọng — Trên Windows, `tests/test_deployment.py::compose_config` lọc bỏ `PROGRAMFILES`; Docker CLI không tìm thấy Compose plugin và hai test cấu hình lỗi dù `docker compose config --quiet` trực tiếp pass. Bổ sung biến vào môi trường test và xác minh Windows. Nguồn: [W2-THANH-01](plans/W2-THANH-01.md) · Lịch: —
+- **BL-THANH-39** · PROPOSED · finding · P2 · owner: Trọng — Compose mặc định thời gian dừng ngắn hơn giới hạn chờ ACK/flush/close của collector; xem xét `stop_grace_period` phù hợp sau nghiệm thu W2. Runbook Thành hướng dẫn stop với timeout 100 giây. Nguồn: [W2-THANH-01](plans/W2-THANH-01.md) · Lịch: đề xuất W2-TRONG-01
+
 - **BL-LINH-03** · PROPOSED · finding · P1 · owner: Trọng — GitHub main `ca3d192` và nền W2 `78acbf6` chưa có profile full/NameNode/DataNode trong Compose. W3-LINH-01 cần full HDFS với readiness, named volumes và cấu hình Spark cho data/checkpoint URI riêng. Linh chuẩn bị lab độc lập trong processing để kiểm thử trước; cần Trọng bàn giao tích hợp dùng chung. Nguồn: [W3-LINH-01](plans/W3-LINH-01.md), `storage/hdfs/README.md` · Lịch: đề xuất W3-TRONG-01
   - 2026-11-08 Linh: main `312c086` đã có profile full; phụ thuộc kỹ thuật đã được gỡ, giữ item để Trọng xác nhận theo ownership.
 
@@ -53,6 +56,7 @@ Format, mỗi item 1–3 dòng:
 - **BL-THANH-14** · OPEN · tech-debt · P3 · owner: Thành — Một số lỗi đầu vào vẫn ra traceback và exit 1 thay vì exit 2 có log `replay_failed`: `--file` không phải UTF-8, `PIPELINE_MODE` sai, `REPLAY_SPEED_FACTOR` không phải số, `KafkaConfigurationError`. Nguồn: `replay/replay_producer.py` `main()` · Lịch: —
 - **BL-THANH-15** · OPEN · tech-debt · P3 · owner: Thành — Chưa có test `caplog` cho các dòng `replay_failed`. Test flush lỗi chưa assert `closed`. Validation `--start -1` / `--end <= --start` chưa có test. Nguồn: `replay/tests/test_replay.py` · Lịch: —
 - **BL-THANH-16** · OPEN · tech-debt · P2 · owner: Thành — `encode_event` trả `(None, raw)` cho mọi loại lỗi parse, nên counter `parse_errors` của collector không phân biệt được các loại. Nguồn: `ingestion/envelope.py` · Lịch: W2-THANH-01
+  - 2026-11-23 Thành: collector đếm JSON sai hoặc không phải object mà không đổi interface `encode_event`; test và evidence ở [W2-THANH-01](plans/W2-THANH-01.md). Giữ OPEN chờ review/bàn giao.
 - **BL-THANH-17** · OPEN · tech-debt · P3 · owner: Thành — Các edge case của envelope: `now` không có timezone ra ISO không offset; `page_id=""` ra key `enwiki:`; `COLLECTOR_VERSION=""` ra `replay-`; `ingestion/` chưa có `__init__.py`. Nguồn: `ingestion/envelope.py` · Lịch: —
 - **BL-THANH-18** · OPEN · tech-debt · P3 · owner: Thành — `except Exception` trong `run_replay` bọc cả lỗi lập trình thành `send_error`; nên thu hẹp về `KafkaError`. Nguồn: `replay/replay_producer.py` `run_replay` · Lịch: —
 - **BL-THANH-35** · DONE (commit `541cf9b`, kiểm ngày 23/10) · tech-debt · P1 · owner: Thành — Sau khi gộp 4 nhánh ngày 23/10 mới chạy lại unit test (121 passed), ruff và `docker compose config`; chưa chạy lại test Spark vì Docker Desktop tắt (thử bật lại báo "Docker Desktop is unable to start"). Số Spark trong `tong-ket-1.md` lấy từ lần chạy ngày 20/10 của Linh. Chạy `docker compose run --rm --no-deps spark python -m pytest processing/spark/tests -q` trước khi push. Nguồn: `processing/README.md` · Lịch: —
