@@ -1,4 +1,4 @@
-Trạng thái: ACTIVE · Owner: Trọng · Reviewer dự kiến: Cả nhóm · Liên quan: W4-TRONG-01, CP3/CP4
+Trạng thái: BLOCKED · Owner: Trọng · Reviewer dự kiến: Cả nhóm · Liên quan: W4-TRONG-01, CP3/CP4
 
 ## Mục tiêu
 
@@ -12,8 +12,8 @@ Chỉ sửa lỗi kiểm thử/tích hợp và cập nhật tài liệu bàn gia
 
 - [x] Tạo nhánh W4 riêng từ `main` sau khi merge W3. Audit mã nguồn và môi trường triển khai.
 - [x] Sửa test Compose phụ thuộc `/dev/null` và giới hạn các test mô phỏng Bash vào môi trường có POSIX/Bash. Full smoke kiểm script HDFS trong Linux container.
-- [ ] Build và chạy unit/lint/config/Spark/full HDFS smoke từ clone sạch, venv mới và namespace test riêng. Ghi đúng SHA và môi trường kiểm tra.
-- [ ] Chốt trình tự demo REPLAY, evidence và giới hạn. Cập nhật checkpoint của Trọng và merge W4.
+- [x] Build và chạy unit/lint/config/Spark/full HDFS smoke từ clone sạch, venv mới và namespace test riêng. Ghi đúng SHA và môi trường kiểm tra.
+- [x] Chốt trình tự demo REPLAY, evidence và giới hạn. Bàn giao W4 để merge fast-forward.
 - [ ] Bổ sung bằng chứng máy thứ hai và hoàn tất nghiệm thu CP4 khi CP3, LIVE và các màn hình với dữ liệu thật sẵn sàng.
 
 ## Quyết định
@@ -24,10 +24,21 @@ Chỉ sửa lỗi kiểm thử/tích hợp và cập nhật tài liệu bàn gia
 ## Nhật ký
 
 - 2026-11-23 — W3 đã merge vào `main` tại `7db6682`, tạo nhánh `trong/w4-trong-01-release-candidate`. Audit thấy phép thử Compose dùng `/dev/null`, bootstrap shell đòi POSIX/Bash. Xác nhận collector LIVE vẫn là stub, ba endpoint serving W2 trả HTTP 501.
+- 2026-11-23 — Chạy clone sạch tại `ce71442` và có review độc lập. Tài liệu sau review bổ sung guard kiểm tra tên project trước khi dọn volume. Kiểm tra shell guard với biến thiếu và với tên project cụ thể.
 
 ## Kết quả
 
-Đang kiểm tra ứng viên.
+Ứng viên REPLAY/HDFS kiểm chứng tại `ce7144215899876f102c17e9ca2dda948d65261c`. Clone độc lập `git clone --no-local` trên cùng máy macOS ARM64, checkout SHA, `cp .env.example .env`, cài mới bằng Python 3.12.5. Docker 29.2.1 và Compose 5.1.0. Commit evidence sau đó chỉ cập nhật tài liệu và trạng thái.
+
+| Lệnh trên clone sạch | Kết quả |
+|---|---|
+| `make test lint config config-full` | 147 passed, lint và hai config exit 0 |
+| `make smoke-full` | Build bốn image và smoke REPLAY/HDFS pass. Đọc activity trước khi Spark chạy lại, giữ dải 11 records Kafka và khôi phục đủ 9 checkpoint |
+| `make test-spark` | 68 passed, gồm regression của Linh W4 |
+
+Evidence local gồm [report full](../../artifacts/w4-trong/clean-full-report.json), [unit/lint/config](../../artifacts/w4-trong/clone-checks.log), [Spark](../../artifacts/w4-trong/clone-spark.log). Smoke đã dọn project và volume test sau khi kết thúc. Các log là artifact gitignored.
+
+Nghiệm thu W4 còn chờ clone sạch trên máy thứ hai, CP3 toàn nhóm, collector LIVE của Thành, serving W2 của Nhân và xác nhận bốn trang của Mạnh. Các test trên Windows đã được chỉnh để dùng tệp env portable và skip mô phỏng Bash khi thiếu POSIX. Lần này kiểm chứng thực trên macOS ARM64 và Linux containers.
 
 ### Kịch bản demo REPLAY/HDFS
 
@@ -40,7 +51,7 @@ Từ clone sạch của SHA ứng viên, dùng Python 3.11 hoặc 3.12 và Docke
 Khi kết thúc, đặt `SMOKE_PROJECT` bằng đúng giá trị `project` trong report của lượt demo rồi chạy:
 
 ```sh
-docker compose -p "$SMOKE_PROJECT" -f docker-compose.yml -f docker-compose.hdfs.yml --profile full down --volumes --remove-orphans
+docker compose -p "${SMOKE_PROJECT:?Set SMOKE_PROJECT from report.json}" -f docker-compose.yml -f docker-compose.hdfs.yml --profile full down --volumes --remove-orphans
 ```
 
 Phạm vi bàn giao là hai trang Overview/System Status với dữ liệu REPLAY. Trending/Suspicious còn chờ Cassandra/API W2. Hồ sơ CP4 cần đủ bốn trang, LIVE ≥15 phút và log từ máy thứ hai chạy đúng SHA.

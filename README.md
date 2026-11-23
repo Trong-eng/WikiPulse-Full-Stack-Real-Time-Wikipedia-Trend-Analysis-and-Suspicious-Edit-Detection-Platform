@@ -67,7 +67,7 @@ Smoke khởi tạo project riêng, publish fixture hai phase, assert counts cả
 ```bash
 .venv/bin/python scripts/smoke_test.py --keep
 # Dọn đúng project có trong report.json, gồm cả hậu tố UUID:
-docker compose -p "$SMOKE_PROJECT" down --volumes --remove-orphans
+docker compose -p "${SMOKE_PROJECT:?Set SMOKE_PROJECT from report.json}" -f docker-compose.yml down --volumes --remove-orphans
 ```
 
 `make down` giữ volumes. `make logs` xem logs. `make replay` chạy cùng fixture có ID ổn định; dedup chỉ được cam kết trong watermark horizon, không replay vô hạn vào run cũ. Chạy mới/schema mới cần namespace/output/checkpoint/keyspace mới hoặc dùng smoke cô lập.
