@@ -56,7 +56,8 @@ make config        # validate Compose
 make test-spark    # PySpark3.5.6/Java17 trong container
 make smoke        # real E2E, stack/volumes test riêng, tự cleanup
 make config-full  # validate HDFS overlay/profile
-make smoke-full   # E2E HDFS + recreate nodes, phục hồi checkpoints
+make smoke-full   # E2E HDFS + phục hồi Kafka, Cassandra và checkpoints
+make acceptance-hdfs  # kiểm tra late data, finalized, retry và restart với fixture W3
 ```
 
 Smoke khởi tạo project riêng, publish fixture hai phase, assert counts cả hai wiki, duplicate/canary exclusion, invalid rows, Bronze/Silver/Gold, analytics Parquet, API/UI/Spark readiness và 501 deferred routes. Nó không seed Cassandra hay xóa data của dev stack. Evidence ở `artifacts/smoke-*/report.json`, `commands.log`, `services.log`.
@@ -78,6 +79,8 @@ Lần đầu nâng từ W1, dùng `.env.example` mới làm tham chiếu: `PIPEL
 Compose forward `SPARK_ANALYTICS_SINK` (mặc định `parquet`) và `SPARK_SCORING_PATH` (mặc định `/workspace/config/scoring.yaml`) vào Spark. Scoring file phải tồn tại **trong container**; nếu dùng file tùy chỉnh, mount read-only bằng override. Ý nghĩa analytics ở [processing README](processing/README.md#week-two-analytics). Mode Cassandra W2 cần store của Nhân; hiện thiếu methods và sẽ fail startup rõ ràng.
 
 `make up-full` bật HDFS và chờ health; `make down-full` giữ volumes. Cách chọn project/URI, migrate namespace, readiness và restart: [HDFS README](storage/hdfs/README.md). Core mặc định vẫn local, không tự bật HDFS.
+
+Hạ tầng W3 có [Kubernetes skeleton](deploy/kubernetes/README.md) cho các dịch vụ stateless và [profile monitoring](monitoring/README.md) để theo dõi readiness HTTP. Compose là đường nghiệm thu full stack.
 
 ## Cấu trúc và ownership
 

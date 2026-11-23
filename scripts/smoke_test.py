@@ -23,6 +23,7 @@ def run_smoke(keep: bool = False, build: bool = True, hdfs: bool = False) -> dic
         "API_HOST_PORT": "0", "DASHBOARD_HOST_PORT": "0", "KAFKA_HOST_PORT": "0",
         "KAFKA_BOOTSTRAP_SERVERS": "kafka:9092", "CASSANDRA_HOST": "cassandra",
         "KAFKA_RAW_TOPIC": "wikipedia.recentchange.raw",
+        "KAFKA_RAW_RETENTION_MS": "86400000",
         "KAFKA_DLQ_TOPIC": "wikipedia.recentchange.dlq", "CASSANDRA_PORT": "9042",
         "CASSANDRA_KEYSPACE": "wikipulse", "DATA_BASE_PATH": "file:///data/wikipulse",
         "DASHBOARD_API_URL": "http://api:8000", "PIPELINE_VERSION": "0.2.0",
@@ -139,17 +140,53 @@ def run_smoke(keep: bool = False, build: bool = True, hdfs: bool = False) -> dic
 
         report["lake_inspection"] = wait_for(inspect_lake, "lake and analytics correctness", 300)
         if hdfs:
+            def kafka_offsets(when):
+                topic = env["KAFKA_RAW_TOPIC"]
+                output = compose("exec", "-T", "kafka", "/opt/kafka/bin/kafka-get-offsets.sh",
+                                 "--bootstrap-server", env["KAFKA_BOOTSTRAP_SERVERS"],
+                                 "--topic", topic, "--time", when, timeout=30)
+                offsets = {}
+                for line in output.splitlines():
+                    if line.startswith(f"{topic}:"):
+                        _, partition, offset = line.split(":")
+                        offsets[int(partition)] = int(offset)
+                return offsets
+
             def query_ids():
                 progress = json.loads(compose("exec", "-T", "spark", "cat", "/data/progress.json"))
                 ids = {name: query["id"] for name, query in progress["queries"].items() if query}
                 return ids if len(ids) == 9 else None
 
             before = wait_for(query_ids, "all query checkpoint identities")
-            compose("stop", "spark", timeout=120)
-            # Recreate HDFS containers, retaining this test project's named volumes.
-            compose("up", "-d", "--force-recreate", "--wait", "--wait-timeout", "180",
-                    "namenode", "datanode", timeout=240)
+            offsets = {when: kafka_offsets(when) for when in ("earliest", "latest")}
+            assert offsets["earliest"] == {0: 0, 1: 0, 2: 0}, offsets
+            assert set(offsets["latest"]) == {0, 1, 2}, offsets
+            assert sum(offsets["latest"].values()) == expected["raw_total"], offsets
+            # Offering another creation default must not mutate an existing topic.
+            compose("run", "--rm", "--no-deps", "-e", "KAFKA_RAW_RETENTION_MS=172800000",
+                    "init-topics")
+            retention = compose("exec", "-T", "kafka", "/opt/kafka/bin/kafka-configs.sh",
+                                "--bootstrap-server", env["KAFKA_BOOTSTRAP_SERVERS"],
+                                "--entity-type", "topics", "--entity-name", env["KAFKA_RAW_TOPIC"],
+                                "--describe", timeout=30)
+            retention_setting = f"retention.ms={env['KAFKA_RAW_RETENTION_MS']}"
+            assert any(line.strip().split()[0] == retention_setting
+                       for line in retention.splitlines() if line.strip()), retention
+            compose("stop", "spark", "api", timeout=120)
+            # Recreate stateful containers; retain the isolated project's named volumes.
+            compose("up", "-d", "--no-deps", "--force-recreate", "--wait", "--wait-timeout", "240",
+                    "namenode", "datanode", "kafka", "cassandra", timeout=300)
             compose("run", "--rm", "--no-deps", "init-hdfs")
+            compose("start", "api")
+            api_port = compose("port", "api", "8000").strip().rsplit(":", 1)[1]
+            api = f"http://127.0.0.1:{api_port}"
+            wait_for(lambda: get(f"{api}/health")["status"] == "ok", "API after Cassandra recreation")
+            assert {when: kafka_offsets(when) for when in offsets} == offsets, (
+                "Kafka offsets changed after broker recreation"
+            )
+            assert check_activity(), "Cassandra activity rows did not survive recreation"
+            report["persisted_kafka_offsets"] = offsets
+            report["raw_retention_ms"] = int(env["KAFKA_RAW_RETENTION_MS"])
             compose("start", "spark")
             wait_for(spark_ready, "Spark ready after HDFS recreation")
             after = wait_for(query_ids, "restored query checkpoint identities")
@@ -170,7 +207,7 @@ def run_smoke(keep: bool = False, build: bool = True, hdfs: bool = False) -> dic
                                   "dedup/invalid/canary", "Bronze/Silver/Gold + analytics",
                                   "HTTP501 deferred"]})
         if hdfs:
-            report["checks"].append("HDFS container recreation: data and 9 checkpoints preserved")
+            report["checks"].append("HDFS, Kafka and Cassandra recreation: data and 9 checkpoints preserved")
         return report
     except Exception as exc:
         report["error"] = str(exc)

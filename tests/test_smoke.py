@@ -40,6 +40,7 @@ def test_smoke_overrides_developer_service_endpoints_and_topics(monkeypatch, fai
         "KAFKA_ADVERTISED_EXTERNAL_PORT": "19092",
         "KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
         "KAFKA_RAW_TOPIC": "wikipedia.recentchange.raw",
+        "KAFKA_RAW_RETENTION_MS": "86400000",
         "KAFKA_DLQ_TOPIC": "wikipedia.recentchange.dlq",
         "CASSANDRA_HOST": "cassandra",
         "CASSANDRA_PORT": "9042",
@@ -127,7 +128,8 @@ def test_same_second_smokes_use_distinct_projects_and_only_clean_their_own_names
     assert all((tmp_path / "artifacts" / run_id / "report.json").is_file() for run_id in run_ids)
 
 
-def test_smoke_executes_dashboard_inspection_after_stable_activity(monkeypatch, tmp_path):
+@pytest.mark.parametrize("hdfs,kafka_lost", [(False, False), (True, False), (True, True)])
+def test_smoke_checks_activity_through_persistence_boundary(monkeypatch, tmp_path, hdfs, kafka_lost):
     rows = [
         {
             "wiki": "enwiki", "event_count": 5, "edit_count": 5, "new_page_count": 0,
@@ -141,7 +143,7 @@ def test_smoke_executes_dashboard_inspection_after_stable_activity(monkeypatch, 
     fixture_dir = tmp_path / "tests" / "fixtures"
     fixture_dir.mkdir(parents=True)
     (fixture_dir / "expected_activity.json").write_text(
-        json.dumps({"phase_one_records": 10, "rows": rows}), encoding="utf-8"
+        json.dumps({"phase_one_records": 10, "raw_total": 11, "rows": rows}), encoding="utf-8"
     )
     boundaries = []
 
@@ -155,12 +157,23 @@ def test_smoke_executes_dashboard_inspection_after_stable_activity(monkeypatch, 
         elif args[:4] == ["exec", "-T", "spark", "cat"]:
             output = json.dumps({
                 "active_queries": {"activity_gold": True},
-                "queries": {name: {"eventTime": {
+                "queries": {name: {"id": name, "eventTime": {
                     "watermark": "2026-01-01T00:01:00+00:00"
-                }} for name in ("activity_gold", "trends_gold", "trends_provisional_parquet")},
+                }} for name in ("activity_gold", "trends_gold", "trends_provisional_parquet",
+                                "bronze_raw", "bronze_invalid", "silver_events",
+                                "activity_cassandra", "events_parquet", "suspicious_parquet")},
             })
+        elif args[:4] == ["exec", "-T", "kafka", "/opt/kafka/bin/kafka-get-offsets.sh"]:
+            if args[-1] == "earliest":
+                last = 1 if kafka_lost and ["start", "api"] in boundaries else 0
+                offsets = (0, 0, last)
+            else:
+                offsets = (5, 3, 3)
+            output = "\n".join(f"wikipedia.recentchange.raw:{i}:{off}" for i, off in enumerate(offsets))
+        elif args[:4] == ["exec", "-T", "kafka", "/opt/kafka/bin/kafka-configs.sh"]:
+            output = "retention.ms=86400000"
         elif (
-            args[:1] in [["up"], ["run"], ["logs"], ["down"]]
+            args[:1] in [["up"], ["run"], ["logs"], ["down"], ["stop"], ["start"]]
             or args[:5] == ["exec", "-T", "spark", "python", "scripts/inspect_lake.py"]
             or args == ["exec", "-T", "dashboard", "python", "scripts/inspect_dashboard.py"]
             or args == ["exec", "-T", "spark", "python", "scripts/check_spark_ready.py"]
@@ -196,13 +209,24 @@ def test_smoke_executes_dashboard_inspection_after_stable_activity(monkeypatch, 
     monkeypatch.setattr(smoke_test, "ROOT", tmp_path)
     monkeypatch.setattr(smoke_test.subprocess, "run", compose_process)
     monkeypatch.setattr(smoke_test.urllib.request, "urlopen", api_response)
-    report = smoke_test.run_smoke(build=False)
+    if kafka_lost:
+        with pytest.raises(AssertionError, match="Kafka offsets changed"):
+            smoke_test.run_smoke(build=False, hdfs=hdfs)
+        assert ["start", "spark"] not in boundaries
+        return
+
+    report = smoke_test.run_smoke(build=False, hdfs=hdfs)
 
     inspection = ["exec", "-T", "dashboard", "python", "scripts/inspect_dashboard.py"]
     assert inspection in boundaries
-    assert boundaries.index(inspection) > max(
-        index for index, boundary in enumerate(boundaries) if boundary[0] == "activity"
-    )
+    assert any(boundary[0] == "activity" for boundary in boundaries[:boundaries.index(inspection)])
+    if hdfs:
+        after_api = boundaries.index(["start", "api"])
+        before_spark = boundaries.index(["start", "spark"])
+        assert sum(boundary[0] == "activity" for boundary in boundaries[after_api:before_spark]) == 2
+        assert report["persisted_kafka_offsets"] == {
+            "earliest": {0: 0, 1: 0, 2: 0}, "latest": {0: 5, 1: 3, 2: 3},
+        }
     assert report["status"] == "passed"
 
 

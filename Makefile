@@ -2,9 +2,9 @@ PYTHON ?= .venv/bin/python
 COMPOSE ?= docker compose
 FULL_COMPOSE = $(COMPOSE) -f docker-compose.yml -f docker-compose.hdfs.yml --profile full
 
-.PHONY: help install up down logs init replay smoke test test-spark lint config build up-full down-full config-full smoke-full
+.PHONY: help install up down logs init replay smoke test test-spark lint config build up-full down-full config-full smoke-full acceptance-hdfs
 help:
-	@echo 'install | up | up-full | init | replay | smoke | smoke-full | test | test-spark | lint | config | config-full | logs | down | down-full'
+	@echo 'install | up | up-full | init | replay | smoke | smoke-full | acceptance-hdfs | test | test-spark | lint | config | config-full | logs | down | down-full'
 install:
 	python3 -m venv .venv
 	$(PYTHON) -m pip install -e '.[dev]' -r dashboard/requirements.txt
@@ -39,3 +39,5 @@ smoke:
 	$(PYTHON) scripts/smoke_test.py
 smoke-full:
 	$(PYTHON) scripts/smoke_test.py --hdfs
+acceptance-hdfs:
+	KAFKA_RAW_RETENTION_MS=86400000 $(PYTHON) -m processing.spark.acceptance.run_hdfs

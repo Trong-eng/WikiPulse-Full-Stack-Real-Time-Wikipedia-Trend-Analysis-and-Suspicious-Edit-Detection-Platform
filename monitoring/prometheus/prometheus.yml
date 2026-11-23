@@ -1,4 +1,27 @@
 global:
   scrape_interval: 15s
-# Starter only: application exporters/metrics are not implemented at CP0.
-scrape_configs: []
+  scrape_timeout: 5s
+
+scrape_configs:
+  - job_name: blackbox
+    static_configs:
+      - targets: [blackbox:9115]
+
+  - job_name: wikipulse-readiness
+    metrics_path: /probe
+    params:
+      module: [http_readiness]
+    static_configs:
+      - targets: [http://api:8000/health]
+        labels:
+          service: api
+      - targets: [http://dashboard:8501/_stcore/health]
+        labels:
+          service: dashboard
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115

@@ -1,4 +1,4 @@
-# HDFS — W2-TRONG-01 / W3-LINH-01
+# HDFS — full stack và acceptance
 
 Profile `full` chạy một NameNode và một DataNode, replication 1, volume `hdfs-name`/`hdfs-data` riêng theo Compose project. Image [Apache Hadoop 3.4.3](https://github.com/apache/hadoop/pkgs/container/hadoop) được pin manifest digest trong Compose, hỗ trợ ARM64/AMD64; đã chạy native ARM64. RPC 9000 và cổng DataNode chỉ dùng trong Docker network, không publish ra host. Topology demo không có HA/auth/Kerberos.
 
@@ -55,12 +55,13 @@ Không cưỡng ép rời safe mode hoặc xóa checkpoints để chữa lỗi. 
 ```sh
 make config-full
 make smoke-full
+make acceptance-hdfs
 # Sau khi đã build image hiện tại:
 .venv/bin/python scripts/smoke_test.py --hdfs --no-build
 ```
 
 Smoke tự chọn project/run/port riêng và mặc định cleanup đúng volume của nó. `--keep` giữ lại để xem; lấy project và đường evidence từ `report.json`, dùng **cả hai file Compose và profile full** khi dọn. Mọi lỗi làm exit khác 0; `--no-build` chỉ dùng khi image đã chứa code mới.
 
-Kiểm tra: API/dashboard, activity, Bronze/invalid/Silver/Gold, analytics Parquet; sau đó recreate NameNode/DataNode giữ volume, restart Spark và so sánh ID của đủ 9 query để chứng minh checkpoints được phục hồi, đọc lại dữ liệu/counts. Logs và report nằm ở `artifacts/smoke-*/`; kết quả lần thực hiện ở [W2-TRONG-01](../../docs/plans/W2-TRONG-01.md#kết-quả).
+`make smoke-full` kiểm API/dashboard, activity, Bronze/invalid/Silver/Gold và analytics Parquet. Sau khi dừng Spark, smoke recreate NameNode, DataNode, Kafka và Cassandra với volumes cũ. Nó đối chiếu offsets Kafka và đọc activity từ Cassandra qua API trước khi cho Spark chạy lại, rồi so ID đủ 9 query và đọc lại lake. Log và report nằm ở `artifacts/smoke-*/`.
 
-W2 xác minh nền HDFS và tích hợp REPLAY; workload LIVE dài, late/recovery nâng cao và nghiệm thu CP3 vẫn thuộc tuần 3. Trends/risk/detail hiện ghi Parquet; Cassandra/API W2 chờ Nhân theo [BL-LINH-02](../../docs/backlog.md#nhân).
+`make acceptance-hdfs` dùng runner và fixture của Linh để kiểm tra late data, Gold finalized, retry activity và restart qua 7 phase có checkpoint chung. Hai lần chạy dùng project/volume test độc lập. Cách đọc evidence và giới hạn nghiệp vụ ở [W3-TRONG-01](../../docs/plans/W3-TRONG-01.md#kết-quả) và [W3-LINH-01](../../docs/plans/W3-LINH-01.md#kết-quả).

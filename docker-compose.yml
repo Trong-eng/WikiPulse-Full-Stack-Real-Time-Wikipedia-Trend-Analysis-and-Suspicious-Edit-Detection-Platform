@@ -48,7 +48,9 @@ services:
 
   init-topics:
     image: apache/kafka:3.9.1
-    environment: *app-env
+    environment:
+      <<: *app-env
+      KAFKA_RAW_RETENTION_MS: ${KAFKA_RAW_RETENTION_MS:-86400000}
     volumes: [./scripts/create_topics.sh:/create_topics.sh:ro]
     entrypoint: [/bin/bash, /create_topics.sh]
     depends_on:

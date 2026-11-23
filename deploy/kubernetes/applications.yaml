@@ -1,0 +1,167 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wikipulse-config
+data:
+  PIPELINE_MODE: REPLAY
+  PIPELINE_VERSION: "0.2.0"
+  WIKI_ALLOWLIST: enwiki,viwiki
+  CASSANDRA_HOST: cassandra
+  CASSANDRA_PORT: "9042"
+  CASSANDRA_KEYSPACE: wikipulse
+  DASHBOARD_API_URL: http://api:8000
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  KAFKA_RAW_TOPIC: wikipedia.recentchange.raw
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wikipulse-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wikipulse-api
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: api
+          image: wikipulse-api:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: wikipulse-config
+          ports:
+            - name: http
+              containerPort: 8000
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            failureThreshold: 24
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: wikipulse-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wikipulse-dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wikipulse-dashboard
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: dashboard
+          image: wikipulse-dashboard:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: wikipulse-config
+          ports:
+            - name: http
+              containerPort: 8501
+          livenessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: http
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: wikipulse-dashboard
+  ports:
+    - name: http
+      port: 8501
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collector
+spec:
+  # The LIVE entry point exits 2 until W2-THANH-01 is implemented.
+  replicas: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wikipulse-collector
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wikipulse-collector
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: collector
+          image: wikipulse-replay:0.1.0
+          imagePullPolicy: IfNotPresent
+          command: [python, -m, ingestion.collector.app.main]
+          envFrom:
+            - configMapRef:
+                name: wikipulse-config
+          env:
+            - name: PIPELINE_MODE
+              value: LIVE
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
