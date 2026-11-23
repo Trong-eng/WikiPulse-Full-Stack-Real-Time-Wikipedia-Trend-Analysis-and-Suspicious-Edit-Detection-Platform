@@ -50,6 +50,9 @@ Format, mỗi item 1–3 dòng:
   - 2026-10-16 Thành: đã chuyển cả hai file vào `docs/trong/` theo yêu cầu của Thành, sửa tham chiếu trong `docs/checkpoints.md` (CP0, W1-TRONG-05), AGENTS.md §4 và script kiểm docs. `docs/development.md` giữ ở gốc vì là hướng dẫn setup/branch chung. Thay đổi được push thẳng lên `main` theo yêu cầu của Thành, không qua PR: Trọng xem commit, giữ thì đóng item, không đồng ý thì revert.
 - **BL-THANH-33** · PROPOSED · decision · P2 · owner: Trọng — AGENTS.md §4 thêm dòng bản đồ docs cho `tong-ket-<N>.md` (tổng kết tuần gửi cấp trên, ở root, đóng băng sau khi gửi). Thành thêm theo yêu cầu của Thành khi viết `tong-ket-1.md`; Trọng duyệt giữ, đổi chỗ (vd. `docs/tong-ket/`) hoặc revert. Nguồn: [tong-ket-1.md](../tong-ket-1.md) · Lịch: —
 - **BL-THANH-34** · PROPOSED · finding · P1 · owner: Trọng — CP1 chưa đóng: 4 việc W1 (THANH, LINH, NHAN, MANH) đều REVIEW mà chưa có review. Ngày 23/10 bốn nhánh `nhan/w1-nhan-01-plan`, `nhan/w2-serving-contract-draft` (PR #3 còn draft), `manh/w1-manh-01-dashboard-takeover`, `linh_tuan_1` được gộp thẳng vào `main` theo yêu cầu của Thành, không qua PR. Cần review chéo sau merge và tổng hợp evidence máy thứ hai. Nguồn: `docs/checkpoints.md` (CP1), [tong-ket-1.md](../tong-ket-1.md) · Lịch: —
+  - 2026-11-23 Nhân: W1-NHAN-01 đã merge từ 23/10, hồi quy W4 đạt; chuyển DONE ([W1-NHAN-01](plans/W1-NHAN-01.md)).
+- **BL-NHAN-01** · PROPOSED · tech-debt · P2 · owner: Trọng — Serving W2 đã đọc được từ Cassandra, nhưng mặc định `SPARK_ANALYTICS_SINK=parquet` (`docker-compose.yml`, `.env.example`, `tests/test_deployment.py`, `scripts/smoke_test.py`) nên API trends/suspicious trả rỗng và event 404 trên stack mặc định. Đề xuất đổi sang `cassandra` khi Linh xác nhận `inspect_lake.py` không cần output Parquet serving. Ngoài ra W2-NHAN-01 đã sửa tối thiểu smoke (bỏ kiểm HTTP 501, kiểm envelope v0.2) trong `scripts/smoke_test.py` và `tests/test_smoke.py`; nhờ duyệt trên PR. Nguồn: [W2-NHAN-01](plans/W2-NHAN-01.md#quyết-định) · Lịch: —
+- **BL-NHAN-03** · PROPOSED · bug · P2 · owner: Trọng — `tests/test_deployment.py` (`compose_config`) chỉ giữ `PATH, HOME, DOCKER_CONFIG, SYSTEMROOT, USERPROFILE, APPDATA, LOCALAPPDATA` khi gọi `docker compose`. Trên Windows thiếu `PROGRAMFILES` nên Docker không tìm thấy plugin compose (`C:\Program Files\Docker\cli-plugins`), báo `unknown flag: --env-file`; 2 test fail trên mọi máy Windows, sẽ chặn clone sạch CP4 trên Windows. Đã thử: thêm `PROGRAMFILES` vào `cli_vars` là đủ (`docker compose version` chạy được). Nguồn: [W2-NHAN-01](plans/W2-NHAN-01.md#kết-quả) · Lịch: đề xuất W4-TRONG-01
 
 ## Thành
 
@@ -80,7 +83,8 @@ Format, mỗi item 1–3 dòng:
 
 ## Nhân
 
-- **BL-LINH-02** · PROPOSED · finding · P1 · owner: Nhân — Producer W2 đã có ba DataFrame và `AnalyticsBatchWriter`; nối store `upsert_trends`, `upsert_suspicious_edits`, `upsert_events`, CQL và endpoints theo v0.2. Cassandra mode fail startup nếu thiếu method; default hiện là Parquet để kiểm chứng producer, không phải serving W2 qua API. Nguồn: [contracts](contracts.md#bàn-giao-producer-cho-sink--w2-linh-01), [W2-LINH-01](plans/W2-LINH-01.md) · Lịch: đề xuất W2-NHAN-01
+- **BL-LINH-02** · DONE (PR #6) · finding · P1 · owner: Nhân — Producer W2 đã có ba DataFrame và `AnalyticsBatchWriter`; nối store `upsert_trends`, `upsert_suspicious_edits`, `upsert_events`, CQL và endpoints theo v0.2. Cassandra mode fail startup nếu thiếu method; default hiện là Parquet để kiểm chứng producer, không phải serving W2 qua API. Nguồn: [contracts](contracts.md#bàn-giao-producer-cho-sink--w2-linh-01), [W2-LINH-01](plans/W2-LINH-01.md) · Lịch: W2-NHAN-01
+  - 2026-11-23 Nhân: đã nối ba method vào `CassandraActivityStore`, CQL, 3 endpoint; E2E cassandra mode khớp kỳ vọng Parquet. Xem [W2-NHAN-01](plans/W2-NHAN-01.md#kết-quả).
 
 - **BL-THANH-22** · DONE (PR #5) · tech-debt · P3 · owner: Nhân — Đề xuất theo AGENTS.md: khi merge, đổi `docs/serving-review.md` thành plan `docs/plans/W1-NHAN-01.md`. Phần ghi chú thiết kế thì đặt ở `docs/nhan/`; review và nhật ký vẫn vào plan. Nguồn: branch `nhan/w1-cassandra-api-takeover` · Lịch: —
   - 2026-10-16 Thành: PR #1 đã merge, `docs/serving-review.md` đang ở `main` và nằm ngoài bản đồ docs của AGENTS.md §4.
@@ -92,6 +96,7 @@ Format, mỗi item 1–3 dòng:
 
 - **BL-THANH-24** · PROPOSED · finding · P2 · owner: Mạnh — Đồng hồ máy dev có thể chậm ít nhất ~10 s so với `meta.dt`. Kiểm `w32tm /query /status` (Windows) và đồng bộ NTP trước khi đo độ trễ provisional 30–60 s. Nguồn: [ingestion-spike.md](thanh/ingestion-spike.md#việc-cần-báo-các-owner-khác) · Lịch: đề xuất W3-MANH-01
 - **BL-THANH-37** · PROPOSED · tech-debt · P2 · owner: Mạnh — 4 ảnh W1 trong `docs/bao-cao-ky-thuat/hinh/W1-Mạnh/` chưa đưa vào `main.tex` (còn `\dukiensua` ở `main.tex:1024`), thiếu ảnh trang Suspicious Edits; lệnh `AppTest` trong plan bị lược nên khó tái hiện; chưa có plan `W2-MANH-01`. Nguồn: [W1-MANH-01](plans/W1-MANH-01.md), `docs/bao-cao-ky-thuat/README.md` · Lịch: đề xuất W2-MANH-01
+- **BL-NHAN-02** · PROPOSED · finding · P1 · owner: Mạnh — Từ W2-NHAN-01, `/api/v1/trends`, `/suspicious-edits`, `/events/{id}` trả 200/404 thật thay vì 501; `/health` đổi `implementation_status` thành `activity_trends_suspicious_events`; mọi lỗi có dạng `{detail: {code, message, ...}}`. Trang Trending/Suspicious và `dashboard/README.md` còn mô tả trạng thái 501; test dashboard mock 501 nên vẫn xanh. Payload ở contracts.md mục Tuần 2. Nguồn: [contracts](contracts.md#api--nhân--mạnh-1), [W2-NHAN-01](plans/W2-NHAN-01.md) · Lịch: đề xuất W2-MANH-01
 
 ## Sau MVP
 

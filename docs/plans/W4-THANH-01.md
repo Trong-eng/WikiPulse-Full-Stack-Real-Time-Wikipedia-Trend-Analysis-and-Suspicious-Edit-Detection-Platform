@@ -30,6 +30,7 @@ Ingestion/replay, test và Terraform EC2 nghiệm thu tạm trong phạm vi Thà
 - 2026-11-23 — LIVE dừng 10:39:24 UTC, exit 0: received/published 70.252/70.252, tổng Kafka end-offset 70.252, 5 reconnect, 0 restart/parse error/publish failure. Review pha 3 xác nhận không suy ra exactly-once, LIVE end-to-end tới dashboard, hoặc CP3/CP4; Kafka stop 15 giây không phát sinh publish failure nên không chứng minh nhánh retry.
 - 2026-11-23 — `terraform destroy`: 5 destroyed; AWS xác nhận instance terminated, volume/security group/role/profile không còn và Terraform state rỗng. Đã gửi tín hiệu dừng watchdog. Regression 181 passed, 5 skipped, 63 deselected; Ruff, `git diff --check` và `terraform fmt -check` thành công.
 - 2026-11-23 — Review pha 4 phát hiện nguy cơ watchdog cũ dọn state của lượt mới: thêm kiểm tra state theo run ID và tín hiệu dừng trước destroy, đợi process thoát, cố định region trong runbook. Review lại không thấy lỗi nghiêm trọng qua đọc tĩnh. Watchdog lưu trong repo mới được kiểm tra cú pháp, chưa được thử destroy thực tế; lượt này dùng watchdog riêng trong artifacts. Terraform validate thành công, watchdog đã chạy thực tế đã thoát.
+- 2026-11-23 — Theo yêu cầu Thành, tách commit W2/W3/W4 và tích hợp các cập nhật serving mới từ `origin/main`: regression `-m 'not integration and not spark'` đạt 224 passed, 5 skipped, 67 deselected; Ruff, kiểm tra diff và Terraform fmt đạt. Việc merge không thay cho review contract của Linh hoặc demo phối hợp.
 
 ## Kết quả
 

@@ -1,6 +1,6 @@
 # W1-NHAN-01 — Tiếp quản CQL/sink/API, review khóa và API schema
 
-Trạng thái: REVIEW · Owner: Nhân · Reviewer: Trọng, Mạnh · Liên quan: [checkpoints](../checkpoints.md), BL-THANH-22, contract tuần 2 ở PR #3
+Trạng thái: DONE · Owner: Nhân · Reviewer: Trọng, Mạnh · Liên quan: [checkpoints](../checkpoints.md), BL-THANH-22, contract tuần 2 ở PR #3
 
 ## Mục tiêu
 
@@ -37,6 +37,7 @@ Thiết kế tuần 2 (trends, suspicious edits, event detail, định dạng l�
 
 - 2026-10-15 — tiếp quản, validation `ActivityRow`, OpenAPI 503, integration test, sửa lỗi Windows, CP0 trên Windows — PR #1 (`e20a9d7`)
 - 2026-10-22 — đổi `docs/serving-review.md` thành plan này theo AGENTS.md (BL-THANH-22); chạy lại test trên `main` `f422959`
+- 2026-11-23 — đã merge vào `main` từ 23/10; hồi quy W4 trên `main` 5e46a2d đạt (activity + serving, xem [W4-NHAN-01](W4-NHAN-01.md#kết-quả)); chuyển DONE — PR #7
 
 ## Kết quả
 

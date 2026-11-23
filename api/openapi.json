@@ -1,0 +1,1183 @@
+{
+  "components": {
+    "schemas": {
+      "ActivityEnvelope": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityRow"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "pipeline_mode": {
+            "enum": [
+              "REPLAY",
+              "LIVE"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
+          },
+          "provisional": {
+            "const": true,
+            "default": true,
+            "title": "Provisional",
+            "type": "boolean"
+          },
+          "source": {
+            "const": "cassandra",
+            "default": "cassandra",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "generated_at",
+          "pipeline_mode"
+        ],
+        "title": "ActivityEnvelope",
+        "type": "object"
+      },
+      "ActivityRow": {
+        "additionalProperties": false,
+        "properties": {
+          "anonymous_edit_count": {
+            "minimum": 0.0,
+            "title": "Anonymous Edit Count",
+            "type": "integer"
+          },
+          "bot_edit_count": {
+            "minimum": 0.0,
+            "title": "Bot Edit Count",
+            "type": "integer"
+          },
+          "edit_count": {
+            "minimum": 0.0,
+            "title": "Edit Count",
+            "type": "integer"
+          },
+          "event_count": {
+            "minimum": 0.0,
+            "title": "Event Count",
+            "type": "integer"
+          },
+          "new_page_count": {
+            "minimum": 0.0,
+            "title": "New Page Count",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "wiki": {
+            "pattern": "^[a-z][a-z0-9_]{1,63}$",
+            "title": "Wiki",
+            "type": "string"
+          },
+          "window_end": {
+            "format": "date-time",
+            "title": "Window End",
+            "type": "string"
+          },
+          "window_start": {
+            "format": "date-time",
+            "title": "Window Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "wiki",
+          "window_start",
+          "window_end",
+          "event_count",
+          "edit_count",
+          "new_page_count",
+          "anonymous_edit_count",
+          "bot_edit_count",
+          "updated_at"
+        ],
+        "title": "ActivityRow",
+        "type": "object"
+      },
+      "ErrorDetail": {
+        "description": "Every error: `{\"detail\": {\"code\", \"message\", ...}}`; extra fields depend on the code.",
+        "properties": {
+          "code": {
+            "enum": [
+              "INVALID_QUERY",
+              "EVENT_NOT_FOUND",
+              "DEPENDENCY_UNAVAILABLE",
+              "CAPACITY_EXCEEDED"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FieldError"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fields"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "const": "cassandra",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorDetail",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "EventDetailRow": {
+        "additionalProperties": false,
+        "properties": {
+          "byte_delta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Byte Delta"
+          },
+          "event_id": {
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "event_time": {
+            "format": "date-time",
+            "title": "Event Time",
+            "type": "string"
+          },
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "is_anonymous": {
+            "title": "Is Anonymous",
+            "type": "boolean"
+          },
+          "is_bot": {
+            "title": "Is Bot",
+            "type": "boolean"
+          },
+          "is_minor": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Minor"
+          },
+          "length_new": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Length New"
+          },
+          "length_old": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Length Old"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "page_key": {
+            "minLength": 1,
+            "title": "Page Key",
+            "type": "string"
+          },
+          "page_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Title"
+          },
+          "pipeline_version": {
+            "title": "Pipeline Version",
+            "type": "string"
+          },
+          "processed_at": {
+            "format": "date-time",
+            "title": "Processed At",
+            "type": "string"
+          },
+          "revision_new": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision New"
+          },
+          "revision_old": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision Old"
+          },
+          "risk_reasons": {
+            "items": {
+              "enum": [
+                "LARGE_DELETION",
+                "REVERT_PATTERN",
+                "ANONYMOUS_EDIT"
+              ],
+              "type": "string"
+            },
+            "title": "Risk Reasons",
+            "type": "array"
+          },
+          "risk_score": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Risk Score",
+            "type": "integer"
+          },
+          "wiki": {
+            "pattern": "^[a-z][a-z0-9_]{1,63}$",
+            "title": "Wiki",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "wiki",
+          "event_time",
+          "page_key",
+          "event_type",
+          "is_anonymous",
+          "is_bot",
+          "risk_score",
+          "risk_reasons",
+          "pipeline_version",
+          "processed_at"
+        ],
+        "title": "EventDetailRow",
+        "type": "object"
+      },
+      "EventEnvelope": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/EventDetailRow"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "pipeline_mode": {
+            "enum": [
+              "REPLAY",
+              "LIVE"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
+          },
+          "source": {
+            "const": "cassandra",
+            "default": "cassandra",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "generated_at",
+          "pipeline_mode"
+        ],
+        "title": "EventEnvelope",
+        "type": "object"
+      },
+      "FieldError": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "message"
+        ],
+        "title": "FieldError",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "dependencies": {
+            "additionalProperties": {
+              "enum": [
+                "ready",
+                "unavailable"
+              ],
+              "type": "string"
+            },
+            "title": "Dependencies",
+            "type": "object"
+          },
+          "implementation_status": {
+            "const": "activity_trends_suspicious_events",
+            "default": "activity_trends_suspicious_events",
+            "title": "Implementation Status",
+            "type": "string"
+          },
+          "pipeline_mode": {
+            "enum": [
+              "REPLAY",
+              "LIVE"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
+          },
+          "source": {
+            "const": "cassandra",
+            "default": "cassandra",
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "pipeline_mode",
+          "dependencies"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "SuspiciousEditEnvelope": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/SuspiciousEditRow"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "disclaimer": {
+            "const": "Điểm dùng để ưu tiên xem xét, không kết luận phá hoại.",
+            "default": "Điểm dùng để ưu tiên xem xét, không kết luận phá hoại.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "pipeline_mode": {
+            "enum": [
+              "REPLAY",
+              "LIVE"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
+          },
+          "provisional": {
+            "const": true,
+            "default": true,
+            "title": "Provisional",
+            "type": "boolean"
+          },
+          "source": {
+            "const": "cassandra",
+            "default": "cassandra",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "generated_at",
+          "pipeline_mode"
+        ],
+        "title": "SuspiciousEditEnvelope",
+        "type": "object"
+      },
+      "SuspiciousEditRow": {
+        "additionalProperties": false,
+        "properties": {
+          "bucket_start": {
+            "format": "date-time",
+            "title": "Bucket Start",
+            "type": "string"
+          },
+          "byte_delta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Byte Delta"
+          },
+          "event_id": {
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "event_time": {
+            "format": "date-time",
+            "title": "Event Time",
+            "type": "string"
+          },
+          "is_anonymous": {
+            "title": "Is Anonymous",
+            "type": "boolean"
+          },
+          "is_bot": {
+            "title": "Is Bot",
+            "type": "boolean"
+          },
+          "page_key": {
+            "minLength": 1,
+            "title": "Page Key",
+            "type": "string"
+          },
+          "page_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Title"
+          },
+          "revision_new": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision New"
+          },
+          "risk_reasons": {
+            "items": {
+              "enum": [
+                "LARGE_DELETION",
+                "REVERT_PATTERN",
+                "ANONYMOUS_EDIT"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Risk Reasons",
+            "type": "array"
+          },
+          "risk_score": {
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Risk Score",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "wiki": {
+            "pattern": "^[a-z][a-z0-9_]{1,63}$",
+            "title": "Wiki",
+            "type": "string"
+          }
+        },
+        "required": [
+          "wiki",
+          "bucket_start",
+          "event_id",
+          "event_time",
+          "page_key",
+          "is_anonymous",
+          "is_bot",
+          "risk_score",
+          "risk_reasons",
+          "updated_at"
+        ],
+        "title": "SuspiciousEditRow",
+        "type": "object"
+      },
+      "TrendEnvelope": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/TrendItem"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "pipeline_mode": {
+            "enum": [
+              "REPLAY",
+              "LIVE"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
+          },
+          "provisional": {
+            "const": true,
+            "default": true,
+            "title": "Provisional",
+            "type": "boolean"
+          },
+          "source": {
+            "const": "cassandra",
+            "default": "cassandra",
+            "title": "Source",
+            "type": "string"
+          },
+          "window_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window End"
+          },
+          "window_start": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window Start"
+          }
+        },
+        "required": [
+          "data",
+          "window_start",
+          "window_end",
+          "generated_at",
+          "pipeline_mode"
+        ],
+        "title": "TrendEnvelope",
+        "type": "object"
+      },
+      "TrendItem": {
+        "description": "A trend row as published: the storage-only `updated_at` is left out.",
+        "properties": {
+          "abs_byte_delta": {
+            "title": "Abs Byte Delta",
+            "type": "integer"
+          },
+          "edit_count": {
+            "title": "Edit Count",
+            "type": "integer"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "page_key": {
+            "title": "Page Key",
+            "type": "string"
+          },
+          "page_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Title"
+          },
+          "trend_score": {
+            "title": "Trend Score",
+            "type": "number"
+          },
+          "unique_editors": {
+            "title": "Unique Editors",
+            "type": "integer"
+          },
+          "wiki": {
+            "title": "Wiki",
+            "type": "string"
+          },
+          "window_end": {
+            "format": "date-time",
+            "title": "Window End",
+            "type": "string"
+          },
+          "window_start": {
+            "format": "date-time",
+            "title": "Window Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "wiki",
+          "page_key",
+          "page_title",
+          "namespace",
+          "window_start",
+          "window_end",
+          "edit_count",
+          "unique_editors",
+          "abs_byte_delta",
+          "trend_score"
+        ],
+        "title": "TrendItem",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "WikiPulse API",
+    "version": "0.2.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/activity": {
+      "get": {
+        "description": "One-minute activity windows of a wiki, newest first; one window when `window` is set.",
+        "operationId": "activity_api_v1_activity_get",
+        "parameters": [
+          {
+            "description": "Wiki in WIKI_ALLOWLIST, e.g. enwiki.",
+            "in": "query",
+            "name": "wiki",
+            "required": false,
+            "schema": {
+              "default": "enwiki",
+              "description": "Wiki in WIKI_ALLOWLIST, e.g. enwiki.",
+              "maxLength": 64,
+              "minLength": 2,
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "title": "Wiki",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Timezone-aware ISO window start; omitted means the latest window.",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Timezone-aware ISO window start; omitted means the latest window.",
+              "title": "Window"
+            }
+          },
+          {
+            "description": "Maximum rows returned.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Maximum rows returned.",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Activity"
+      }
+    },
+    "/api/v1/events/{event_id}": {
+      "get": {
+        "description": "Detail of one Silver event, kept 7 days; 404 EVENT_NOT_FOUND when absent or expired.",
+        "operationId": "event_api_v1_events__event_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {
+              "maxLength": 256,
+              "minLength": 1,
+              "title": "Event Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Event"
+      }
+    },
+    "/api/v1/suspicious-edits": {
+      "get": {
+        "description": "Edits of the last `minutes` one-minute buckets ending at `window` or the latest one.",
+        "operationId": "suspicious_edits_api_v1_suspicious_edits_get",
+        "parameters": [
+          {
+            "description": "Wiki in WIKI_ALLOWLIST, e.g. enwiki.",
+            "in": "query",
+            "name": "wiki",
+            "required": false,
+            "schema": {
+              "default": "enwiki",
+              "description": "Wiki in WIKI_ALLOWLIST, e.g. enwiki.",
+              "maxLength": 64,
+              "minLength": 2,
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "title": "Wiki",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Timezone-aware ISO window start; omitted means the latest window.",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Timezone-aware ISO window start; omitted means the latest window.",
+              "title": "Window"
+            }
+          },
+          {
+            "description": "One-minute buckets to read.",
+            "in": "query",
+            "name": "minutes",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "description": "One-minute buckets to read.",
+              "maximum": 15,
+              "minimum": 1,
+              "title": "Minutes",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Lowest risk_score returned.",
+            "in": "query",
+            "name": "min_score",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Lowest risk_score returned.",
+              "maximum": 100,
+              "minimum": 0,
+              "title": "Min Score",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Maximum rows returned.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Maximum rows returned.",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuspiciousEditEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Suspicious Edits"
+      }
+    },
+    "/api/v1/trends": {
+      "get": {
+        "description": "Top pages of one 5-minute window; the latest window when `window` is omitted.",
+        "operationId": "trends_api_v1_trends_get",
+        "parameters": [
+          {
+            "description": "Wiki in WIKI_ALLOWLIST, e.g. enwiki.",
+            "in": "query",
+            "name": "wiki",
+            "required": false,
+            "schema": {
+              "default": "enwiki",
+              "description": "Wiki in WIKI_ALLOWLIST, e.g. enwiki.",
+              "maxLength": 64,
+              "minLength": 2,
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "title": "Wiki",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Timezone-aware ISO window start; omitted means the latest window.",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Timezone-aware ISO window start; omitted means the latest window.",
+              "title": "Window"
+            }
+          },
+          {
+            "description": "Maximum rows returned.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Maximum rows returned.",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrendEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Trends"
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Health"
+      }
+    }
+  }
+}
