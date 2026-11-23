@@ -24,6 +24,21 @@ partition, or the sum of the suspicious buckets requested) and fails with
 Spark writes trends/suspicious/event rows here only with `SPARK_ANALYTICS_SINK=cassandra`;
 the Compose default is still `parquet` (see `processing/README.md`).
 
+## Inspecting data
+
+```bash
+docker compose exec cassandra cqlsh -e "
+  SELECT window_start FROM wikipulse.trend_windows_by_wiki WHERE wiki = 'enwiki' LIMIT 3;
+  SELECT count(*) FROM wikipulse.page_trends_by_window
+    WHERE wiki = 'enwiki' AND window_start = '2026-01-01 00:00:00+0000';
+  SELECT event_id, risk_score, TTL(wiki) FROM wikipulse.events_by_id WHERE event_id = 'fixture-004';"
+```
+
+Every query restricts a full partition key; if a query needs `ALLOW FILTERING`, it is the
+wrong table. Partition sizes: `docker compose exec cassandra nodetool tablestats wikipulse`
+("Compacted partition maximum bytes"). `schema.cql` columns are checked against the store
+models by `api/tests/test_regression.py`.
+
 ## Capacity measurement
 
 `measure_capacity.py` writes synthetic contract v0.2 rows into a throwaway keyspace,

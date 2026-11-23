@@ -1,6 +1,6 @@
 # W2-NHAN-01 — Trends/suspicious/detail: khóa query, capacity, lỗi
 
-Trạng thái: REVIEW · Owner: Nhân · Reviewer: Linh, Mạnh · Liên quan: [checkpoints](../checkpoints.md), [contracts.md mục Tuần 2](../contracts.md#tuần-2--trends-suspicious-edits-event-detail-v02), BL-LINH-02, BL-THANH-05, BL-THANH-19, BL-THANH-21, BL-THANH-23
+Trạng thái: DONE · Owner: Nhân · Reviewer: Linh, Mạnh · Liên quan: [checkpoints](../checkpoints.md), [contracts.md mục Tuần 2](../contracts.md#tuần-2--trends-suspicious-edits-event-detail-v02), BL-LINH-02, BL-THANH-05, BL-THANH-19, BL-THANH-21, BL-THANH-23
 
 ## Mục tiêu
 
@@ -37,6 +37,7 @@ Ba endpoint trends, suspicious edits, event detail đọc dữ liệu thật t�
 - 2026-10-15 — soạn bản nháp contract tuần 2 — PR #3
 - 2026-10-22 — Linh và Mạnh góp ý trên PR #3; gộp bản chốt vào `docs/contracts.md`, xóa file nháp (BL-THANH-23) — PR #3
 - 2026-11-23 — CQL 5 bảng, store ghi/đọc, 3 endpoint, lỗi thống nhất, test fake + Cassandra thật, E2E cassandra mode; sửa tối thiểu smoke (501 → kiểm envelope v0.2); báo cáo: lược đồ, API, đặc tả use case, kết quả — PR #6
+- 2026-11-23 — PR #6 được duyệt và merge vào `main` (5e46a2d); chuyển DONE — PR #6
 
 ## Kết quả
 

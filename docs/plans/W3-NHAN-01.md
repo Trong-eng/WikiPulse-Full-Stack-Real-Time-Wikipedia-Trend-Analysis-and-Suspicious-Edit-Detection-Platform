@@ -1,6 +1,6 @@
 # W3-NHAN-01 — Retry/upsert, latest window/detail, capacity, TTL
 
-Trạng thái: REVIEW · Owner: Nhân · Reviewer: Trọng, Mạnh · Liên quan: [checkpoints](../checkpoints.md), [W2-NHAN-01](W2-NHAN-01.md), [contracts.md mục Tuần 2](../contracts.md#tuần-2--trends-suspicious-edits-event-detail-v02)
+Trạng thái: DONE · Owner: Nhân · Reviewer: Trọng, Mạnh · Liên quan: [checkpoints](../checkpoints.md), [W2-NHAN-01](W2-NHAN-01.md), [contracts.md mục Tuần 2](../contracts.md#tuần-2--trends-suspicious-edits-event-detail-v02)
 
 ## Mục tiêu
 
@@ -27,6 +27,7 @@ Chứng minh trên Cassandra thật: retry không đếm trùng, "mới nhất" 
 ## Nhật ký
 
 - 2026-11-23 — test retry/latest/detail/capacity trên fake + Cassandra thật; script đo dung lượng; chốt TTL — PR #6 (cùng PR với W2-NHAN-01 vì dùng chung test)
+- 2026-11-23 — PR #6 được duyệt và merge vào `main` (5e46a2d); chuyển DONE — PR #6
 
 ## Kết quả
 

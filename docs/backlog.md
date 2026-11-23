@@ -77,7 +77,7 @@ Format, mỗi item 1–3 dòng:
 
 ## Nhân
 
-- **BL-LINH-02** · IN_PROGRESS · finding · P1 · owner: Nhân — Producer W2 đã có ba DataFrame và `AnalyticsBatchWriter`; nối store `upsert_trends`, `upsert_suspicious_edits`, `upsert_events`, CQL và endpoints theo v0.2. Cassandra mode fail startup nếu thiếu method; default hiện là Parquet để kiểm chứng producer, không phải serving W2 qua API. Nguồn: [contracts](contracts.md#bàn-giao-producer-cho-sink--w2-linh-01), [W2-LINH-01](plans/W2-LINH-01.md) · Lịch: W2-NHAN-01
+- **BL-LINH-02** · DONE (PR #6) · finding · P1 · owner: Nhân — Producer W2 đã có ba DataFrame và `AnalyticsBatchWriter`; nối store `upsert_trends`, `upsert_suspicious_edits`, `upsert_events`, CQL và endpoints theo v0.2. Cassandra mode fail startup nếu thiếu method; default hiện là Parquet để kiểm chứng producer, không phải serving W2 qua API. Nguồn: [contracts](contracts.md#bàn-giao-producer-cho-sink--w2-linh-01), [W2-LINH-01](plans/W2-LINH-01.md) · Lịch: W2-NHAN-01
   - 2026-11-23 Nhân: đã nối ba method vào `CassandraActivityStore`, CQL, 3 endpoint; E2E cassandra mode khớp kỳ vọng Parquet. Xem [W2-NHAN-01](plans/W2-NHAN-01.md#kết-quả).
 
 - **BL-THANH-22** · DONE (PR #5) · tech-debt · P3 · owner: Nhân — Đề xuất theo AGENTS.md: khi merge, đổi `docs/serving-review.md` thành plan `docs/plans/W1-NHAN-01.md`. Phần ghi chú thiết kế thì đặt ở `docs/nhan/`; review và nhật ký vẫn vào plan. Nguồn: branch `nhan/w1-cassandra-api-takeover` · Lịch: —

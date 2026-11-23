@@ -29,8 +29,14 @@ from api.app.models import (
 
 logger = logging.getLogger(__name__)
 
-WikiParam = Annotated[str, Query(min_length=2, max_length=64, pattern=r"^[a-z][a-z0-9_]*$")]
-LimitParam = Annotated[int, Query(ge=1, le=100)]
+WikiParam = Annotated[str, Query(
+    min_length=2, max_length=64, pattern=r"^[a-z][a-z0-9_]*$",
+    description="Wiki in WIKI_ALLOWLIST, e.g. enwiki.",
+)]
+LimitParam = Annotated[int, Query(ge=1, le=100, description="Maximum rows returned.")]
+WindowParam = Annotated[datetime | None, Query(
+    description="Timezone-aware ISO window start; omitted means the latest window.",
+)]
 QUERY_ERRORS = {422: {"model": ErrorResponse}, 503: {"model": ErrorResponse}}
 
 
@@ -116,9 +122,10 @@ def create_app(
     def activity(
         request: Request,
         wiki: WikiParam = "enwiki",
-        window: datetime | None = None,
+        window: WindowParam = None,
         limit: LimitParam = 20,
     ) -> ActivityEnvelope:
+        """One-minute activity windows of a wiki, newest first; one window when `window` is set."""
         window = checked(wiki, window)
         rows = query(request, "get_activity", wiki, window=window, limit=limit)
         return ActivityEnvelope(data=rows, generated_at=now(), pipeline_mode=settings.pipeline_mode)
@@ -127,7 +134,7 @@ def create_app(
     def trends(
         request: Request,
         wiki: WikiParam = "enwiki",
-        window: datetime | None = None,
+        window: WindowParam = None,
         limit: LimitParam = 20,
     ) -> TrendEnvelope:
         """Top pages of one 5-minute window; the latest window when `window` is omitted."""
@@ -147,9 +154,13 @@ def create_app(
     def suspicious_edits(
         request: Request,
         wiki: WikiParam = "enwiki",
-        window: datetime | None = None,
-        minutes: Annotated[int, Query(ge=1, le=MAX_SUSPICIOUS_MINUTES)] = 5,
-        min_score: Annotated[int, Query(ge=0, le=100)] = 0,
+        window: WindowParam = None,
+        minutes: Annotated[int, Query(
+            ge=1, le=MAX_SUSPICIOUS_MINUTES, description="One-minute buckets to read."
+        )] = 5,
+        min_score: Annotated[int, Query(
+            ge=0, le=100, description="Lowest risk_score returned."
+        )] = 0,
         limit: LimitParam = 20,
     ) -> SuspiciousEditEnvelope:
         """Edits of the last `minutes` one-minute buckets ending at `window` or the latest one."""
@@ -170,6 +181,7 @@ def create_app(
     def event(
         request: Request, event_id: Annotated[str, Path(min_length=1, max_length=256)]
     ) -> EventEnvelope:
+        """Detail of one Silver event, kept 7 days; 404 EVENT_NOT_FOUND when absent or expired."""
         row = query(request, "get_event", event_id)
         if row is None:
             raise api_error(404, "EVENT_NOT_FOUND", "No event with this event_id")

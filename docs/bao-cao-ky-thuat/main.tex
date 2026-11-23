@@ -204,6 +204,8 @@ cuối kỳ không phải soạn lại từ đầu. Quy ước:
 tên file, lệnh sang Phụ lục A \\
 23/11/2026 & Nhân & Lược đồ năm bảng mới, API ba nghiệp vụ và định dạng lỗi chung, đặc tả ba use case; kết quả trên dữ
 liệu mẫu, retry, dung lượng và hạn lưu 7 ngày (W2-NHAN-01, W3-NHAN-01) \\
+23/11/2026 & Nhân & Tầng kiểm thử hồi quy contract, kết quả hồi quy sau khi gộp, phụ lục mô tả API và hướng dẫn vận
+hành (W4-NHAN-01) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1185,13 +1187,16 @@ System Status. Các trang chưa có dữ liệu hiện rõ là chưa triển kha
 \toprule
 \textbf{Tầng} & \textbf{Nội dung} & \textbf{Khi chạy} \\ \midrule
 Nhẹ & Cấu hình, API, lớp truy cập Cassandra, phát lại, dashboard; Cassandra được giả lập ở tầng driver nhưng giữ đúng cách ghi đè theo khóa & Mỗi lần sửa code, vài giây \\
+Hồi quy contract & Mô tả API công bố phải trùng bản đã lưu; cột của lược đồ Cassandra phải trùng các trường lớp truy cập kiểm tra; từ điển dữ liệu phải liệt kê đủ bảng & Cùng tầng nhẹ \\
 Spark & Các phép biến đổi và cách điều phối truy vấn, chạy trong container có Java & Khi sửa phần xử lý \\
 Tích hợp & Lớp truy cập trên Cassandra thật, keyspace ngẫu nhiên, tự xóa sau khi chạy & Khi sửa lược đồ, truy vấn \\
 End-to-end & Dựng hệ thống riêng, phát dữ liệu mẫu hai pha, kiểm tra cả ba tầng, API và giao diện & Trước khi nghiệm thu \\
 \bottomrule
 \end{tabularx}
 \end{table}
-Lệnh chạy từng tầng ở Phụ lục~\ref{app:ma}.
+Lệnh chạy từng tầng ở Phụ lục~\ref{app:ma}. Tầng hồi quy contract giúp thay đổi giao diện không lọt qua âm thầm.
+Đổi tham số, trường trả về hay cột lưu trữ mà không cập nhật bản mô tả API đã lưu thì test thất bại. Người sửa vì thế
+phải cập nhật cả bản mô tả lẫn contract của nhóm trong cùng một lần nộp.
 
 \section{Kết quả CP0}
 Dữ liệu mẫu ngày 01/01/2026 gồm 11 bản ghi. Kết quả chạy thật (Bảng~\ref{tab:cp0}) khớp bộ kết quả kỳ vọng; bộ này
@@ -1222,6 +1227,7 @@ viwiki: event / edit / trang mới / ẩn danh / bot & 1 / 0 / 1 / 0 / 0 \\
 11/10/2026 & Apple M3, ARM64 & 84 test nhẹ đạt; 16 test Spark đạt; kiểm thử end-to-end đạt (Trọng) \\
 15/10/2026 & Windows 11, x86\_64 & CP0 chạy lại, số khớp Bảng~\ref{tab:cp0}; phát lại lần hai không đổi số; 33 test API đạt, gồm 4 test trên Cassandra thật (Nhân) \\
 23/11/2026 & Windows 11, x86\_64 & 179 test nhẹ đạt; 76 test API đạt, gồm 8 test trên Cassandra thật; end-to-end ghi Cassandra cho ba nghiệp vụ mới khớp Bảng~\ref{tab:w2fixture} (Nhân) \\
+23/11/2026 & Windows 11, x86\_64 & Hồi quy sau khi gộp: 183 test nhẹ đạt (gồm 4 test hồi quy contract); 8 test trên Cassandra thật đạt; kiểm thử end-to-end đạt; các lệnh vận hành serving chạy đúng trên hệ thống thật (Nhân) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1353,6 +1359,9 @@ Thư mục theo mã lần chạy & \code{processing/spark/wikipulse/paths.py} \\
 Lược đồ Cassandra & \code{storage/cassandra/schema.cql} \\
 Công cụ đo dung lượng Cassandra & \code{storage/cassandra/measure\_capacity.py} \\
 API & \code{api/app/main.py}, \code{api/app/models.py} \\
+Mô tả API đã lưu (OpenAPI) & \code{api/openapi.json} \\
+Test hồi quy contract & \code{api/tests/test\_regression.py} \\
+Hướng dẫn vận hành, xử lý sự cố serving & \code{api/README.md}, \code{storage/cassandra/README.md} \\
 Dashboard & \code{dashboard/app.py}, \code{dashboard/views/} \\
 Contract giữa các module & \code{docs/contracts.md} \\
 Bảng việc và trạng thái & \code{docs/checkpoints.md} \\
