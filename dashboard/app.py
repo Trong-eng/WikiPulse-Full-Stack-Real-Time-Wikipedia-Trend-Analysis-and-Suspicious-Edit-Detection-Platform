@@ -30,7 +30,7 @@ with st.sidebar:
     st.button("Làm mới dữ liệu", key="refresh", use_container_width=True)
     st.caption("Tự làm mới mỗi 15 giây khi trang đang mở.")
     st.divider()
-    st.caption("CP0 · Tuần 1\n\nOverview: dữ liệu activity từ API/Cassandra.")
+    st.caption("Tuần 2 · 4 trang: Overview, Trending, Suspicious Edits, System Status.")
 
 client = APIClient(os.getenv("DASHBOARD_API_URL", "http://localhost:18000"))
 renderers = {

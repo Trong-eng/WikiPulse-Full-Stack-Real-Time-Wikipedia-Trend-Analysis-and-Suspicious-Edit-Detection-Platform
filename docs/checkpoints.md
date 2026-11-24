@@ -36,7 +36,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 | W2-THANH-01 | Thành | Trọng, Linh | W1-THANH | SSE LIVE, backoff/reconnect/counters, chung envelope | 10–15 | REVIEW | [docs/plans/W2-THANH-01.md](plans/W2-THANH-01.md) |
 | W2-LINH-01 | Linh | Trọng, Nhân | W1-LINH | Windows 1m/5m-slide1m, dedup/late, features/risk/trend | 10–15 | DONE | [docs/plans/W2-LINH-01.md](plans/W2-LINH-01.md) |
 | W2-NHAN-01 | Nhân | Linh, Mạnh | W2-LINH contract | Trends/suspicious/detail, query keys/capacity/errors | 10–15 | DONE | [docs/plans/W2-NHAN-01.md](plans/W2-NHAN-01.md) |
-| W2-MANH-01 | Mạnh | Nhân | API examples | Hoàn thiện 4 trang/filter/empty/error/provisional | 10–15 | TODO | UI acceptance evidence |
+| W2-MANH-01 | Mạnh | Nhân | API examples | Hoàn thiện 4 trang/filter/empty/error/provisional | 10–15 | REVIEW | [docs/plans/W2-MANH-01.md](plans/W2-MANH-01.md) |
 | W3-TRONG-01 | Trọng | Linh | CP2 | Tích hợp full HDFS, persistence; K8s/monitor skeleton | 10–15 | DONE | [docs/plans/W3-TRONG-01.md](plans/W3-TRONG-01.md) |
 | W3-THANH-01 | Thành | Linh | W2-THANH | Replay timing/speed, Kafka outage, fixtures regression | 10–15 | REVIEW | [docs/plans/W3-THANH-01.md](plans/W3-THANH-01.md) |
 | W3-LINH-01 | Linh | Nhân | HDFS full | Ba tầng HDFS, partitions, Gold finalized/late/checkpoint | 10–15 | DONE | [docs/plans/W3-LINH-01.md](plans/W3-LINH-01.md) |
