@@ -11,6 +11,12 @@ def utc_label(timestamp: str) -> str:
     )
 
 
+def utc_short_label(timestamp: str) -> str:
+    return datetime.fromisoformat(timestamp.replace("Z", "+00:00")).strftime(
+        "%Y-%m-%d %H:%M UTC"
+    )
+
+
 def render(client: APIClient, wiki: str):
     st.title("Overview")
     st.write("Hoạt động theo wiki trong cửa sổ 1 phút, lấy trực tiếp từ API.")
@@ -67,7 +73,7 @@ def render(client: APIClient, wiki: str):
     st.caption(f"Tối đa 5 cửa sổ mới nhất có dữ liệu của {wiki}; trục thời gian UTC.")
     chart_rows = [
         {
-            "Cửa sổ (UTC)": datetime.fromisoformat(row["window_start"].replace("Z", "+00:00")),
+            "Cửa sổ (UTC)": utc_short_label(row["window_start"]),
             "Số sự kiện": row["event_count"],
         }
         for row in reversed(rows)
