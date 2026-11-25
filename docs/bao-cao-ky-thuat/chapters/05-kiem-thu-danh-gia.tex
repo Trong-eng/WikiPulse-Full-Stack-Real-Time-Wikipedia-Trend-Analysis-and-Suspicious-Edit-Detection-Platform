@@ -90,6 +90,24 @@ hai kết quả thuộc hai đầu ra và hai cửa sổ khác nhau. Giá trị 
 \code{approx\_count\_distinct}, không phải cam kết đếm chính xác cho mọi tập dữ liệu.
 Xem thêm giao diện bốn trang đã hoàn thiện ở Hình~\ref{fig:dash-overview}--\ref{fig:dash-status}.
 
+Mẫu LIVE pseudonymized trong W1 của Linh là fixture khác CP0: trước khi sửa normalization, mẫu có
+11 Bronze raw, 9 Silver và 1 invalid là canary; sau sửa W2, mẫu có 11 Bronze raw, 9 Silver và 0 invalid.
+Không so sánh các số này với 11 Bronze raw, 7 Silver và 2 invalid của fixture CP0 như cùng một tập dữ liệu.
+Nguồn: \code{docs/plans/W1-LINH-01.md}, \code{docs/plans/W2-LINH-01.md}.
+
+\subsection{Regression scoring và metadata của Linh}
+Ngày 16/11/2026, Linh kiểm tra risk và trend trên fixture tổng hợp. Bốn trường hợp edit thường, edit bot, new và log
+lần lượt có risk score \textbf{60/50/0/0} theo cấu hình mặc định. Hai window trong fixture trend có score
+\textbf{0,0335} và \textbf{0,023}; đây là kết quả của fixture, không phải số đo trên LIVE. Với ba rule mặc định,
+tổng tối đa là 60; trần 100 là giới hạn cấu hình và không thể đạt với ba rule mặc định này.
+
+Lượt regression Spark trước khi cải thiện fixture đạt \textbf{68 passed}. Sau review, fixture chọn metadata được sửa
+để thứ tự title và event ID đối nghịch; hai test liên quan được chạy lại và đạt \textbf{2 passed}. Với cùng event time,
+fixture kiểm tra lựa chọn \code{Alpha/1} ở cả hai thứ tự nhận; khi giả lập code ưu tiên title trước event ID,
+test thất bại như mong đợi. Hai số test thuộc hai lượt khác nhau và không cộng thành 70 test độc lập. Acceptance HDFS
+7/7 và regression 68 test là lượt trước khi cải thiện fixture; logic production không thay đổi. Nguồn:
+\code{docs/plans/W4-LINH-01.md}; evidence local có thể cần được chia sẻ hoặc chạy lại. Linh cần review diễn giải này.
+
 \section{Độ trễ end-to-end}\chualam
 \section{Khởi động lại, retry và dữ liệu đến muộn}
 Retry được kiểm tra cho cả bốn loại dữ liệu phục vụ: hoạt động và xu hướng trên Cassandra thật (keyspace tạm, xóa sau

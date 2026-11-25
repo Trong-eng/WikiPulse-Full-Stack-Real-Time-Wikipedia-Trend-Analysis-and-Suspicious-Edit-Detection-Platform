@@ -96,6 +96,8 @@ Format, mỗi item 1–3 dòng:
 
 ## Mạnh
 
+- **BL-THANH-42** · PROPOSED · finding · P2 · owner: Mạnh — Đối chiếu mô tả privacy của `APIClient` trong `dashboard/README.md`: các validator suspicious/event chỉ từ chối trực tiếp `user_hash`, `comment`; chưa phải bộ quét toàn bộ trường nhạy cảm trên mọi endpoint. Nhờ xác định cách mô tả phù hợp với code và contract. Nguồn: [lượt tái kiểm chứng dashboard](plans/thanh-dashboard-recheck.md) · Lịch: —
+- **BL-THANH-41** · PROPOSED · finding · P2 · owner: Mạnh — Đối chiếu evidence trong plan W4: mốc kết thúc LIVE trong plan khác báo cáo, và nguyên nhân timeout smoke chưa được chứng minh. Nhờ bổ sung thời điểm/nguồn quan sát và làm rõ nguyên nhân nếu có evidence. Nguồn: [lượt tái kiểm chứng dashboard](plans/thanh-dashboard-recheck.md) · Lịch: —
 - **BL-THANH-24** · DONE (PR #10) · finding · P2 · owner: Mạnh — Đồng hồ máy dev có thể chậm ít nhất ~10 s so với `meta.dt`. Kiểm `w32tm /query /status` (Windows) và đồng bộ NTP trước khi đo độ trễ provisional 30–60 s. Nguồn: [ingestion-spike.md](thanh/ingestion-spike.md#việc-cần-báo-các-owner-khác) · Lịch: W3-MANH-01
   - 2026-11-25 Mạnh: đã bật service `w32time` và đồng bộ `time.windows.com` (`Leap Indicator: 0`), đo freshness LIVE đạt `56.41s`.
 - **BL-THANH-37** · DONE (PR #10) · tech-debt · P2 · owner: Mạnh — 4 ảnh W1 trong `docs/bao-cao-ky-thuat/hinh/W1-Mạnh/` chưa đưa vào `main.tex` (còn `\dukiensua` ở `main.tex:1024`), thiếu ảnh trang Suspicious Edits; lệnh `AppTest` trong plan bị lược nên khó tái hiện; chưa có plan `W2-MANH-01`. Nguồn: [W1-MANH-01](plans/W1-MANH-01.md), `docs/bao-cao-ky-thuat/README.md` · Lịch: W3-MANH-01
