@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Thành · Reviewer: Mạnh · Liên quan: W3-MANH-01, W4-MANH-01, BL-THANH-41
+Trạng thái: DONE · Owner: Thành · Reviewer: Mạnh · Liên quan: W3-MANH-01, W4-MANH-01, BL-THANH-41
 
 ## Mục tiêu
 

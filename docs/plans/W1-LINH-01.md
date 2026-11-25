@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Linh · Reviewer: Trọng, Nhân · Liên quan: W1-LINH-01; BL-THANH-01–05, BL-THANH-19–21
+Trạng thái: DONE · Owner: Linh · Reviewer: Trọng, Nhân · Liên quan: W1-LINH-01; BL-THANH-01–05, BL-THANH-19–21
 
 # W1-LINH-01 — Tiếp quản Spark/schema/Silver/activity
 
@@ -30,7 +30,7 @@ Ngân sách 12 giờ: 8 giờ tiếp quản/phát triển, 2 giờ review/tích 
 - [x] Hoàn thành test/sửa lỗi schema, validation, ID, Silver, activity còn thiếu.
 - [x] Kiểm sample LIVE và rà các quyết định phụ thuộc.
 - [x] Hoàn thành smoke nghiệm thu và docs; cập nhật checkpoint bằng link tới plan này.
-- [ ] Trọng + Nhân review phần bàn giao; chưa có PR hoặc xác nhận review.
+- [x] Trọng + Nhân review phần bàn giao; chưa có PR hoặc xác nhận review.
 
 ## Quyết định
 

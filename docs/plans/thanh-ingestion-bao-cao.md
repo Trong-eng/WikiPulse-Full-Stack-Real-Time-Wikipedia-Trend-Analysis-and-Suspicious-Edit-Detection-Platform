@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Thành · Reviewer: subagent; Thành · Liên quan: W1-THANH-01–W4-THANH-01
+Trạng thái: DONE · Owner: Thành · Reviewer: subagent; Thành · Liên quan: W1-THANH-01–W4-THANH-01
 
 ## Mục tiêu
 

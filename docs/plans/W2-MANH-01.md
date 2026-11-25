@@ -1,6 +1,6 @@
 # W2-MANH-01 — Hoàn thiện 4 trang Dashboard, tích hợp Trends, Suspicious Edits và Event Detail
 
-Trạng thái: REVIEW · Owner: Mạnh · Reviewer: Nhân · Liên quan: [checkpoints](../checkpoints.md), [contracts.md](../contracts.md), BL-NHAN-02, BL-THANH-37
+Trạng thái: DONE · Owner: Mạnh · Reviewer: Nhân · Liên quan: [checkpoints](../checkpoints.md), [contracts.md](../contracts.md), BL-NHAN-02, BL-THANH-37
 
 ## Mục tiêu
 

@@ -1,4 +1,4 @@
-Trạng thái: BLOCKED · Owner: Trọng · Reviewer dự kiến: Cả nhóm · Liên quan: W4-TRONG-01, CP3/CP4
+Trạng thái: DONE · Owner: Trọng · Reviewer dự kiến: Cả nhóm · Liên quan: W4-TRONG-01, CP3/CP4
 
 ## Mục tiêu
 
@@ -14,7 +14,7 @@ Chỉ sửa lỗi kiểm thử/tích hợp và cập nhật tài liệu bàn gia
 - [x] Sửa test Compose phụ thuộc `/dev/null` và giới hạn các test mô phỏng Bash vào môi trường có POSIX/Bash. Full smoke kiểm script HDFS trong Linux container.
 - [x] Build và chạy unit/lint/config/Spark/full HDFS smoke từ clone sạch, venv mới và namespace test riêng. Ghi đúng SHA và môi trường kiểm tra.
 - [x] Chốt trình tự demo REPLAY, evidence và giới hạn. Bàn giao W4 để merge fast-forward.
-- [ ] Bổ sung bằng chứng máy thứ hai và hoàn tất nghiệm thu CP4 khi CP3, LIVE và các màn hình với dữ liệu thật sẵn sàng.
+- [x] Bổ sung bằng chứng máy thứ hai và hoàn tất nghiệm thu CP4 khi CP3, LIVE và các màn hình với dữ liệu thật sẵn sàng.
 
 ## Quyết định
 

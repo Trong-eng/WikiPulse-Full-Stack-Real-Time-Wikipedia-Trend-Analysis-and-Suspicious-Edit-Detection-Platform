@@ -1,6 +1,6 @@
 # W1-MANH-01 — Tiếp quản 4 trang/client/Overview, chạy CP0 máy mình
 
-Trạng thái: REVIEW · Owner: Mạnh · Reviewer: Trọng, Nhân · Liên quan: [checkpoints](../checkpoints.md)
+Trạng thái: DONE · Owner: Mạnh · Reviewer: Trọng, Nhân · Liên quan: [checkpoints](../checkpoints.md)
 
 ## Mục tiêu
 

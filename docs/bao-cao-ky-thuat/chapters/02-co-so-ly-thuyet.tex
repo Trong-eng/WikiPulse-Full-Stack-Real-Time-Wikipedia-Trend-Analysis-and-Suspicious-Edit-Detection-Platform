@@ -68,7 +68,7 @@ Kafka~\cite{kreps2011} lưu sự kiện thành một \textbf{nhật ký chỉ gh
 \centering
 \includegraphics[width=\linewidth]{so-do/theory-02-kafka.pdf}
 \caption{Topic Kafka gồm ba partition. Mỗi ô là một sự kiện, số trong ô là offset. Producer ghi vào cuối nhật ký;
-consumer (Spark) đọc theo offset và lưu trạng thái theo checkpoint. Collector LIVE đã được triển khai; khả năng tích hợp đầy đủ vẫn cần nghiệm thu.}\label{fig:kafka}
+consumer (Spark) đọc theo offset và lưu trạng thái theo checkpoint.}\label{fig:kafka}
 \end{figure}
 
 Trong WikiPulse, Kafka đứng giữa nguồn sự kiện và Spark. Khi Spark dừng, Kafka có thể giữ dữ liệu trong phạm vi retention và trạng thái broker; Spark có thể phục hồi từ checkpoint hợp lệ nếu dữ liệu còn tồn tại. REPLAY ghi fixture vào cùng topic để kiểm thử phần xử lý phía sau; kết quả còn phụ thuộc cấu hình và trạng thái của lần chạy.
@@ -172,8 +172,7 @@ Hai tính chất của Cassandra quyết định cách ghi:
   \item Ghi một dòng có khóa đã tồn tại thì \textbf{ghi đè} (upsert), không sinh dòng mới. WikiPulse ghi \emph{tổng số}
         của cửa sổ chứ không ghi \enquote{cộng thêm 1}, nên khi Spark ghi lại một batch sau sự cố, kết quả vẫn đúng, không
         bị đếm đôi.
-  \item Truy vấn không chỉ rõ partition buộc Cassandra quét mọi node. Dự án cấm kiểu truy vấn này (\enquote{allow
-        filtering}); mỗi câu hỏi của API phải có bảng thiết kế riêng cho nó.
+  \item Truy vấn không chỉ rõ partition buộc Cassandra quét mọi node. Dự án tránh quét toàn bảng; các truy vấn được thiết kế theo khóa phù hợp.
 \end{itemize}
 
 \section{FastAPI và Streamlit}
@@ -195,7 +194,7 @@ Lưu trữ phục vụ & Apache Cassandra 4.1 & Số tạm tính cho API \\
 API & FastAPI & Cung cấp số liệu cho dashboard \\
 Giao diện & Streamlit & Dashboard bốn trang \\
 Chạy & Docker Compose & Dựng toàn bộ hệ thống bằng một lệnh, chạy trên ARM64 và x86\_64 \\
-Ngôn ngữ, kiểm thử & Python 3.11, pytest & Toàn bộ mã nguồn và kiểm thử \\
+Kiểm thử & Công cụ kiểm thử tự động & Kiểm tra hành vi của hệ thống \\
 \bottomrule
 \end{tabularx}
 \end{table}

@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Thành · Reviewer: Trọng · Liên quan: W4-THANH-01, W2-THANH-01, W3-THANH-01, CP3/CP4
+Trạng thái: DONE · Owner: Thành · Reviewer: Trọng · Liên quan: W4-THANH-01, W2-THANH-01, W3-THANH-01, CP3/CP4
 
 ## Mục tiêu
 

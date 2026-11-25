@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Thành · Reviewer: Linh · Liên quan: W3-THANH-01, W2-THANH-01, BL-THANH-04
+Trạng thái: DONE · Owner: Thành · Reviewer: Linh · Liên quan: W3-THANH-01, W2-THANH-01, BL-THANH-04
 
 ## Mục tiêu
 

@@ -25,9 +25,7 @@ Broker & Tiến trình Kafka lưu và phục vụ dữ liệu topic. \\
 Bronze / Silver / Gold & Các tầng lưu raw data, dữ liệu được chuẩn hóa và kết quả tổng hợp đã chốt. \\
 Canary event & Sự kiện kiểm tra của Wikimedia; được giữ trong Bronze raw, không đưa vào business metrics. \\
 Cassandra & Cơ sở dữ liệu phân tán, dùng để phục vụ truy vấn theo khóa. \\
-Checkpoint (project) & Mốc nghiệm thu của nhóm, ví dụ CP0--CP4; khác Spark checkpoint. \\
 Checkpoint (Spark) & Dữ liệu Spark lưu về offset và state để phục hồi một query. \\
-Clean clone & Bản sao repo mới lấy từ commit xác định, không chứa thay đổi working tree chưa commit. \\
 Clustering key & Phần khóa xác định thứ tự các dòng trong một Cassandra partition. \\
 Collector & Chương trình nhận event từ nguồn rồi gửi tới Kafka. \\
 Consumer / producer & Chương trình đọc / ghi dữ liệu vào một hệ thống như Kafka. \\
@@ -35,11 +33,11 @@ Container / image & Môi trường chạy được cách ly / bản đóng gói 
 Contract & Quy ước chung về dữ liệu và hành vi giữa producer và consumer. \\
 Cursor & Vị trí trong stream dùng để yêu cầu tiếp tục đọc khi kết nối lại. \\
 Dashboard & Giao diện tổng hợp dữ liệu cho người dùng. \\
-Dead-letter queue (DLQ) & Nơi dự kiến nhận bản ghi lỗi; topic được tạo nhưng sink Kafka DLQ còn chờ nhóm quyết định. \\
 Deduplication & Loại bản ghi trùng theo khóa và phạm vi state được cấu hình; không bảo đảm vô hạn. \\
 Docker Compose / profile & Công cụ cấu hình các dịch vụ container / nhóm dịch vụ được bật theo nhu cầu. \\
 Duplicate & Bản ghi lặp lại một event logic; deduplication xử lý theo quy tắc và phạm vi state. \\
 End-to-end (E2E) & Đánh giá một luồng qua các thành phần từ đầu vào tới đầu ra được xác định. \\
+Exception & Tình huống bất thường trong chương trình làm gián đoạn luồng xử lý thông thường. \\
 Endpoint & Địa chỉ API nhận một loại request cụ thể. \\
 Envelope & Nội dung event và metadata được chuẩn bị trước khi gửi Kafka. \\
 Event / event ID & Sự kiện nguồn / định danh dùng để phân biệt sự kiện. \\
@@ -49,7 +47,6 @@ FastAPI / Streamlit & Framework Python cung cấp API / công cụ xây dashboar
 Fixture / golden result & Dữ liệu kiểm thử cố định / kết quả kỳ vọng được chuẩn bị độc lập để đối chiếu. \\
 Hadoop Distributed File System (HDFS) & Hệ thống file phân tán gồm NameNode quản lý metadata và DataNode lưu block. \\
 Hash & Giá trị tạo từ dữ liệu đầu vào qua hàm băm. \\
-Header & Trường thông tin đi kèm request hoặc response, chẳng hạn Last-Event-ID. \\
 Heuristic & Quy tắc ước lượng dựa trên dấu hiệu, không bảo đảm kết luận đúng cho mọi trường hợp. \\
 High availability & Khả năng duy trì dịch vụ khi một thành phần gặp sự cố. \\
 HTTP / status code & Giao thức truyền dữ liệu web / mã cho biết kết quả yêu cầu HTTP. \\
@@ -59,7 +56,6 @@ JSON / JSON Lines (JSONL) & Định dạng dữ liệu văn bản / cách lưu t
 Kafka & Hệ thống lưu và truyền stream theo topic và partition. \\
 Kafka key / offset & Key giúp định tuyến event tới partition / vị trí của bản ghi trong partition đó. \\
 Keyspace & Không gian tên chứa các bảng Cassandra. \\
-Last-Event-ID & HTTP header mang SSE ID của vị trí client yêu cầu tiếp tục khi kết nối lại. \\
 Late event & Sự kiện đến sau các sự kiện có event time lớn hơn; cách xử lý phụ thuộc watermark và query. \\
 Latency & Khoảng thời gian từ mốc bắt đầu tới mốc kết thúc được xác định của phép đo. \\
 LIVE / REPLAY & Chế độ nhận stream thật / phát lại dữ liệu đã lưu. \\
@@ -90,6 +86,7 @@ Scoring / rule & Cách tính điểm theo các quy tắc và cấu hình đã x�
 Server-Sent Events (SSE) & Cách server gửi luồng sự kiện qua kết nối HTTP. \\
 Serving & Phần lưu trữ và cung cấp dữ liệu cho các ứng dụng truy vấn. \\
 Sink & Đích nhận kết quả của query, như Parquet hoặc Cassandra. \\
+Smoke test & Lượt kiểm tra tổng quát những chức năng thiết yếu của hệ thống. \\
 Snapshot & Bản chụp trạng thái dữ liệu hoặc mã tại một thời điểm. \\
 State & Dữ liệu trung gian mà một query lưu để xử lý các batch tiếp theo. \\
 Stream & Chuỗi sự kiện đến liên tục theo thời gian. \\
@@ -99,6 +96,7 @@ Timestamp & Giá trị biểu diễn một thời điểm. \\
 Topic & Kênh Kafka lưu bản ghi và được chia thành các partition. \\
 Trigger & Cấu hình điều khiển thời điểm Spark bắt đầu xử lý batch. \\
 Update mode & Output mode xuất kết quả của những nhóm có thay đổi trong batch. \\
+Unit test & Phép kiểm thử một thành phần nhỏ với đầu vào và kết quả xác định. \\
 Upsert & Ghi theo khóa: thêm nếu chưa có hoặc cập nhật nếu đã có. \\
 Use case & Tình huống mô tả tương tác của tác nhân với hệ thống. \\
 User hash & Mã băm có salt tạo từ user để thay định danh trực tiếp trong Silver. \\

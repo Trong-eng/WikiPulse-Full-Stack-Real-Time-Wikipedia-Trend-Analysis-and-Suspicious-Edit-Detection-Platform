@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Linh · Reviewer dự kiến: Trọng, Nhân · Liên quan: W1-LINH-01, W2-LINH-01, W3-LINH-01, W4-LINH-01
+Trạng thái: DONE · Owner: Linh · Reviewer dự kiến: Trọng, Nhân · Liên quan: W1-LINH-01, W2-LINH-01, W3-LINH-01, W4-LINH-01
 
 # Báo cáo tổng hợp công việc của Linh — Tuần 1 đến tuần 4
 

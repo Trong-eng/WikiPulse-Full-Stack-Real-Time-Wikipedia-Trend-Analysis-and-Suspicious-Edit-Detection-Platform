@@ -23,13 +23,13 @@
         <mxCell id="7" value="View activity" style="ellipse;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=19;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
           <mxGeometry x="380" y="70" width="360" height="58" as="geometry" />
         </mxCell>
-        <mxCell id="8" value="View trends" style="ellipse;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=19;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;dashed=1;" vertex="1" parent="1">
+        <mxCell id="8" value="View trends" style="ellipse;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=19;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
           <mxGeometry x="380" y="156" width="360" height="58" as="geometry" />
         </mxCell>
-        <mxCell id="9" value="View suspicious edits" style="ellipse;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=19;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;dashed=1;" vertex="1" parent="1">
+        <mxCell id="9" value="View suspicious edits" style="ellipse;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=19;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
           <mxGeometry x="380" y="242" width="360" height="58" as="geometry" />
         </mxCell>
-        <mxCell id="10" value="View event details" style="ellipse;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=19;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;dashed=1;" vertex="1" parent="1">
+        <mxCell id="10" value="View event details" style="ellipse;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=19;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
           <mxGeometry x="380" y="328" width="360" height="58" as="geometry" />
         </mxCell>
         <mxCell id="11" value="View system status" style="ellipse;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=19;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">

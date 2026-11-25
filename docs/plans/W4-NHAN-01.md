@@ -1,6 +1,6 @@
 # W4-NHAN-01 — Serving/API regression, OpenAPI, data dictionary, runbook
 
-Trạng thái: REVIEW · Owner: Nhân · Reviewer: Trọng, Mạnh · Liên quan: [checkpoints](../checkpoints.md), [W2-NHAN-01](W2-NHAN-01.md), [W3-NHAN-01](W3-NHAN-01.md), CP3
+Trạng thái: DONE · Owner: Nhân · Reviewer: Trọng, Mạnh · Liên quan: [checkpoints](../checkpoints.md), [W2-NHAN-01](W2-NHAN-01.md), [W3-NHAN-01](W3-NHAN-01.md), CP3
 
 ## Mục tiêu
 

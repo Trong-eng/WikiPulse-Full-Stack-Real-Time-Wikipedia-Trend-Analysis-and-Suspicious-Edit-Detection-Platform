@@ -16,7 +16,7 @@ flowchart LR
 | Tuần 1 | [`W1-MANH-01`](../plans/W1-MANH-01.md) | Tiếp quản 4 trang Streamlit + `APIClient`, chạy lại CP0 trên Windows, viết `dashboard/README.md` | MERGED (PR #4) |
 | Tuần 2 | [`W2-MANH-01`](../plans/W2-MANH-01.md) | Kết nối API thật cho Trending, Suspicious Edits, Event Detail theo contract v0.2; sửa lỗi múi giờ UTC trên biểu đồ Overview; cập nhật `dashboard/tests/` | MERGED (PR #9) |
 | Tuần 3 | [`W3-MANH-01`](../plans/W3-MANH-01.md) | Đồng bộ NTP Windows (`BL-THANH-24`); E2E `REPLAY` và `LIVE`; đo freshness (`56.41s`); Privacy Audit; API Outage & Recovery; chèn 4 ảnh vào LaTeX (`BL-THANH-37`) | MERGED (PR #10) |
-| Tuần 4 | [`W4-MANH-01`](../plans/W4-MANH-01.md) | Regression trên máy thứ hai (Windows 11); kiểm thử `LIVE` ít nhất 15 phút; hoàn thiện báo cáo & Release Checklist CP4 | REVIEW |
+| Tuần 4 | [`W4-MANH-01`](../plans/W4-MANH-01.md) | Regression trên máy thứ hai (Windows 11); kiểm thử `LIVE` ít nhất 15 phút; hoàn thiện báo cáo & Release Checklist CP4 | DONE |
 
 ---
 

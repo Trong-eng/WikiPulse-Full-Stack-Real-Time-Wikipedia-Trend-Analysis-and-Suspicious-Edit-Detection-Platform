@@ -1,6 +1,6 @@
 # W1-THANH-01 — Tiếp quản replay/topics, kiểm tra fixture/key/producer errors
 
-Trạng thái: REVIEW · Owner: Thành · Reviewer: Trọng, Linh · Liên quan: [checkpoints](../checkpoints.md), lộ trình [thanh-ingestion-4-tuan](thanh-ingestion-4-tuan.md)
+Trạng thái: DONE · Owner: Thành · Reviewer: Trọng, Linh · Liên quan: [checkpoints](../checkpoints.md), lộ trình [thanh-ingestion-4-tuan](thanh-ingestion-4-tuan.md)
 
 ## Mục tiêu
 
@@ -19,7 +19,7 @@ Replay báo lỗi rõ ràng và có test đầy đủ. Có envelope Kafka dùng 
 - [x] Replay: `run_replay`, exit code 0/1/2/3, `close()` không che exit code, đọc file có BOM
 - [x] Fixture LIVE mẫu đã pseudonymize, có test chặn lộ danh tính
 - [x] README, lộ trình 4 tuần, checkpoint → REVIEW
-- [ ] Trọng + Linh review PR
+- [x] Trọng + Linh review PR
 
 ## Quyết định
 

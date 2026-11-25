@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Thành · Reviewer: Trọng, Linh · Liên quan: W2-THANH-01, BL-THANH-01–04, BL-THANH-16
+Trạng thái: DONE · Owner: Thành · Reviewer: Trọng, Linh · Liên quan: W2-THANH-01, BL-THANH-01–04, BL-THANH-16
 
 ## Mục tiêu
 

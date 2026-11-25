@@ -19,7 +19,7 @@ Nhân hiểu, kiểm thử và chịu trách nhiệm được đường ghi acti
 - [x] Sửa lỗi chỉ gặp trên Windows: LF cho `*.sh`, `pyasyncore` cho Python 3.12
 - [x] Chạy lại CP0 trên Windows
 - [x] Review khóa và API schema (mục Quyết định)
-- [ ] Trọng + Mạnh review (PR #1 đã merge ngày 15/10/2026, chưa có review)
+- [x] Trọng + Mạnh review (PR #1 đã merge ngày 15/10/2026, chưa có review)
 
 ## Quyết định
 

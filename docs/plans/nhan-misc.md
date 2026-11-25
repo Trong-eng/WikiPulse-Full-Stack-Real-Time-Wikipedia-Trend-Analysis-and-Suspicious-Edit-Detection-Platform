@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Nhân · Reviewer: Trọng · Liên quan: W1-NHAN-01–W4-NHAN-01
+Trạng thái: DONE · Owner: Nhân · Reviewer: Trọng · Liên quan: W1-NHAN-01–W4-NHAN-01
 
 ## Mục tiêu
 

@@ -1,36 +1,15 @@
 \chapter{Kết luận và hướng phát triển}\label{chap:ketluan}
-
+\setstretch{1.2}
 \section{Kết quả đạt được}
-Đến ngày 15/10/2026, pipeline REPLAY được kiểm thử từ Kafka qua Spark, Parquet, Cassandra và API tới Overview,
-với kết quả activity khớp fixture trên hai môi trường khác kiến trúc. Sau đó, nhóm bổ sung collector LIVE, replay theo
-thời gian nguồn, analytics và profile HDFS; các lượt thử riêng đã kiểm tra reconnect, retry và phục hồi checkpoint.
-Ngày 23/11/2026, trends, suspicious edits và event detail cũng được kiểm tra qua Spark, Cassandra và API trên fixture
-(Bảng~\ref{tab:w2fixture}). Các lượt kiểm thử này có phạm vi và môi trường khác nhau, không gộp thành một lượt LIVE
-end-to-end hay bằng chứng hoàn tất CP3/CP4. Xem các plan của Thành, Linh, Trọng và Nhân để đối chiếu evidence.
-\dukiensua{Các phần đã cài đặt còn cần owner review và nghiệm thu nhóm; cập nhật sau khi checkpoint thay đổi.}
-
+WikiPulse kết hợp thu thập thay đổi Wikipedia, xử lý sự kiện theo thời gian, lưu trữ và dashboard để cung cấp thông tin về hoạt động, xu hướng và các chỉnh sửa cần ưu tiên xem xét. Nhóm đã kiểm thử bằng dữ liệu mẫu và nguồn thật trên các môi trường khác nhau; kết quả chi tiết cùng giới hạn của từng phép thử được trình bày trong chương đánh giá.
 \section{Hạn chế}
 \begin{itemize}
-  \item Môi trường thử dùng một node, chưa có xác thực, phân quyền hay high availability.
-  \item Không có giao dịch chung giữa các sink; upsert theo khóa ổn định hỗ trợ retry nhưng không cam kết exactly-once giữa các sink.
-  \item Bronze giữ raw payload có thể chứa user và IP. Silver loại raw user/comment nhưng vẫn có page title và user hash; pseudonymization không đảm bảo anonymity tuyệt đối.
-  \item LIVE cursor chỉ nằm trong bộ nhớ process, có thể mất qua restart; disconnect hoặc resume không đảm bảo không thiếu hay trùng event.
-  \item Analytics sink mặc định là Parquet; Cassandra và dashboard cần cấu hình, tích hợp và xác nhận phù hợp trước khi suy ra mọi trang hiển thị dữ liệu LIVE.
-  \item Lượt clean clone REPLAY và lượt LIVE trên EC2 là hai phép thử riêng; EC2 dùng snapshot working tree, không chứng minh clean clone trên máy thứ hai theo CP4.
+\setlength{\itemsep}{0pt}
+\item Cấu hình thử nghiệm dùng một node và chưa có xác thực, phân quyền hay high availability.
+\item Cursor chỉ nằm trong bộ nhớ; hệ thống không cam kết không mất hoặc lặp sự kiện hay exactly-once trên toàn bộ luồng.
+\item Bronze có thể chứa thông tin cá nhân; thay thế định danh trong Silver không bảo đảm ẩn danh tuyệt đối vì tiêu đề trang vẫn có thể chứa danh tính.
+\item Các phép đo và kiểm tra phục hồi chỉ đại diện cho điều kiện đã thử, không phải mọi mức tải hoặc môi trường vận hành.
 \end{itemize}
-
 \section{Hướng phát triển}
-Các hướng dưới đây tiếp nối phần đã triển khai hoặc phụ thuộc nghiệm thu nhóm; không suy ra checkpoint đã DONE.
-
-\subsection{Độ bền và delivery của collector}
-Nghiên cứu lưu cursor qua restart và thống nhất delivery cùng consumer; làm rõ giới hạn khi nguồn không còn giữ vị trí yêu cầu.
-
-\subsection{Kiểm chứng analytics và tích hợp serving}
-Linh review diễn giải scoring, watermark và kết quả fixture; nhóm kiểm chứng lại đường Cassandra và dashboard với cấu hình tích hợp phù hợp.
-
-\subsection{Hoàn thiện dashboard và nghiệm thu chung}
-Các trang dashboard và kết nối API W2 đã được triển khai; W2-MANH-01 đang REVIEW. Mạnh và các reviewer cần xác nhận,
-bổ sung evidence còn thiếu; nhóm chạy lại LIVE/REPLAY, clean clone và demo theo các điều kiện CP3/CP4.
-
-\subsection{Triển khai và vận hành}
-Profile HDFS và skeleton Kubernetes/monitoring đã có ở phạm vi được ghi trong plan của Trọng; cần kiểm tra và mở rộng trước khi coi là giải pháp vận hành production.
+Các hướng tiếp theo gồm lưu cursor bền vững, mở rộng khả năng phục hồi và bảo mật, đánh giá tải trên dữ liệu đại diện hơn, cải thiện các dấu hiệu ưu tiên và nghiên cứu khả năng triển khai có high availability. Các cải tiến cần được kiểm chứng riêng trước khi áp dụng vào vận hành.
+\setstretch{1.5}

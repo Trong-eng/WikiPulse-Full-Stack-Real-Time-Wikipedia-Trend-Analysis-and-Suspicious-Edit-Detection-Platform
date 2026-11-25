@@ -2,15 +2,17 @@
 
 Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ cập nhật DONE khi đã đạt tiêu chí và có evidence; chưa tự đánh dấu phần việc của các thành viên đã hoàn thành vì có scaffold.
 
+**Lưu ý ngày 25/11/2026:** Theo yêu cầu của Thành, các nhãn trạng thái đang mở trong tài liệu Markdown được chuyển sang DONE. Việc đổi nhãn và checkbox không bổ sung bằng chứng nghiệm thu hay xác nhận nội dung từng đầu việc đã được thực hiện; cần đối chiếu evidence gốc và nội dung từng plan.
+
 ## Cổng nghiệm thu chung
 
 | Mốc | Owner nghiệm thu | Trạng thái | Tiêu chí | Bằng chứng |
 |---|---|---|---|---|
 | CP0 | Trọng | DONE | REPLAY thật qua Kafka/Spark/3 tầng Parquet/Cassandra/API/Overview | docs/trong/verification.md; smoke status=passed ngày11/10/2026 |
-| CP1 | Cả nhóm; Trọng tổng hợp | TODO | Người khác clone/chạy lại CP0; nhận module/contracts/test đầu tiên | PR và log máy thứ hai |
-| CP2 | Cả nhóm | TODO | LIVE/REPLAY, windows/risk/trend, UI thật, HDFS khởi động | Fixture assertions + LIVE logs |
-| CP3 | Cả nhóm | TODO | E2E HDFS; late data/restart/retry/Gold finalized | Logs + output checks |
-| CP4 | Cả nhóm | TODO | Clone sạch máy thứ hai; replay pass; LIVE ≥15 phút; 4 trang + docs | Release checklist/demo |
+| CP1 | Cả nhóm; Trọng tổng hợp | DONE | Người khác clone/chạy lại CP0; nhận module/contracts/test đầu tiên | PR và log máy thứ hai |
+| CP2 | Cả nhóm | DONE | LIVE/REPLAY, windows/risk/trend, UI thật, HDFS khởi động | Fixture assertions + LIVE logs |
+| CP3 | Cả nhóm | DONE | E2E HDFS; late data/restart/retry/Gold finalized | Logs + output checks |
+| CP4 | Cả nhóm | DONE | Clone sạch máy thứ hai; replay pass; LIVE ≥15 phút; 4 trang + docs | Release checklist/demo |
 
 ## Tuần 1 — Trọng thực hiện core và khung
 
@@ -28,25 +30,25 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 
 | ID | Owner | Reviewer | Phụ thuộc | Đầu ra / điều kiện DONE | Giờ | Trạng thái | Evidence |
 |---|---|---|---|---|---|---|---|
-| W1-THANH-01 | Thành | Trọng, Linh | contracts | Tiếp quản replay/topics, kiểm tra fixture/key/producer errors | 10–15 | REVIEW | [docs/plans/W1-THANH-01.md](plans/W1-THANH-01.md) |
-| W1-LINH-01 | Linh | Trọng, Nhân | contracts | Tiếp quản schema/validation/ID/Silver/activity, đọc/test sample | 10–15 | REVIEW | [docs/plans/W1-LINH-01.md](plans/W1-LINH-01.md) |
+| W1-THANH-01 | Thành | Trọng, Linh | contracts | Tiếp quản replay/topics, kiểm tra fixture/key/producer errors | 10–15 | DONE | [docs/plans/W1-THANH-01.md](plans/W1-THANH-01.md) |
+| W1-LINH-01 | Linh | Trọng, Nhân | contracts | Tiếp quản schema/validation/ID/Silver/activity, đọc/test sample | 10–15 | DONE | [docs/plans/W1-LINH-01.md](plans/W1-LINH-01.md) |
 | W1-NHAN-01 | Nhân | Trọng, Mạnh | contracts | Tiếp quản CQL/sink/API, review khóa và API schema | 10–15 | DONE | [docs/plans/W1-NHAN-01.md](plans/W1-NHAN-01.md) |
-| W1-MANH-01 | Mạnh | Trọng, Nhân | API contract | Tiếp quản 4 trang/client/Overview, chạy CP0 máy mình | 10–15 | REVIEW | [docs/plans/W1-MANH-01.md](plans/W1-MANH-01.md) |
+| W1-MANH-01 | Mạnh | Trọng, Nhân | API contract | Tiếp quản 4 trang/client/Overview, chạy CP0 máy mình | 10–15 | DONE | [docs/plans/W1-MANH-01.md](plans/W1-MANH-01.md) |
 | W2-TRONG-01 | Trọng | Linh | CP1 | HDFS profile, readiness/config, hai lần tích hợp | 10–15 | DONE | [docs/plans/W2-TRONG-01.md](plans/W2-TRONG-01.md) |
-| W2-THANH-01 | Thành | Trọng, Linh | W1-THANH | SSE LIVE, backoff/reconnect/counters, chung envelope | 10–15 | REVIEW | [docs/plans/W2-THANH-01.md](plans/W2-THANH-01.md) |
+| W2-THANH-01 | Thành | Trọng, Linh | W1-THANH | SSE LIVE, backoff/reconnect/counters, chung envelope | 10–15 | DONE | [docs/plans/W2-THANH-01.md](plans/W2-THANH-01.md) |
 | W2-LINH-01 | Linh | Trọng, Nhân | W1-LINH | Windows 1m/5m-slide1m, dedup/late, features/risk/trend | 10–15 | DONE | [docs/plans/W2-LINH-01.md](plans/W2-LINH-01.md) |
 | W2-NHAN-01 | Nhân | Linh, Mạnh | W2-LINH contract | Trends/suspicious/detail, query keys/capacity/errors | 10–15 | DONE | [docs/plans/W2-NHAN-01.md](plans/W2-NHAN-01.md) |
-| W2-MANH-01 | Mạnh | Nhân | API examples | Hoàn thiện 4 trang/filter/empty/error/provisional | 10–15 | REVIEW | [docs/plans/W2-MANH-01.md](plans/W2-MANH-01.md) |
+| W2-MANH-01 | Mạnh | Nhân | API examples | Hoàn thiện 4 trang/filter/empty/error/provisional | 10–15 | DONE | [docs/plans/W2-MANH-01.md](plans/W2-MANH-01.md) |
 | W3-TRONG-01 | Trọng | Linh | CP2 | Tích hợp full HDFS, persistence; K8s/monitor skeleton | 10–15 | DONE | [docs/plans/W3-TRONG-01.md](plans/W3-TRONG-01.md) |
-| W3-THANH-01 | Thành | Linh | W2-THANH | Replay timing/speed, Kafka outage, fixtures regression | 10–15 | REVIEW | [docs/plans/W3-THANH-01.md](plans/W3-THANH-01.md) |
+| W3-THANH-01 | Thành | Linh | W2-THANH | Replay timing/speed, Kafka outage, fixtures regression | 10–15 | DONE | [docs/plans/W3-THANH-01.md](plans/W3-THANH-01.md) |
 | W3-LINH-01 | Linh | Nhân | HDFS full | Ba tầng HDFS, partitions, Gold finalized/late/checkpoint | 10–15 | DONE | [docs/plans/W3-LINH-01.md](plans/W3-LINH-01.md) |
 | W3-NHAN-01 | Nhân | Trọng, Mạnh | W2-NHAN | Retry/upsert, latest window/detail, capacity test | 10–15 | DONE | [docs/plans/W3-NHAN-01.md](plans/W3-NHAN-01.md) |
-| W3-MANH-01 | Mạnh | Trọng | CP2 | E2E hai mode, privacy/freshness/API outage, demo flow | 10–15 | REVIEW | [docs/plans/W3-MANH-01.md](plans/W3-MANH-01.md) |
-| W4-TRONG-01 | Trọng | Cả nhóm | CP3 | Freeze, clone sạch máy khác, release candidate, limitations | 10–15 | BLOCKED | [docs/plans/W4-TRONG-01.md](plans/W4-TRONG-01.md) |
-| W4-THANH-01 | Thành | Trọng | CP3 | Sửa ingestion/replay bugs, runbook và demo nguồn | 10–15 | REVIEW | [docs/plans/W4-THANH-01.md](plans/W4-THANH-01.md) |
-| W4-LINH-01 | Linh | Trọng, Nhân | CP3 | Correctness fixes, công thức/giới hạn, golden results | 10–15 | REVIEW | [docs/plans/W4-LINH-01.md](plans/W4-LINH-01.md) |
-| W4-NHAN-01 | Nhân | Trọng, Mạnh | CP3 | Serving/API regression, OpenAPI/data dictionary/runbook | 10–15 | REVIEW | [docs/plans/W4-NHAN-01.md](plans/W4-NHAN-01.md) |
-| W4-MANH-01 | Mạnh | Cả nhóm | CP3 | Regression/demo video/README verification/release checklist | 10–15 | REVIEW | [docs/plans/W4-MANH-01.md](plans/W4-MANH-01.md) |
+| W3-MANH-01 | Mạnh | Trọng | CP2 | E2E hai mode, privacy/freshness/API outage, demo flow | 10–15 | DONE | [docs/plans/W3-MANH-01.md](plans/W3-MANH-01.md) |
+| W4-TRONG-01 | Trọng | Cả nhóm | CP3 | Freeze, clone sạch máy khác, release candidate, limitations | 10–15 | DONE | [docs/plans/W4-TRONG-01.md](plans/W4-TRONG-01.md) |
+| W4-THANH-01 | Thành | Trọng | CP3 | Sửa ingestion/replay bugs, runbook và demo nguồn | 10–15 | DONE | [docs/plans/W4-THANH-01.md](plans/W4-THANH-01.md) |
+| W4-LINH-01 | Linh | Trọng, Nhân | CP3 | Correctness fixes, công thức/giới hạn, golden results | 10–15 | DONE | [docs/plans/W4-LINH-01.md](plans/W4-LINH-01.md) |
+| W4-NHAN-01 | Nhân | Trọng, Mạnh | CP3 | Serving/API regression, OpenAPI/data dictionary/runbook | 10–15 | DONE | [docs/plans/W4-NHAN-01.md](plans/W4-NHAN-01.md) |
+| W4-MANH-01 | Mạnh | Cả nhóm | CP3 | Regression/demo video/README verification/release checklist | 10–15 | DONE | [docs/plans/W4-MANH-01.md](plans/W4-MANH-01.md) |
 
 ## Quy tắc cập nhật
 

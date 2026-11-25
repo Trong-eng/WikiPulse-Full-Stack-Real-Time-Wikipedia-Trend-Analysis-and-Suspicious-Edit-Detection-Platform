@@ -1,9 +1,7 @@
-\chapter{Các công cụ và nghiên cứu liên quan}\label{chap:lienquan}
-\section{Công cụ tuần tra của cộng đồng Wikipedia}\chualam
-\section{Mô hình đánh giá chỉnh sửa của Wikimedia}\chualam
-\section{Thống kê lượt xem và xu hướng trang}\chualam
-\section{Khoảng trống mà WikiPulse nhắm tới}\chualam
-
-% ============================================================================
-% CHƯƠNG 4: PHÂN TÍCH, THIẾT KẾ VÀ CÀI ĐẶT
-% ============================================================================
+\chapter{Các hướng tiếp cận liên quan}\label{chap:lienquan}
+\section{Theo dõi thay đổi Wikipedia}
+Dịch vụ Wikimedia EventStreams công bố luồng thay đổi để các ứng dụng khác tiếp nhận~\cite{eventstreams}. Dữ liệu nguồn cho biết sự kiện đã xảy ra; để quan sát xu hướng theo thời gian, ứng dụng tiếp nhận cần tự lựa chọn cách lọc, tổng hợp và trình bày.
+\section{Đánh giá và ưu tiên chỉnh sửa}
+Một hướng hỗ trợ người tuần tra là dùng dấu hiệu của chỉnh sửa để sắp xếp thứ tự cần xem. WikiPulse dùng các quy tắc mô tả được, dựa trên mức xóa nội dung, dấu hiệu hoàn tác và tình trạng ẩn danh. Quy tắc đơn giản giúp giải thích kết quả nhưng không thay thế việc xem xét ngữ cảnh của con người.
+\section{Phân tích dữ liệu luồng}
+Kafka cung cấp lớp lưu và truyền sự kiện~\cite{kreps2011}, còn Spark Structured Streaming hỗ trợ xử lý theo cửa sổ và trạng thái~\cite{armbrust2018}. WikiPulse kết hợp các thành phần này với lưu trữ phân tích và lưu trữ phục vụ truy vấn để đưa kết quả lên giao diện. Xu hướng trong báo cáo phản ánh hoạt động chỉnh sửa, không phải số lượt xem trang.

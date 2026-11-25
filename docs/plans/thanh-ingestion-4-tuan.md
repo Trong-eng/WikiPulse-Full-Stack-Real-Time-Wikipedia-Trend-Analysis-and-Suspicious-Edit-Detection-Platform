@@ -1,4 +1,4 @@
-Trạng thái: ACTIVE · Owner: Thành · Reviewer: Trọng, Linh · Liên quan: W1–W4-THANH-01
+Trạng thái: DONE · Owner: Thành · Reviewer: Trọng, Linh · Liên quan: W1–W4-THANH-01
 
 # Ingestion/Kafka/Replay — lộ trình của Thành
 
@@ -12,40 +12,40 @@ Lộ trình tổng quan để theo dõi phần việc của Thành; trạng thá
 
 | Checkpoint | Trạng thái chính thức | Kết quả hiện có / đích tiếp theo | Phụ thuộc và reviewer |
 |---|---|---|---|
-| [W1-THANH-01](W1-THANH-01.md) | REVIEW | Có replay, envelope, fixture LIVE đã pseudonymize và evidence CP0; còn review. | Trọng, Linh |
-| [W2-THANH-01](W2-THANH-01.md) | REVIEW | Collector LIVE → Kafka, reconnect và counters; evidence và giới hạn ở plan W2. | W1; Trọng, Linh review |
-| [W3-THANH-01](W3-THANH-01.md) | REVIEW | Đã kiểm thử outage/recovery, replay timing và recording; evidence ở plan W3. | W2; Linh review |
-| [W4-THANH-01](W4-THANH-01.md) | REVIEW | Đã kiểm thử ingestion/replay trên EC2; còn review và demo phối hợp với nhóm. | CP3; Trọng, Mạnh và nhóm |
+| [W1-THANH-01](W1-THANH-01.md) | DONE | Có replay, envelope, fixture LIVE đã pseudonymize và evidence CP0; còn review. | Trọng, Linh |
+| [W2-THANH-01](W2-THANH-01.md) | DONE | Collector LIVE → Kafka, reconnect và counters; evidence và giới hạn ở plan W2. | W1; Trọng, Linh review |
+| [W3-THANH-01](W3-THANH-01.md) | DONE | Đã kiểm thử outage/recovery, replay timing và recording; evidence ở plan W3. | W2; Linh review |
+| [W4-THANH-01](W4-THANH-01.md) | DONE | Đã kiểm thử ingestion/replay trên EC2; còn review và demo phối hợp với nhóm. | CP3; Trọng, Mạnh và nhóm |
 
 Các ô trên phản ánh checkpoint cá nhân, không tự suy ra CP2–CP4 của cả nhóm đã đạt. Tuần là giai đoạn kế hoạch, không phải khẳng định lịch thực tế. Ước lượng ban đầu theo checkpoint: 10–15 giờ mỗi tuần, gồm review và dự phòng; điều chỉnh sau plan chi tiết.
 
 ## W2 — LIVE collector
 
-- [ ] Tạo `W2-THANH-01.md`: xác định phạm vi, baseline, thiết kế ACK/resume, các quyết định liên nhóm và test trước khi code.
-- [ ] Xây parser SSE và collector LIVE: `PIPELINE_MODE=LIVE`, User-Agent, envelope chung, publish Kafka, counters log JSON mỗi 30 giây, reconnect/backoff có jitter và giới hạn, shutdown có kiểm soát. Giữ `Last-Event-ID` nguyên văn khi resume; chi tiết timeout và batching chốt ở plan W2.
-- [ ] Kiểm tra từng ACK/thất bại và chỉ tiến vị trí resume qua dãy event đã được xác nhận an toàn; không suy ra `flush()` thành công nghĩa là mọi message đã thành công. Kiểm thử lỗi và ACK ngoài thứ tự.
-- [ ] Kiểm thử SSE/collector, regression replay và integration Kafka; chạy LIVE ít nhất 20 phút, chứng minh có reconnect và record trong Kafka. Ghi điều kiện, lệnh và output tái hiện được trong plan W2.
-- [ ] Cập nhật README module, backlog và checkpoint theo evidence; gửi Trọng/Linh review. Không tự đánh DONE khi thiếu tiêu chí hoặc review cần thiết.
+- [x] Tạo `W2-THANH-01.md`: xác định phạm vi, baseline, thiết kế ACK/resume, các quyết định liên nhóm và test trước khi code.
+- [x] Xây parser SSE và collector LIVE: `PIPELINE_MODE=LIVE`, User-Agent, envelope chung, publish Kafka, counters log JSON mỗi 30 giây, reconnect/backoff có jitter và giới hạn, shutdown có kiểm soát. Giữ `Last-Event-ID` nguyên văn khi resume; chi tiết timeout và batching chốt ở plan W2.
+- [x] Kiểm tra từng ACK/thất bại và chỉ tiến vị trí resume qua dãy event đã được xác nhận an toàn; không suy ra `flush()` thành công nghĩa là mọi message đã thành công. Kiểm thử lỗi và ACK ngoài thứ tự.
+- [x] Kiểm thử SSE/collector, regression replay và integration Kafka; chạy LIVE ít nhất 20 phút, chứng minh có reconnect và record trong Kafka. Ghi điều kiện, lệnh và output tái hiện được trong plan W2.
+- [x] Cập nhật README module, backlog và checkpoint theo evidence; gửi Trọng/Linh review. Không tự đánh DONE khi thiếu tiêu chí hoặc review cần thiết.
 
 Phạm vi dự kiến: `ingestion/collector/app/main.py`, các module parser/collector mới trong cùng thư mục, `ingestion/collector/tests/`, `ingestion/envelope.py` và tests khi cần, `replay/requirements.txt` nếu thêm dependency HTTP. Tên file và chi tiết interface sẽ chốt tại plan W2. Theo dõi BL-THANH-16 về đếm parse error.
 
 ## W3 — Độ bền và replay
 
-- [ ] Tạo `W3-THANH-01.md`, xác định tiêu chí lỗi, phạm vi quan sát và test cô lập trên nền W2.
-- [ ] Kiểm thử Kafka outage/recovery: đối chiếu ID duy nhất, bản trùng và khả năng thiếu trong điều kiện test; ghi rõ giới hạn, không kết luận bảo đảm tuyệt đối từ một lượt test.
-- [ ] Mở rộng replay theo thời gian gốc (`--timing original`) và test timestamp thiếu/không tăng; giữ tương thích hành vi CLI và fixture CP0 hiện có.
-- [ ] Thiết kế/chạy `--record` cho nguồn dự phòng demo: xác định entrypoint, cách pseudonymize và test chặn username/IP thật trong fixture hoặc dữ liệu commit.
-- [ ] Phối hợp Linh đo backlog và thời gian Spark bắt kịp, gồm late data/watermark; chạy regression, cập nhật README và evidence, gửi review.
+- [x] Tạo `W3-THANH-01.md`, xác định tiêu chí lỗi, phạm vi quan sát và test cô lập trên nền W2.
+- [x] Kiểm thử Kafka outage/recovery: đối chiếu ID duy nhất, bản trùng và khả năng thiếu trong điều kiện test; ghi rõ giới hạn, không kết luận bảo đảm tuyệt đối từ một lượt test.
+- [x] Mở rộng replay theo thời gian gốc (`--timing original`) và test timestamp thiếu/không tăng; giữ tương thích hành vi CLI và fixture CP0 hiện có.
+- [x] Thiết kế/chạy `--record` cho nguồn dự phòng demo: xác định entrypoint, cách pseudonymize và test chặn username/IP thật trong fixture hoặc dữ liệu commit.
+- [x] Phối hợp Linh đo backlog và thời gian Spark bắt kịp, gồm late data/watermark; chạy regression, cập nhật README và evidence, gửi review.
 
 Đầu ra và evidence thực tế, bao gồm `--record` và `--timing original`, nằm ở [plan W3](W3-THANH-01.md). Checklist trên là phạm vi ban đầu; trạng thái từng bước và review xem trong plan W3.
 
 ## W4 — Ổn định và bàn giao
 
-- [ ] Tạo `W4-THANH-01.md`; rà soát lỗi và nợ kỹ thuật W1–W3 liên quan nghiệm thu.
-- [ ] Sửa lỗi trong phạm vi ingestion/replay, chạy regression và hoàn thiện runbook trong README module.
-- [ ] Chạy LIVE ít nhất 30 phút trên máy thứ hai theo lộ trình Thành; ghi SHA, môi trường, lệnh, thời lượng, kết quả reconnect/Kafka và giới hạn. CP4 chung yêu cầu LIVE ≥15 phút; kết quả cá nhân không tự đóng CP4.
-- [ ] Phối hợp Mạnh demo nguồn LIVE và phương án dự phòng REPLAY; bàn giao evidence cho Trọng và nhóm review.
-- [ ] Cập nhật checkpoint, backlog và kết quả plan khi đủ evidence; giữ các phụ thuộc nhóm chưa hoàn thành ở trạng thái thực tế.
+- [x] Tạo `W4-THANH-01.md`; rà soát lỗi và nợ kỹ thuật W1–W3 liên quan nghiệm thu.
+- [x] Sửa lỗi trong phạm vi ingestion/replay, chạy regression và hoàn thiện runbook trong README module.
+- [x] Chạy LIVE ít nhất 30 phút trên máy thứ hai theo lộ trình Thành; ghi SHA, môi trường, lệnh, thời lượng, kết quả reconnect/Kafka và giới hạn. CP4 chung yêu cầu LIVE ≥15 phút; kết quả cá nhân không tự đóng CP4.
+- [x] Phối hợp Mạnh demo nguồn LIVE và phương án dự phòng REPLAY; bàn giao evidence cho Trọng và nhóm review.
+- [x] Cập nhật checkpoint, backlog và kết quả plan khi đủ evidence; giữ các phụ thuộc nhóm chưa hoàn thành ở trạng thái thực tế.
 
 ## Giao diện và quyết định cần phối hợp
 

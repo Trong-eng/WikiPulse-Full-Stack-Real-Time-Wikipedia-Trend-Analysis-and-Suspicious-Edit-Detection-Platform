@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Linh · Reviewer dự kiến: Trọng, Nhân · Liên quan: W4-LINH-01, CP3, BL-LINH-02
+Trạng thái: DONE · Owner: Linh · Reviewer dự kiến: Trọng, Nhân · Liên quan: W4-LINH-01, CP3, BL-LINH-02
 
 ## Mục tiêu
 
@@ -15,7 +15,7 @@ Phạm vi gồm chuẩn bị môi trường, đối chiếu công thức với c
 - [x] Rà soát golden results độc lập với code tính toán, bổ sung trường hợp thiếu nếu có.
 - [x] Kiểm tra correctness và chạy regression liên quan; chưa phát hiện lỗi production cần sửa.
 - [x] Hoàn thiện công thức, giới hạn và hướng dẫn tái hiện trong processing README.
-- [ ] Khi CP3 và các module phụ thuộc sẵn sàng, kiểm chứng tích hợp và bàn giao final evidence cho Trọng/Nhân.
+- [x] Khi CP3 và các module phụ thuộc sẵn sàng, kiểm chứng tích hợp và bàn giao final evidence cho Trọng/Nhân.
 
 ## Quyết định
 

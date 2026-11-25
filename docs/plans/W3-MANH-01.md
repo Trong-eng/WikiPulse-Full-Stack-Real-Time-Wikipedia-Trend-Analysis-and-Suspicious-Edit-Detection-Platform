@@ -1,6 +1,6 @@
 # W3-MANH-01 — Kiểm thử E2E hai chế độ LIVE/REPLAY, Privacy, Freshness và API Outage
 
-Trạng thái: REVIEW · Owner: Mạnh · Reviewer: Trọng · Liên quan: [checkpoints](../checkpoints.md), [contracts.md](../contracts.md), BL-THANH-24, BL-THANH-37
+Trạng thái: DONE · Owner: Mạnh · Reviewer: Trọng · Liên quan: [checkpoints](../checkpoints.md), [contracts.md](../contracts.md), BL-THANH-24, BL-THANH-37
 
 ## Mục tiêu
 

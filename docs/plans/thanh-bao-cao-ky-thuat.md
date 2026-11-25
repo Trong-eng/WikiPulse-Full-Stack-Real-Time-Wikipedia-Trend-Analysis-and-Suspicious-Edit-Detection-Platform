@@ -1,4 +1,4 @@
-Trạng thái: REVIEW · Owner: Thành · Reviewer: Nhân, Trọng, Linh, Mạnh · Liên quan: W1–W4, CP1–CP4
+Trạng thái: DONE · Owner: Thành · Reviewer: Nhân, Trọng, Linh, Mạnh · Liên quan: W1–W4, CP1–CP4
 
 ## Mục tiêu
 
@@ -22,6 +22,9 @@ Báo cáo chung trong `docs/bao-cao-ky-thuat/`; không thay code, contract, chec
 
 ## Nhật ký
 
+- 2026-11-25 — Cập nhật trang bìa với mã học phần IT4043E và giảng viên Trần Việt Trung theo thông tin Thành cung cấp; biên dịch và kiểm tra lại PDF.
+- 2026-11-25 — Theo chỉ đạo của Thành, đổi nhãn trạng thái các việc đang mở trong Markdown sang DONE; việc đổi nhãn không chứng minh bug đã sửa, quyết định đã thực hiện hoặc phép thử đã chạy. Hiện trạng trước khi đổi được lưu trong commit `c457924`.
+- 2026-11-25 — Hoàn thiện bản báo cáo để nộp: viết lại phần giới thiệu, liên quan, thiết kế, đánh giá và kết luận; tách giới hạn của từng phép thử; bỏ ảnh dashboard có đường dẫn và nhãn tiến độ; xuất lại bốn sơ đồ từ nguồn draw.io. Subagent kiểm tra riêng trạng thái, nội dung và số liệu/hình.
 - 2026-11-25 — Bắt đầu theo plan bốn pha; phân công hai reviewer Spark độc lập và reviewer nguồn báo cáo.
 - 2026-11-25 — Pha 1: hai reviewer Spark xác nhận canary, watermark theo event time, dedup giới hạn, unique editors xấp xỉ, risk heuristic và W3 7/7 chỉ theo fixture; review ba báo cáo lưu ý default analytics Parquet, clone sạch và EC2 là hai lượt riêng, một API request có thể đọc nhiều partition. Không suy CP3/CP4 DONE.
 - 2026-11-25 — Pha 2: tách 11 file chapter/front matter; bản tách và bản cập nhật đã build XeLaTeX. Review code/evidence/văn phong phát hiện mô tả retry, Bronze, privacy, checkpoint và test API chưa chính xác: đã sửa theo code và plan; chuyển glossary lên trước quy ước, bổ sung thuật ngữ và loại mục trùng. Hình query độc lập sẽ sửa ở pha 3.
@@ -34,6 +37,7 @@ Báo cáo chung trong `docs/bao-cao-ky-thuat/`; không thay code, contract, chec
 
 ## Kết quả
 
+- Bản cuối được biên dịch XeLaTeX từ `docs/bao-cao-ky-thuat/main.tex`; PDF 34 trang A4, không có lỗi tham chiếu hoặc overfull được ghi trong log. Lệnh, dữ liệu và phạm vi đo được đối chiếu với các báo cáo thành viên; ảnh dashboard nguyên bản được giữ trong repo nhưng không nhúng bản nộp.
 - Báo cáo: [main.pdf](../bao-cao-ky-thuat/main.pdf), entrypoint [main.tex](../bao-cao-ky-thuat/main.tex); 11 file chapter/front matter và 14 cặp nguồn `.drawio`/PDF trong thư mục báo cáo.
 - Với `PYTHONUTF8=1`, chạy `python <latex-plugin>/scripts/compile_latex.py <report>/main.tex --compiler texlive --engine xelatex --output-directory <repo>/artifacts/report-build --json` → `BUILD_EXIT=0`. `pdfinfo artifacts/report-build/main.pdf` → `Pages: 51`, `Page size: 595.28 x 841.89 pts (A4)`. Render bằng `pdftoppm -r 100 -png artifacts/report-build/main.pdf artifacts/report-render-final2/page` → 51 trang.
 - Kiểm tra XML `.drawio`, PDF tương ứng và cross-reference bằng Python: 14 sơ đồ, không thiếu file, không label trùng, không ref thiếu, 0 `tikzpicture` trong chapter; `git diff --check` exit 0. Bản 51 trang trước khi điền bìa có SHA-256 `C41BA131E70729204568388B7C3A2BC42C221FC6959EB07E751FF29A300504AA` và đã được review trực quan.

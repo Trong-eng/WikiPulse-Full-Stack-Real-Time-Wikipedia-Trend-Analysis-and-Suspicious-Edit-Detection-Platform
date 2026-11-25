@@ -1,6 +1,5 @@
-\begin{abstract}
-Wikimedia EventStreams cung cấp stream thay đổi liên tục từ các dự án Wikimedia. WikiPulse tiếp nhận các event này hoặc phát lại fixture để kiểm thử, sử dụng Kafka làm điểm chuyển tiếp và Spark Structured Streaming để validation, chuẩn hóa, deduplication và tổng hợp theo event time. Dữ liệu phân tích được lưu theo các tầng Bronze, Silver, Gold; Cassandra và FastAPI cung cấp kết quả phục vụ dashboard.
+\chapter*{Tóm tắt}
+\addcontentsline{toc}{chapter}{Tóm tắt}
+WikiPulse phân tích luồng thay đổi Wikipedia để giúp người xem theo dõi hoạt động, nhận biết trang đang thu hút chỉnh sửa và ưu tiên kiểm tra những chỉnh sửa có dấu hiệu đáng chú ý. Hệ thống tiếp nhận sự kiện thật hoặc phát lại dữ liệu mẫu, xử lý theo thời gian sự kiện, lưu kết quả và cung cấp bốn trang dashboard.
 
-Dự án đã có collector LIVE và replay producer, các query Spark cùng tùy chọn lưu Parquet/HDFS, và lớp serving Cassandra/API. Các lượt kiểm thử độc lập đã kiểm tra collector, phục hồi và dữ liệu mẫu; chúng không đồng nghĩa toàn bộ pipeline LIVE đến dashboard đã được nghiệm thu. Analytics sink mặc định là Parquet, còn Cassandra analytics được chọn bằng cấu hình. Theo bảng checkpoint của nhóm, CP0 đã hoàn thành; CP1--CP4 vẫn chờ nghiệm thu.
-\dukiensua{Rà soát cùng các owner khi hoàn tất nghiệm thu nhóm.}
-\end{abstract}
+Thiết kế kết hợp Kafka, Spark, Parquet, Cassandra và API. Các phép thử sử dụng dữ liệu mẫu và nguồn thật đã kiểm tra từng phần của luồng xử lý, giao diện, phục hồi và một số điều kiện gián đoạn. Kết quả và giới hạn từng phép thử được trình bày riêng ở chương đánh giá. Điểm ưu tiên chỉ hỗ trợ con người xem xét, không kết luận một chỉnh sửa là phá hoại.

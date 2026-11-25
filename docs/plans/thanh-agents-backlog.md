@@ -1,6 +1,6 @@
 # thanh-agents-backlog — Quy trình AGENTS.md + docs/backlog.md
 
-Trạng thái: REVIEW · Owner: Thành · Reviewer: Trọng (bắt buộc, vùng docs tích hợp), Nhân, Linh · Liên quan: [BL-THANH-13](../backlog.md#trọng), BL-THANH-31, BL-THANH-32
+Trạng thái: DONE · Owner: Thành · Reviewer: Trọng (bắt buộc, vùng docs tích hợp), Nhân, Linh · Liên quan: [BL-THANH-13](../backlog.md#trọng), BL-THANH-31, BL-THANH-32
 
 ## Mục tiêu
 
@@ -18,7 +18,7 @@ Mọi người và AI agent ghi việc vào cùng một chỗ. Mỗi việc có 
 - [x] Viết docs/plans/W1-THANH-01.md; checkpoints chỉ còn link tới plan.
 - [x] Subagent review (không có Critical), sửa toàn bộ finding Important.
 - [x] Thêm folder docs theo người (`docs/<owner>/`): sửa AGENTS.md §4, chuyển `docs/ingestion-spike.md` → `docs/thanh/ingestion-spike.md`, cập nhật link, backlog và script kiểm docs.
-- [ ] Trọng và nhóm review các commit đã push lên `main`; Trọng là owner AGENTS.md.
+- [x] Trọng và nhóm review các commit đã push lên `main`; Trọng là owner AGENTS.md.
 
 ## Quyết định
 

@@ -1,6 +1,6 @@
 # W4-MANH-01 — Nghiệm thu Regression, README Verification, LIVE ≥15 phút và Báo cáo CP4
 
-Trạng thái: REVIEW · Owner: Mạnh · Reviewer: Cả nhóm · Liên quan: [checkpoints](../checkpoints.md), [W4-TRONG-01](W4-TRONG-01.md), [contracts.md](../contracts.md)
+Trạng thái: DONE · Owner: Mạnh · Reviewer: Cả nhóm · Liên quan: [checkpoints](../checkpoints.md), [W4-TRONG-01](W4-TRONG-01.md), [contracts.md](../contracts.md)
 
 ## Mục tiêu
 
