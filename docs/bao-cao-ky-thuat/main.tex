@@ -1171,7 +1171,30 @@ loại (Bảng~\ref{tab:loi}). Lỗi tham số do thư viện web tự phát hi�
 
 \section{Dashboard}
 Bốn trang: Overview (đọc dữ liệu activity theo wiki và cửa sổ 1 phút, tự làm mới sau 15 giây), Trending (Top-N trang tăng hoạt động trong cửa sổ 5 phút kèm liên kết Wikipedia), Suspicious Edits (danh sách chỉnh sửa ưu tiên xem xét với bộ lọc bot/điểm rủi ro và xem chi tiết sự kiện), và System Status (readiness của API và Cassandra). Toàn bộ giao diện không hiển thị IP, username thô hay \code{user\_hash}.
-\dukiensua{Mạnh bổ sung ảnh chụp các trang mới (W2-MANH-01) và chuẩn hóa tên file ảnh không dấu/không khoảng trắng.}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{hinh/W3-manh/w3-overview-enwiki.png}
+\caption{Trang Overview (enwiki) hiển thị 5 chỉ số hoạt động và biểu đồ theo cửa sổ UTC.}\label{fig:dash-overview}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{hinh/W3-manh/w3-trending.png}
+\caption{Trang Trending hiển thị bảng xếp hạng Top-N và liên kết Wikipedia.}\label{fig:dash-trending}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{hinh/W3-manh/w3-suspicious-edits.png}
+\caption{Trang Suspicious Edits với bộ lọc, bảng rủi ro, câu khuyến cáo và chi tiết sự kiện.}\label{fig:dash-suspicious}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{hinh/W3-manh/w3-system-status.png}
+\caption{Trang System Status hiển thị readiness của API và Cassandra.}\label{fig:dash-status}
+\end{figure}
 
 % ============================================================================
 % CHƯƠNG 5: KIỂM THỬ VÀ ĐÁNH GIÁ
@@ -1263,7 +1286,7 @@ Sự kiện không dính dấu hiệu nào & điểm 0, không có lý do \\
 \end{table}
 Cửa sổ 23:56--00:01 của ngày hôm trước cũng chứa trọn phút 00:00, nơi có mọi chỉnh sửa enwiki của dữ liệu mẫu, nên
 cho đúng các số như cửa sổ 00:00; đây là cửa sổ đã chốt sau khi watermark vượt qua.
-\dukiensua{Thêm ảnh chụp trang Trending, Suspicious Edits khi W2-MANH-01 xong.}
+Xem thêm giao diện bốn trang đã hoàn thiện ở Hình~\ref{fig:dash-overview}--\ref{fig:dash-status}.
 
 \section{Độ trễ end-to-end}\chualam
 \section{Khởi động lại, retry và dữ liệu đến muộn}
