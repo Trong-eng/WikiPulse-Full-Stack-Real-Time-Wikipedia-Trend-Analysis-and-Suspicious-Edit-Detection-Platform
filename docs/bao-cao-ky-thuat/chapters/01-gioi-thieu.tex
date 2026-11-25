@@ -1,0 +1,82 @@
+\chapter{Giới thiệu}\label{chap:gioithieu}
+
+\section{Đặt vấn đề}
+Luồng \code{recentchange} của Wikimedia phát mọi thay đổi trên các dự án Wikimedia: sửa trang, tạo trang mới, thay đổi
+nhật ký. Tùy loại event, payload có thể chứa wiki, tiêu đề trang, người sửa, kích thước hoặc các cờ liên quan. Từ luồng này có thể
+trả lời hai câu hỏi có ích:
+\begin{enumerate}
+  \item \textbf{Đang có gì nóng?} Trang nào đang được sửa nhiều bất thường trong vài phút gần nhất.
+  \item \textbf{Nên xem chỉnh sửa nào trước?} Chỉnh sửa nào có dấu hiệu cần người tuần tra kiểm tra, ví dụ xóa nhiều
+        nội dung, hoàn tác qua lại, hay sửa ẩn danh.
+\end{enumerate}
+
+Khó khăn nằm ở tính chất của dữ liệu luồng: sự kiện đến không theo thứ tự, có bản trùng khi nguồn kết nối lại, có bản
+ghi hỏng, và kết quả phải cập nhật liên tục trong khi vẫn phải đúng khi hệ thống khởi động lại.
+
+\section{Mục tiêu}
+\begin{itemize}
+  \item Xây dựng luồng end-to-end Kafka $\rightarrow$ Spark $\rightarrow$ Parquet/Cassandra $\rightarrow$ API
+        $\rightarrow$ dashboard, chạy được ở hai chế độ LIVE và REPLAY.
+  \item Tổng hợp theo event time có watermark, loại trùng, cách ly bản ghi lỗi, đúng khi retry và khởi động lại.
+  \item Phục vụ ba nghiệp vụ: hoạt động theo wiki, trang xu hướng, danh sách chỉnh sửa cần ưu tiên xem xét.
+  \item Giảm rủi ro riêng tư: Silver không giữ raw user/comment; title và metadata vẫn có thể chứa thông tin nhận dạng.
+\end{itemize}
+
+\section{Phạm vi}
+\begin{itemize}
+  \item \textbf{Trong phạm vi:} MVP một node chạy bằng Docker Compose; mặc định hai wiki \code{enwiki}, \code{viwiki}, mở
+        rộng bằng cấu hình; lưu Parquet cục bộ hoặc trên HDFS theo profile.
+  \item \textbf{Ngoài phạm vi:} mô hình học máy, độ sẵn sàng cao, triển khai cloud, xác thực và phân quyền. Kubernetes và
+        monitoring chỉ ở mức khung.
+  \item \textbf{Nguyên tắc:} điểm rủi ro chỉ dùng để \emph{ưu tiên xem xét}, không kết luận một chỉnh sửa là phá hoại.
+        Không đưa dữ liệu giả vào đường demo.
+\end{itemize}
+
+\section{Tổ chức nhóm}
+Nhóm 5 người, 4 tuần, khoảng 10--15 giờ mỗi người mỗi tuần. Tiến độ quản lý theo mốc nghiệm thu
+(Bảng~\ref{tab:moc}) và bảng việc chi tiết trong \code{docs/checkpoints.md}; một việc chỉ chuyển DONE khi có bằng chứng
+kiểm thử.
+
+\begin{table}[H]
+\centering\small
+\caption{Phân công theo module}\label{tab:phancong}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Thành viên} & \textbf{Phụ trách} \\ \midrule
+Trọng & Core, cấu hình, Docker Compose, Makefile, tích hợp và nghiệm thu chung \\
+Thành & Ingestion: Kafka topics, replay, collector LIVE \\
+Linh & Xử lý Spark: validation, chuẩn hóa, loại trùng, cửa sổ, đặc trưng xu hướng và rủi ro \\
+Nhân & Lưu trữ phục vụ Cassandra, sink từ Spark, API FastAPI \\
+Mạnh & Dashboard Streamlit, kiểm thử chấp nhận (acceptance) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Các mốc nghiệm thu}\label{tab:moc}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+\textbf{Mốc} & \textbf{Điều kiện DONE} & \textbf{Trạng thái} \\ \midrule
+CP0 & REPLAY thật qua Kafka/Spark/3 tầng Parquet/Cassandra/API/Overview & DONE (11/10/2026) \\
+CP1 & Người khác chạy lại được CP0; mỗi người nhận module, contract và test đầu tiên & Chưa \\
+CP2 & LIVE/REPLAY, cửa sổ, rủi ro, xu hướng đúng fixture; UI thật; HDFS khởi động & Chưa \\
+CP3 & E2E trên HDFS; late data, khởi động lại, retry, Gold finalized được kiểm chứng & Chưa \\
+CP4 & Clone sạch trên máy thứ hai; replay pass; LIVE $\geq$ 15 phút; 4 trang; đủ tài liệu & Chưa \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\dukiensua{Cập nhật cột trạng thái mỗi khi đạt mốc.}
+
+\section{Cấu trúc báo cáo}
+\begin{itemize}
+  \item Chương~\ref{chap:nen} trình bày kiến thức nền về xử lý luồng và các công nghệ sử dụng.
+  \item Chương~\ref{chap:lienquan} điểm lại các công cụ và nghiên cứu liên quan.
+  \item Chương~\ref{chap:thietke} mô tả phân tích, thiết kế và cài đặt.
+  \item Chương~\ref{chap:danhgia} trình bày kiểm thử và kết quả.
+  \item Chương~\ref{chap:ketluan} kết luận và liệt kê phần còn lại.
+\end{itemize}
+
+% ============================================================================
+% CHƯƠNG 2: CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ
+% ============================================================================

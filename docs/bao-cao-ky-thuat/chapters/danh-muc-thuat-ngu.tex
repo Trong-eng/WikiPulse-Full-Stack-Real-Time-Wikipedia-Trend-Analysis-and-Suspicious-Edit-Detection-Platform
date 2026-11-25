@@ -1,0 +1,109 @@
+\chapter*{Danh mục thuật ngữ và viết tắt}
+\addcontentsline{toc}{chapter}{Danh mục thuật ngữ và viết tắt}
+\small
+\begin{longtable}{@{}p{0.32\linewidth}p{0.63\linewidth}@{}}
+\toprule
+\textbf{Thuật ngữ} & \textbf{Giải thích} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Thuật ngữ} & \textbf{Giải thích} \\
+\midrule
+\endhead
+ACK (acknowledgement) & Xác nhận kết quả một lần gửi; Kafka ACK không tự chứng minh exactly-once. \\
+Aggregation & Phép tổng hợp nhiều event thành kết quả theo nhóm. \\
+Allowlist & Danh sách các giá trị được phép xử lý trong phạm vi cấu hình. \\
+Analytics & Phân tích dữ liệu để tính đặc trưng hoặc kết quả nghiệp vụ. \\
+Analytics sink & Nơi nhận kết quả analytics, chẳng hạn Parquet hoặc Cassandra theo cấu hình. \\
+Anonymity & Trạng thái không thể xác định danh tính; pseudonymization không tự bảo đảm điều này. \\
+API (application programming interface) & Giao diện để các chương trình yêu cầu và nhận dữ liệu. \\
+API request & Một yêu cầu tới API; một request có thể cần nhiều query hoặc partition. \\
+Append mode & Output mode chỉ ghi thêm dòng mới; với aggregation theo event time, watermark có thể ảnh hưởng thời điểm xuất. \\
+Backoff & Cách tăng thời gian chờ giữa các lần thử lại sau lỗi. \\
+Batch / micro-batch & Một nhóm dữ liệu được xử lý cùng nhau; micro-batch là nhóm nhỏ lấy từ stream. \\
+Broker & Tiến trình Kafka lưu và phục vụ dữ liệu topic. \\
+Bronze / Silver / Gold & Các tầng lưu raw data, dữ liệu được chuẩn hóa và kết quả tổng hợp đã chốt. \\
+Canary event & Sự kiện kiểm tra của Wikimedia; được giữ trong Bronze raw, không đưa vào business metrics. \\
+Cassandra & Cơ sở dữ liệu phân tán, dùng để phục vụ truy vấn theo khóa. \\
+Checkpoint (project) & Mốc nghiệm thu của nhóm, ví dụ CP0--CP4; khác Spark checkpoint. \\
+Checkpoint (Spark) & Dữ liệu Spark lưu về offset và state để phục hồi một query. \\
+Clean clone & Bản sao repo mới lấy từ commit xác định, không chứa thay đổi working tree chưa commit. \\
+Clustering key & Phần khóa xác định thứ tự các dòng trong một Cassandra partition. \\
+Collector & Chương trình nhận event từ nguồn rồi gửi tới Kafka. \\
+Consumer / producer & Chương trình đọc / ghi dữ liệu vào một hệ thống như Kafka. \\
+Container / image & Môi trường chạy được cách ly / bản đóng gói dùng để tạo container. \\
+Contract & Quy ước chung về dữ liệu và hành vi giữa producer và consumer. \\
+Cursor & Vị trí trong stream dùng để yêu cầu tiếp tục đọc khi kết nối lại. \\
+Dashboard & Giao diện tổng hợp dữ liệu cho người dùng. \\
+Dead-letter queue (DLQ) & Nơi dự kiến nhận bản ghi lỗi; topic được tạo nhưng sink Kafka DLQ còn chờ nhóm quyết định. \\
+Deduplication & Loại bản ghi trùng theo khóa và phạm vi state được cấu hình; không bảo đảm vô hạn. \\
+Docker Compose / profile & Công cụ cấu hình các dịch vụ container / nhóm dịch vụ được bật theo nhu cầu. \\
+Duplicate & Bản ghi lặp lại một event logic; deduplication xử lý theo quy tắc và phạm vi state. \\
+End-to-end (E2E) & Đánh giá một luồng qua các thành phần từ đầu vào tới đầu ra được xác định. \\
+Endpoint & Địa chỉ API nhận một loại request cụ thể. \\
+Envelope & Nội dung event và metadata được chuẩn bị trước khi gửi Kafka. \\
+Event / event ID & Sự kiện nguồn / định danh dùng để phân biệt sự kiện. \\
+Event time / processing time & Thời điểm nguồn gắn cho sự kiện / thời điểm hệ thống xử lý sự kiện. \\
+Exactly-once & Bảo đảm mỗi tác động logic chỉ xảy ra một lần trong phạm vi được xác định; dự án không cam kết end-to-end. \\
+FastAPI / Streamlit & Framework Python cung cấp API / công cụ xây dashboard. \\
+Fixture / golden result & Dữ liệu kiểm thử cố định / kết quả kỳ vọng được chuẩn bị độc lập để đối chiếu. \\
+Hadoop Distributed File System (HDFS) & Hệ thống file phân tán gồm NameNode quản lý metadata và DataNode lưu block. \\
+Hash & Giá trị tạo từ dữ liệu đầu vào qua hàm băm. \\
+Header & Trường thông tin đi kèm request hoặc response, chẳng hạn Last-Event-ID. \\
+Heuristic & Quy tắc ước lượng dựa trên dấu hiệu, không bảo đảm kết luận đúng cho mọi trường hợp. \\
+High availability & Khả năng duy trì dịch vụ khi một thành phần gặp sự cố. \\
+HTTP / status code & Giao thức truyền dữ liệu web / mã cho biết kết quả yêu cầu HTTP. \\
+Ingestion & Bước nhận dữ liệu từ nguồn và đưa vào hệ thống. \\
+Java Virtual Machine (JVM) & Môi trường thực thi chương trình Java, được Spark sử dụng. \\
+JSON / JSON Lines (JSONL) & Định dạng dữ liệu văn bản / cách lưu thường gồm một giá trị JSON trên mỗi dòng. \\
+Kafka & Hệ thống lưu và truyền stream theo topic và partition. \\
+Kafka key / offset & Key giúp định tuyến event tới partition / vị trí của bản ghi trong partition đó. \\
+Keyspace & Không gian tên chứa các bảng Cassandra. \\
+Last-Event-ID & HTTP header mang SSE ID của vị trí client yêu cầu tiếp tục khi kết nối lại. \\
+Late event & Sự kiện đến sau các sự kiện có event time lớn hơn; cách xử lý phụ thuộc watermark và query. \\
+Latency & Khoảng thời gian từ mốc bắt đầu tới mốc kết thúc được xác định của phép đo. \\
+LIVE / REPLAY & Chế độ nhận stream thật / phát lại dữ liệu đã lưu. \\
+Metadata & Thông tin mô tả dữ liệu, chẳng hạn nguồn hoặc thời điểm ingestion. \\
+Node & Một máy hoặc tiến trình tham gia hệ thống phân tán. \\
+Offset / end offset & Vị trí trong Kafka partition / vị trí tiếp theo ở cuối partition. \\
+Original timing & Chế độ replay tính khoảng chờ từ chênh lệch event time của dữ liệu nguồn. \\
+Output mode & Cách Spark xuất kết quả của streaming query, ví dụ update hoặc append. \\
+Parquet & Định dạng file lưu theo cột, dùng cho các tầng dữ liệu phân tích. \\
+Partition & Phần dữ liệu được chia theo ngữ cảnh: Kafka partition, Cassandra partition hoặc thư mục partition của file. \\
+Partition key & Phần khóa xác định Cassandra partition để truy vấn. \\
+Payload / raw data & Nội dung bản ghi / dữ liệu nguồn chưa được xử lý nghiệp vụ. \\
+Pipeline & Chuỗi các bước đưa dữ liệu từ đầu vào qua xử lý tới đầu ra. \\
+Polling & Kiểm tra trạng thái định kỳ cho đến khi đạt điều kiện hoặc hết thời hạn. \\
+Process & Một tiến trình đang chạy; bộ nhớ cursor LIVE hiện gắn với process đó. \\
+Provisional / finalized & Kết quả tạm tính có thể thay đổi / kết quả cửa sổ đã được chốt theo tiến độ event time. \\
+Pseudonymization / salt & Thay định danh bằng mã giả / giá trị bổ sung khi băm; không đảm bảo ẩn danh tuyệt đối. \\
+Query & Tác vụ hoặc truy vấn xử lý dữ liệu; Spark streaming query chạy liên tục. \\
+Raw topic & Kafka topic nhận event ở đầu vào trước các bước xử lý downstream. \\
+Readiness / health check & Điều kiện sẵn sàng nhận việc / phép kiểm trạng thái một thành phần. \\
+Reconnect / resume / retry & Kết nối lại / yêu cầu đọc tiếp từ vị trí / thử lại thao tác sau lỗi. \\
+Regression test & Test kiểm tra thay đổi không làm hỏng hành vi đã được hỗ trợ. \\
+Restart & Dừng và khởi động lại một process hoặc dịch vụ. \\
+Risk score / trend score & Điểm ưu tiên xem xét chỉnh sửa / điểm phản ánh mức độ hoạt động của trang theo công thức cấu hình. \\
+Schema & Mô tả cấu trúc và kiểu dữ liệu của bản ghi hoặc bảng. \\
+Server-Sent Events (SSE) & Cách server gửi luồng sự kiện qua kết nối HTTP. \\
+Serving & Phần lưu trữ và cung cấp dữ liệu cho các ứng dụng truy vấn. \\
+Sink & Đích nhận kết quả của query, như Parquet hoặc Cassandra. \\
+Snapshot & Bản chụp trạng thái dữ liệu hoặc mã tại một thời điểm. \\
+State & Dữ liệu trung gian mà một query lưu để xử lý các batch tiếp theo. \\
+Stream & Chuỗi sự kiện đến liên tục theo thời gian. \\
+Structured Streaming & Thư viện Spark xử lý stream dựa trên query và state. \\
+Time to live (TTL) & Thời gian lưu tối đa trước khi bản ghi hết hạn theo cấu hình. \\
+Timestamp & Giá trị biểu diễn một thời điểm. \\
+Topic & Kênh Kafka lưu bản ghi và được chia thành các partition. \\
+Trigger & Cấu hình điều khiển thời điểm Spark bắt đầu xử lý batch. \\
+Update mode & Output mode xuất kết quả của những nhóm có thay đổi trong batch. \\
+Upsert & Ghi theo khóa: thêm nếu chưa có hoặc cập nhật nếu đã có. \\
+Use case & Tình huống mô tả tương tác của tác nhân với hệ thống. \\
+User hash & Mã băm có salt tạo từ user để thay định danh trực tiếp trong Silver. \\
+Validation & Bước kiểm tra dữ liệu theo điều kiện xác định. \\
+Volume & Vùng lưu trữ được gắn vào container để giữ dữ liệu. \\
+Watermark & Mốc tiến độ event time dùng cho xử lý state/dữ liệu đến muộn; không phải timer theo giờ thực. \\
+Window / sliding window & Khoảng event time để tổng hợp / các khoảng có thể chồng lấn khi dịch theo bước trượt. \\
+\bottomrule
+\end{longtable}
+\normalsize
