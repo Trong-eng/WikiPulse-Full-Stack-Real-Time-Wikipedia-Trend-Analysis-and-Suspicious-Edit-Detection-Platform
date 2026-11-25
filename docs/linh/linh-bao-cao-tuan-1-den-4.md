@@ -14,9 +14,9 @@ Trạng thái: REVIEW · Owner: Linh · Reviewer dự kiến: Trọng, Nhân · 
 
 Báo cáo tổng hợp quá trình Linh tiếp quản pipeline Spark, triển khai analytics, kiểm chứng lưu trữ HDFS và hoàn thiện kiểm thử/tài liệu bàn giao qua bốn tuần. Các mốc triển khai được ghi nhận từ 20/10 đến 16/11/2026; ngày tổng hợp không phải ngày chạy lại các bộ kiểm thử.
 
-Khung CP0, hạ tầng chung và luồng REPLAY ban đầu do Trọng xây dựng. Linh tiếp quản phần xử lý, bổ sung kiểm thử và mở rộng nghiệp vụ theo phân công trong [kế hoạch tổng](../plans.md). Collector/replay thuộc Thành, Cassandra/API thuộc Nhân, dashboard thuộc Mạnh; báo cáo chỉ ghi phần Linh thực hiện hoặc trực tiếp kiểm chứng khi tích hợp.
+Khung CP0, hạ tầng chung và luồng REPLAY ban đầu do Trọng xây dựng. Linh tiếp quản phần xử lý, bổ sung kiểm thử và mở rộng nghiệp vụ theo phân công trong [kế hoạch tổng](../../plans.md). Collector/replay thuộc Thành, Cassandra/API thuộc Nhân, dashboard thuộc Mạnh; báo cáo chỉ ghi phần Linh thực hiện hoặc trực tiếp kiểm chứng khi tích hợp.
 
-Trạng thái dưới đây phản ánh [checkpoints](../docs/checkpoints.md) tại checkout đã đọc. Phiên tổng hợp này không kiểm tra lại trạng thái push, PR hoặc merge mới nhất trên GitHub. Các plan tuần là nguồn chi tiết; báo cáo này là bản tổng hợp lộ trình cá nhân, không thay thế contract hay nhật ký nghiệm thu.
+Trạng thái dưới đây phản ánh [checkpoints](../checkpoints.md) tại checkout đã đọc. Phiên tổng hợp này không kiểm tra lại trạng thái push, PR hoặc merge mới nhất trên GitHub. Các plan tuần là nguồn chi tiết; báo cáo này là bản tổng hợp lộ trình cá nhân, không thay thế contract hay nhật ký nghiệm thu.
 
 ## 2. Tổng quan kết quả bốn tuần
 
@@ -31,7 +31,7 @@ Kết quả xuyên suốt là phần producer Spark có thể xử lý REPLAY qu
 
 ## 3. Tuần 1 — Tiếp quản Spark, schema, Silver và activity
 
-**Mốc thực hiện:** 20/10/2026. **Nguồn:** [W1-LINH-01](../docs/plans/W1-LINH-01.md).
+**Mốc thực hiện:** 20/10/2026. **Nguồn:** [W1-LINH-01](../plans/W1-LINH-01.md).
 
 ### 3.1. Chuẩn bị môi trường và tiếp quản kiến trúc
 
@@ -42,7 +42,7 @@ Kết quả xuyên suốt là phần producer Spark có thể xử lý REPLAY qu
 
 ### 3.2. Bổ sung kiểm thử hợp đồng dữ liệu
 
-Linh bổ sung 10 trường hợp kiểm thử trong [test_transformations.py](../processing/spark/tests/test_transformations.py), tập trung vào:
+Linh bổ sung 10 trường hợp kiểm thử trong [test_transformations.py](../../processing/spark/tests/test_transformations.py), tập trung vào:
 
 - Chuyển thời gian về UTC, timestamp có offset, độ chính xác mili-giây, ưu tiên nguồn thời gian và fallback epoch.
 - Phân loại dữ liệu hợp lệ/không hợp lệ; trường nullable; sự kiện chỉ có title hoặc page ID; partitions ngày/giờ.
@@ -74,7 +74,7 @@ Commit tuần 1 chủ yếu bổ sung kiểm thử và tài liệu tiếp quản
 
 ## 4. Tuần 2 — Triển khai analytics và scoring
 
-**Mốc thực hiện:** 30/10/2026. **Nguồn:** [W2-LINH-01](../docs/plans/W2-LINH-01.md).
+**Mốc thực hiện:** 30/10/2026. **Nguồn:** [W2-LINH-01](../plans/W2-LINH-01.md).
 
 ### 4.1. Sửa normalization và hoàn thiện Silver v0.2
 
@@ -92,7 +92,7 @@ Commit tuần 1 chủ yếu bổ sung kiểm thử và tài liệu tiếp quản
 | Suspicious edits | Tính các lý do `LARGE_DELETION`, `REVERT_PATTERN`, `ANONYMOUS_EDIT`; chỉ xuất edit có điểm dương | DataFrame/Parquet suspicious, bucket theo phút |
 | Event detail | Xuất mọi sự kiện Silver cùng điểm/lý do risk và metadata phục vụ tra cứu | DataFrame/Parquet event detail, loại user/hash/comment thô khỏi đầu ra phục vụ |
 
-Activity một phút và watermark 10 phút tiếp tục được giữ. Các công thức, schema và điều kiện biên theo [contract v0.2](../docs/contracts.md#tuần-2--trends-suspicious-edits-event-detail-v02).
+Activity một phút và watermark 10 phút tiếp tục được giữ. Các công thức, schema và điều kiện biên theo [contract v0.2](../contracts.md#tuần-2--trends-suspicious-edits-event-detail-v02).
 
 ### 4.3. Cấu hình, queries và giao diện sink
 
@@ -117,7 +117,7 @@ Phần producer tuần 2 được đánh dấu `DONE`. Việc triển khai store
 
 ## 5. Tuần 3 — HDFS, persistence và phục hồi
 
-**Mốc chuẩn bị:** 04/11/2026. **Mốc nghiệm thu:** 08/11/2026. **Nguồn:** [W3-LINH-01](../docs/plans/W3-LINH-01.md).
+**Mốc chuẩn bị:** 04/11/2026. **Mốc nghiệm thu:** 08/11/2026. **Nguồn:** [W3-LINH-01](../plans/W3-LINH-01.md).
 
 ### 5.1. Chuẩn bị và bảo toàn môi trường
 
@@ -129,7 +129,7 @@ Phần producer tuần 2 được đánh dấu `DONE`. Việc triển khai store
 
 ### 5.2. Xây runner nghiệm thu pipeline thật
 
-Linh bổ sung [run_hdfs.py](../processing/spark/acceptance/run_hdfs.py), [phase_job.py](../processing/spark/acceptance/phase_job.py), fixture theo phase và expected JSON. Runner dùng production query starter cùng Kafka, HDFS và Cassandra activity thật, tạo project/RUN_ID riêng và tự dọn tài nguyên của lượt thử.
+Linh bổ sung [run_hdfs.py](../../processing/spark/acceptance/run_hdfs.py), [phase_job.py](../../processing/spark/acceptance/phase_job.py), fixture theo phase và expected JSON. Runner dùng production query starter cùng Kafka, HDFS và Cassandra activity thật, tạo project/RUN_ID riêng và tự dọn tài nguyên của lượt thử.
 
 Production query starter tuần 2 đã hỗ trợ URI HDFS. Phần bổ sung tuần 3 tập trung vào môi trường, fixture, kiểm chứng và hướng dẫn chạy; hạ tầng full dùng chung do Trọng sở hữu.
 
@@ -164,13 +164,13 @@ Production query starter tuần 2 đã hỗ trợ URI HDFS. Phần bổ sung tu�
 
 ## 6. Tuần 4 — Correctness, golden results và tài liệu bàn giao
 
-**Mốc thực hiện:** 16/11/2026. **Nguồn:** [W4-LINH-01](../docs/plans/W4-LINH-01.md).
+**Mốc thực hiện:** 16/11/2026. **Nguồn:** [W4-LINH-01](../plans/W4-LINH-01.md).
 
 ### 6.1. Rà soát và bổ sung regression
 
 - Tạo nhánh tuần 4 từ commit tuần 3, kiểm tra lại venv, image runtime và cấu hình Compose.
 - Đối chiếu implementation analytics/scoring với contract, golden W2/W3 và các giới hạn xử lý.
-- Thêm [test_week_four.py](../processing/spark/tests/test_week_four.py) để kiểm tra kết hợp các risk rule, bot/non-edit, ranh giới cửa sổ và chọn metadata khi nhiều sự kiện cùng timestamp.
+- Thêm [test_week_four.py](../../processing/spark/tests/test_week_four.py) để kiểm tra kết hợp các risk rule, bot/non-edit, ranh giới cửa sổ và chọn metadata khi nhiều sự kiện cùng timestamp.
 - Risk mặc định trong các ca tổng hợp đạt **60/50/0/0** tương ứng edit thường, edit bot, new và log. Golden trend mới là **0.0335** và **0.023**.
 - Chạy regression **68 passed** và lightweight **138 passed**, Ruff pass; chạy lại acceptance HDFS đạt **7/7 phase** với chín checkpoint giữ nguyên danh tính.
 
@@ -196,16 +196,16 @@ Tuần 4 giữ `REVIEW`, sẵn sàng bàn giao phần độc lập. Review của
 
 | Nhóm | File/thư mục chính | Đóng góp của Linh |
 |---|---|---|
-| Normalization và Silver | [transformations.py](../processing/spark/wikipulse/transformations.py) | Tiếp quản, kiểm thử contract; sửa ba vấn đề LIVE và thêm Silver v0.2 |
-| Analytics và scoring | [analytics.py](../processing/spark/wikipulse/analytics.py), [scoring.py](../processing/spark/wikipulse/scoring.py) | Biểu thức trends/risk/detail và loader cấu hình |
-| Query/sink integration | [analytics_queries.py](../processing/spark/wikipulse/analytics_queries.py), [sinks.py](../processing/spark/wikipulse/sinks.py), [paths.py](../processing/spark/wikipulse/paths.py) | Bốn query analytics, adapters/changelog, paths và checkpoints |
-| Entrypoint/runtime | [streaming_job.py](../processing/spark/jobs/streaming_job.py), [Dockerfile](../processing/spark/Dockerfile), [requirements-scoring.txt](../processing/spark/requirements-scoring.txt) | Nối analytics vào pipeline và cài dependency scoring |
-| Regression/golden | [tests](../processing/spark/tests), [fixtures](../processing/spark/tests/fixtures) | Test tuần 1/2/4, callback/config, fixture W2 và fixture theo phase W3 |
-| Môi trường HDFS | [compose.hdfs.yaml](../processing/spark/dev/compose.hdfs.yaml), [hdfs_probe.py](../processing/spark/dev/hdfs_probe.py) | Lab riêng và probe persistence |
-| Nghiệm thu HDFS | [acceptance](../processing/spark/acceptance) | Runner bảy phase và assertions trên các dịch vụ thật |
-| Tài liệu/điều phối | [processing README](../processing/README.md), bốn plan tuần, [contracts](../docs/contracts.md), [backlog](../docs/backlog.md), [checkpoints](../docs/checkpoints.md) | Hướng dẫn chạy, giới hạn, giao diện producer, findings và evidence |
+| Normalization và Silver | [transformations.py](../../processing/spark/wikipulse/transformations.py) | Tiếp quản, kiểm thử contract; sửa ba vấn đề LIVE và thêm Silver v0.2 |
+| Analytics và scoring | [analytics.py](../../processing/spark/wikipulse/analytics.py), [scoring.py](../../processing/spark/wikipulse/scoring.py) | Biểu thức trends/risk/detail và loader cấu hình |
+| Query/sink integration | [analytics_queries.py](../../processing/spark/wikipulse/analytics_queries.py), [sinks.py](../../processing/spark/wikipulse/sinks.py), [paths.py](../../processing/spark/wikipulse/paths.py) | Bốn query analytics, adapters/changelog, paths và checkpoints |
+| Entrypoint/runtime | [streaming_job.py](../../processing/spark/jobs/streaming_job.py), [Dockerfile](../../processing/spark/Dockerfile), [requirements-scoring.txt](../../processing/spark/requirements-scoring.txt) | Nối analytics vào pipeline và cài dependency scoring |
+| Regression/golden | [tests](../../processing/spark/tests), [fixtures](../../processing/spark/tests/fixtures) | Test tuần 1/2/4, callback/config, fixture W2 và fixture theo phase W3 |
+| Môi trường HDFS | [compose.hdfs.yaml](../../processing/spark/dev/compose.hdfs.yaml), [hdfs_probe.py](../../processing/spark/dev/hdfs_probe.py) | Lab riêng và probe persistence |
+| Nghiệm thu HDFS | [acceptance](../../processing/spark/acceptance) | Runner bảy phase và assertions trên các dịch vụ thật |
+| Tài liệu/điều phối | [processing README](../../processing/README.md), bốn plan tuần, [contracts](../contracts.md), [backlog](../backlog.md), [checkpoints](../checkpoints.md) | Hướng dẫn chạy, giới hạn, giao diện producer, findings và evidence |
 
-Ở mode analytics Parquet đã nghiệm thu, chín query gồm `bronze_raw`, `bronze_invalid`, `silver_events`, `activity_cassandra`, `activity_gold`, `trends_provisional_parquet`, `suspicious_parquet`, `events_parquet`, `trends_gold`. Sơ đồ output và các lệnh tái hiện được duy trì tại [processing README](../processing/README.md).
+Ở mode analytics Parquet đã nghiệm thu, chín query gồm `bronze_raw`, `bronze_invalid`, `silver_events`, `activity_cassandra`, `activity_gold`, `trends_provisional_parquet`, `suspicious_parquet`, `events_parquet`, `trends_gold`. Sơ đồ output và các lệnh tái hiện được duy trì tại [processing README](../../processing/README.md).
 
 ## 8. Tổng hợp evidence và lịch sử commit
 
@@ -262,5 +262,5 @@ Các giới hạn kỹ thuật đã ghi trong tài liệu bàn giao:
 ## 10. Nhật ký tổng hợp và nguồn tham chiếu
 
 - **25/11/2026:** Đọc bốn plan, checkpoint/backlog, danh mục file và lịch sử commit tại `d818855`; đối chiếu các report CP0/HDFS và log review W4 trên máy. Tạo báo cáo theo yêu cầu, không chạy lại pipeline hoặc thay đổi trạng thái nghiệm thu các tuần.
-- Nguồn chi tiết: [W1-LINH-01](../docs/plans/W1-LINH-01.md), [W2-LINH-01](../docs/plans/W2-LINH-01.md), [W3-LINH-01](../docs/plans/W3-LINH-01.md), [W4-LINH-01](../docs/plans/W4-LINH-01.md).
-- Nguồn kỹ thuật chuẩn: [contracts](../docs/contracts.md) và [processing README](../processing/README.md). Trạng thái thực thi: [checkpoints](../docs/checkpoints.md); phụ thuộc và findings: [backlog](../docs/backlog.md).
+- Nguồn chi tiết: [W1-LINH-01](../plans/W1-LINH-01.md), [W2-LINH-01](../plans/W2-LINH-01.md), [W3-LINH-01](../plans/W3-LINH-01.md), [W4-LINH-01](../plans/W4-LINH-01.md).
+- Nguồn kỹ thuật chuẩn: [contracts](../contracts.md) và [processing README](../../processing/README.md). Trạng thái thực thi: [checkpoints](../checkpoints.md); phụ thuộc và findings: [backlog](../backlog.md).
