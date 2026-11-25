@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" version="24.7.17">
+  <diagram name="Page-1" id="design-cassandra-analytics">
+    <mxGraphModel dx="1050" dy="1070" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1050" pageHeight="1070" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="page_trends_by_window" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="20" y="30" width="460" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="PK   wiki, window_start&#10;CK   page_key&#10;window_end, page_title, namespace&#10;edit_count, unique_editors (bigint)&#10;abs_byte_delta (bigint)&#10;trend_score (double)&#10;updated_at (timestamp)" style="rounded=1;arcSize=5;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=left;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="20" y="82" width="460" height="268" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="trend_windows_by_wiki" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="570" y="30" width="460" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="PK   wiki&#10;CK ↓ window_start&#10;updated_at (timestamp)" style="rounded=1;arcSize=5;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=left;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="570" y="82" width="460" height="168" as="geometry" />
+        </mxCell>
+        <mxCell id="6" value="suspicious_edits_by_bucket" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="20" y="380" width="460" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="7" value="PK   wiki, bucket_start&#10;CK   event_id&#10;event_time, page_key, page_title&#10;revision_new, byte_delta (bigint)&#10;is_anonymous, is_bot (boolean)&#10;risk_score (int), risk_reasons (set&lt;text&gt;)&#10;updated_at (timestamp)" style="rounded=1;arcSize=5;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=left;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="20" y="432" width="460" height="298" as="geometry" />
+        </mxCell>
+        <mxCell id="8" value="suspicious_buckets_by_wiki" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="570" y="380" width="460" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="9" value="PK   wiki&#10;CK ↓ bucket_start&#10;updated_at (timestamp)" style="rounded=1;arcSize=5;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=left;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="570" y="432" width="460" height="168" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="events_by_id   (TTL 7 ngày)" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#e8f1fb;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=center;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="20" y="760" width="1010" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="PK   event_id&#10;wiki, event_time, page_key, page_title, namespace, event_type&#10;revision_old / new, length_old / new, byte_delta (bigint)&#10;is_anonymous, is_bot, is_minor (boolean)&#10;risk_score, risk_reasons, pipeline_version, processed_at" style="rounded=1;arcSize=5;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#356080;fontColor=#172b3b;fontSize=25;fontFamily=Arial;align=left;verticalAlign=middle;spacing=7;" vertex="1" parent="1">
+          <mxGeometry x="20" y="812" width="1010" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="12" value="index" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#526d82;fontSize=25;fontFamily=Arial;dashed=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="4" target="2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="index" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;endArrow=block;endFill=1;strokeColor=#526d82;fontSize=25;fontFamily=Arial;dashed=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="8" target="6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

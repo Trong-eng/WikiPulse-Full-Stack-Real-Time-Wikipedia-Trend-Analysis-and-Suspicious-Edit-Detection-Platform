@@ -1,0 +1,49 @@
+\chapter{Bảng tra mã nguồn}\label{app:ma}
+Phụ lục này nối các khái niệm trong báo cáo với vị trí mã nguồn, để người đọc tìm code mà không phải đọc tên file trong
+phần nội dung. Đường dẫn tính từ thư mục gốc của repo.
+
+\begin{table}[H]
+\centering\small
+\caption{Khái niệm và vị trí mã nguồn}\label{tab:trama}
+\begin{tabularx}{\linewidth}{@{}Xl@{}}
+\toprule
+\textbf{Khái niệm} & \textbf{Vị trí} \\ \midrule
+Cấu hình, kiểm tra tham số khởi động & \code{shared/wikipulse\_core/config.py} \\
+Lớp truy cập Cassandra, kiểm tra dòng trước khi ghi & \code{shared/wikipulse\_core/serving.py} \\
+Tạo topic Kafka & \code{scripts/create\_topics.sh} \\
+Phát lại dữ liệu mẫu & \code{replay/replay\_producer.py} \\
+Dữ liệu mẫu và kết quả kỳ vọng & \code{tests/fixtures/} \\
+Spark process và các query & \code{processing/spark/jobs/streaming\_job.py} \\
+Kiểm tra, chuẩn hóa, loại trùng, đếm & \code{processing/spark/wikipulse/transformations.py} \\
+Ghi kết quả sang Cassandra & \code{processing/spark/wikipulse/sinks.py} \\
+Thư mục theo mã lần chạy & \code{processing/spark/wikipulse/paths.py} \\
+Lược đồ Cassandra & \code{storage/cassandra/schema.cql} \\
+Công cụ đo dung lượng Cassandra & \code{storage/cassandra/measure\_capacity.py} \\
+API & \code{api/app/main.py}, \code{api/app/models.py} \\
+Mô tả API đã lưu (OpenAPI) & \code{api/openapi.json} \\
+Test hồi quy contract & \code{api/tests/test\_regression.py} \\
+Hướng dẫn vận hành, xử lý sự cố serving & \code{api/README.md}, \code{storage/cassandra/README.md} \\
+Dashboard & \code{dashboard/app.py}, \code{dashboard/views/} \\
+Contract giữa các module & \code{docs/contracts.md} \\
+Bảng việc và trạng thái & \code{docs/checkpoints.md} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Lệnh thường dùng (chạy ở thư mục gốc repo)}\label{tab:lenh}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Lệnh} & \textbf{Tác dụng} \\ \midrule
+\code{make install} & Tạo môi trường Python và cài thư viện \\
+\code{make up} & Dựng và khởi động toàn bộ hệ thống \\
+\code{make replay} & Phát lại dữ liệu mẫu vào Kafka \\
+\code{make down} & Dừng hệ thống, giữ dữ liệu \\
+\code{make test} & Chạy kiểm thử nhẹ \\
+\code{make test-spark} & Chạy kiểm thử Spark trong container \\
+\code{pytest -m integration api/tests} & Kiểm thử trên Cassandra thật (cần đặt địa chỉ Cassandra qua biến môi trường) \\
+\code{make smoke} & Kiểm thử end-to-end trên hệ thống riêng, tự dọn sau khi chạy \\
+\bottomrule
+\end{tabularx}
+\end{table}

@@ -83,6 +83,8 @@ Format, mỗi item 1–3 dòng:
 
 ## Nhân
 
+- **BL-THANH-40** · PROPOSED · finding · P2 · owner: Nhân — Báo cáo serving nói mỗi API request chỉ đọc một partition, nhưng một request có thể đọc index rồi truy vấn nhiều partition theo bucket; đề nghị đối chiếu code và làm rõ. Nguồn: `docs/nhan/serving-api-bao-cao.md` mục 4.1, `shared/wikipulse_core/serving.py` · Lịch: —
+
 - **BL-LINH-02** · DONE (PR #6) · finding · P1 · owner: Nhân — Producer W2 đã có ba DataFrame và `AnalyticsBatchWriter`; nối store `upsert_trends`, `upsert_suspicious_edits`, `upsert_events`, CQL và endpoints theo v0.2. Cassandra mode fail startup nếu thiếu method; default hiện là Parquet để kiểm chứng producer, không phải serving W2 qua API. Nguồn: [contracts](contracts.md#bàn-giao-producer-cho-sink--w2-linh-01), [W2-LINH-01](plans/W2-LINH-01.md) · Lịch: W2-NHAN-01
   - 2026-11-23 Nhân: đã nối ba method vào `CassandraActivityStore`, CQL, 3 endpoint; E2E cassandra mode khớp kỳ vọng Parquet. Xem [W2-NHAN-01](plans/W2-NHAN-01.md#kết-quả).
 

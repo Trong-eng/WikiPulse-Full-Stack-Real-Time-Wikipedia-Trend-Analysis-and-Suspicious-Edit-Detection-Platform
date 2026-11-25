@@ -1,0 +1,33 @@
+\chapter*{Quy ước cập nhật báo cáo}
+\addcontentsline{toc}{chapter}{Quy ước cập nhật báo cáo}
+Báo cáo này được cả nhóm viết dần trong quá trình phát triển, để thành viên mới đọc hiểu được project và để báo cáo
+cuối kỳ không phải soạn lại từ đầu. Quy ước:
+\begin{itemize}
+  \item Phần chưa làm chỉ có đề mục, kèm dòng \textit{(Dự kiến, chưa thực hiện.)} -- macro \code{\textbackslash chualam}.
+  \item Phần đã viết nhưng còn sửa theo các tuần sau có ghi chú nhỏ bên dưới -- macro
+        \code{\textbackslash dukiensua\{nội dung, tuần\}}.
+  \item Thông tin còn thiếu đánh dấu màu đỏ -- macro \code{\textbackslash canbosung}. Trên trang bìa, mỗi thành viên tự
+        điền họ tên và MSSV của mình; trưởng nhóm điền học phần và giảng viên.
+  \item Mỗi việc trong \code{docs/checkpoints.md} khi chuyển sang DONE thì owner cập nhật mục tương ứng ở đây trong cùng
+        PR, kèm số liệu và bằng chứng tái hiện được. Không ghi kết quả chưa đo.
+  \item Nguồn sự thật cho giao diện giữa các module vẫn là \code{docs/contracts.md}; báo cáo giải thích và dẫn lại, không
+        định nghĩa contract mới.
+\end{itemize}
+
+\begin{table}[H]
+\centering\small
+\renewcommand{\arraystretch}{1.18}
+\caption{Lịch sử cập nhật báo cáo}\label{tab:lichsu}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
+\toprule
+\textbf{Ngày} & \textbf{Người} & \textbf{Nội dung} \\ \midrule
+15/10/2026 & Nhân & Khởi tạo khung báo cáo; viết phần CP0 (kiến trúc, luồng dữ liệu, serving, kiểm thử) \\
+15/10/2026 & Nhân & Thêm use case (biểu đồ, đặc tả), biểu đồ hoạt động; viết lại Chương 2 kèm hình minh họa; chuyển
+tên file, lệnh sang Phụ lục A \\
+23/11/2026 & Nhân & Lược đồ năm bảng mới, API ba nghiệp vụ và định dạng lỗi chung, đặc tả ba use case; kết quả trên dữ
+liệu mẫu, retry, dung lượng và hạn lưu 7 ngày (W2-NHAN-01, W3-NHAN-01) \\
+23/11/2026 & Nhân & Tầng kiểm thử hồi quy contract, kết quả hồi quy sau khi gộp, phụ lục mô tả API và hướng dẫn vận
+hành (W4-NHAN-01) \\
+\bottomrule
+\end{tabularx}
+\end{table}
