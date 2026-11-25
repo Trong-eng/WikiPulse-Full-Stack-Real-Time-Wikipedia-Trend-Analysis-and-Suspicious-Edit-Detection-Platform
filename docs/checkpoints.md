@@ -41,7 +41,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 | W3-THANH-01 | Thành | Linh | W2-THANH | Replay timing/speed, Kafka outage, fixtures regression | 10–15 | REVIEW | [docs/plans/W3-THANH-01.md](plans/W3-THANH-01.md) |
 | W3-LINH-01 | Linh | Nhân | HDFS full | Ba tầng HDFS, partitions, Gold finalized/late/checkpoint | 10–15 | DONE | [docs/plans/W3-LINH-01.md](plans/W3-LINH-01.md) |
 | W3-NHAN-01 | Nhân | Trọng, Mạnh | W2-NHAN | Retry/upsert, latest window/detail, capacity test | 10–15 | DONE | [docs/plans/W3-NHAN-01.md](plans/W3-NHAN-01.md) |
-| W3-MANH-01 | Mạnh | Trọng | CP2 | E2E hai mode, privacy/freshness/API outage, demo flow | 10–15 | TODO | Regression checklist |
+| W3-MANH-01 | Mạnh | Trọng | CP2 | E2E hai mode, privacy/freshness/API outage, demo flow | 10–15 | REVIEW | [docs/plans/W3-MANH-01.md](plans/W3-MANH-01.md) |
 | W4-TRONG-01 | Trọng | Cả nhóm | CP3 | Freeze, clone sạch máy khác, release candidate, limitations | 10–15 | BLOCKED | [docs/plans/W4-TRONG-01.md](plans/W4-TRONG-01.md) |
 | W4-THANH-01 | Thành | Trọng | CP3 | Sửa ingestion/replay bugs, runbook và demo nguồn | 10–15 | REVIEW | [docs/plans/W4-THANH-01.md](plans/W4-THANH-01.md) |
 | W4-LINH-01 | Linh | Trọng, Nhân | CP3 | Correctness fixes, công thức/giới hạn, golden results | 10–15 | REVIEW | [docs/plans/W4-LINH-01.md](plans/W4-LINH-01.md) |

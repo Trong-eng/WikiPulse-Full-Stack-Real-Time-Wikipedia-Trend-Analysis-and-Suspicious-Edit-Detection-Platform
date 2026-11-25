@@ -404,7 +404,30 @@ loại (Bảng~\ref{tab:loi}). Lỗi tham số do thư viện web tự phát hi�
 
 \section{Dashboard}
 Bốn trang: Overview (đọc dữ liệu activity theo wiki và cửa sổ 1 phút, tự làm mới sau 15 giây), Trending (Top-N trang tăng hoạt động trong cửa sổ 5 phút kèm liên kết Wikipedia), Suspicious Edits (danh sách chỉnh sửa ưu tiên xem xét với bộ lọc bot/điểm rủi ro và xem chi tiết sự kiện), và System Status (readiness của API và Cassandra). Giao diện không hiển thị các trường IP, username thô hay \code{user\_hash}; page title vẫn có thể chứa thông tin nhận dạng.
-\dukiensua{Mạnh bổ sung ảnh chụp các trang mới (W2-MANH-01) và chuẩn hóa tên file ảnh không dấu/không khoảng trắng.}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{hinh/W3-manh/w3-overview-enwiki.png}
+\caption{Trang Overview (enwiki) hiển thị 5 chỉ số hoạt động và biểu đồ theo cửa sổ UTC.}\label{fig:dash-overview}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{hinh/W3-manh/w3-trending.png}
+\caption{Trang Trending hiển thị bảng xếp hạng Top-N và liên kết Wikipedia.}\label{fig:dash-trending}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{hinh/W3-manh/w3-suspicious-edits.png}
+\caption{Trang Suspicious Edits với bộ lọc, bảng rủi ro, câu khuyến cáo và chi tiết sự kiện.}\label{fig:dash-suspicious}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{hinh/W3-manh/w3-system-status.png}
+\caption{Trang System Status hiển thị readiness của API và Cassandra.}\label{fig:dash-status}
+\end{figure}
 
 % ============================================================================
 % CHƯƠNG 5: KIỂM THỬ VÀ ĐÁNH GIÁ
