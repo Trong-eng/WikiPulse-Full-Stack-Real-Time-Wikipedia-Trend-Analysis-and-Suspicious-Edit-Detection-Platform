@@ -12,7 +12,7 @@ Ngày tạo: 11/10/2026. Tuần tính từ ngày kickoff do nhóm chọn. Chỉ 
 | CP1 | Cả nhóm; Trọng tổng hợp | DONE | Người khác clone/chạy lại CP0; nhận module/contracts/test đầu tiên | PR và log máy thứ hai |
 | CP2 | Cả nhóm | DONE | LIVE/REPLAY, windows/risk/trend, UI thật, HDFS khởi động | Fixture assertions + LIVE logs |
 | CP3 | Cả nhóm | DONE | E2E HDFS; late data/restart/retry/Gold finalized | Logs + output checks |
-| CP4 | Cả nhóm | DONE | Clone sạch máy thứ hai; replay pass; LIVE ≥15 phút; 4 trang + docs | Release checklist/demo |
+| CP4 | Cả nhóm | DONE | Clone sạch máy thứ hai; replay pass; LIVE ≥15 phút; 4 trang + docs | [docs/plans/final-checker-nghiem-thu.md](plans/final-checker-nghiem-thu.md) |
 
 ## Tuần 1 — Trọng thực hiện core và khung
 

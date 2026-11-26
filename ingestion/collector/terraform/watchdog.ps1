@@ -1,6 +1,8 @@
 param([Parameter(Mandatory=$true)][string]$RepoRoot,
-      [Parameter(Mandatory=$true)][string]$RunId)
+      [Parameter(Mandatory=$true)][string]$RunId,
+      [Parameter(Mandatory=$true)][string]$SourceRevision)
 if ($RunId -notmatch '^[a-z0-9-]{6,24}$') { throw 'Invalid run ID' }
+if ($SourceRevision -notmatch '^[0-9a-f]{40}$') { throw 'Invalid source revision' }
 $ErrorActionPreference = 'Stop'
 $TaskDir = Join-Path $RepoRoot 'artifacts/terraform/w4'
 $env:TF_DATA_DIR = Join-Path $TaskDir 'tfdata'
@@ -33,7 +35,7 @@ for ($TaskAttempt = 0; $TaskAttempt -lt 3; $TaskAttempt++) {
         }
     }
     if (Test-Path -LiteralPath (Join-Path $TaskDir "$RunId.stop")) { exit 0 }
-    & terraform "-chdir=$TaskModule" destroy -auto-approve -input=false -no-color "-var=run_id=$RunId" *>> (Join-Path $TaskDir 'watchdog.log')
+    & terraform "-chdir=$TaskModule" destroy -auto-approve -input=false -no-color "-var=run_id=$RunId" "-var=source_revision=$SourceRevision" *>> (Join-Path $TaskDir 'watchdog.log')
     if ($LASTEXITCODE -eq 0) { exit 0 }
     Start-Sleep -Seconds 30
 }

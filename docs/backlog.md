@@ -28,6 +28,11 @@ Format, mỗi item 1–3 dòng:
 
 ## Trọng
 
+- **BL-THANH-43** · PROPOSED · finding · P2 · owner: Trọng — README gốc và tài liệu kiến trúc/data-flow còn mô tả collector LIVE, API trends/risk/detail là chưa triển khai/501, trong khi code và evidence nghiệm thu hiện tại đã có; đối chiếu và cập nhật phần tài liệu thuộc Trọng. Nguồn: [plan Final-Checker](plans/final-checker-nghiem-thu.md), `README.md`, `docs/architecture.md`, `docs/data-flow.md` · Lịch: —
+
+- **BL-FINAL-CHECKER-01** · PROPOSED · finding · P1 · owner: Trọng — Evidence máy thứ hai hiện có chưa chứng minh clean clone và REPLAY pass trên SHA ứng viên `fb7ce454442dd92bcaa981d857f77645ccccd921`: clone macOS W4 dùng `ce71442`; lượt EC2 dùng snapshot working tree; lượt kiểm lại Windows dùng `b4c7f57` với thay đổi tài liệu. Đối chiếu evidence/review nhóm và bổ sung nghiệm thu CP4 trước khi xác nhận DONE. Nguồn: [final-checker-nghiem-thu](plans/final-checker-nghiem-thu.md), [W4-TRONG-01](plans/W4-TRONG-01.md), [W4-THANH-01](plans/W4-THANH-01.md), [thanh-dashboard-recheck](plans/thanh-dashboard-recheck.md) · Lịch: —
+  - 2026-11-26 Final-Checker: Đã bổ sung clean clone EC2 và REPLAY pass đúng SHA, cùng xác nhận nghiệm thu đại diện; evidence tại [plan Final-Checker](plans/final-checker-nghiem-thu.md#evidence-clean-clone-ec2). Trọng quyết định trạng thái item theo ownership.
+
 - **BL-THANH-38** · DONE · bug · P2 · owner: Trọng — Trên Windows, `tests/test_deployment.py::compose_config` lọc bỏ `PROGRAMFILES`; Docker CLI không tìm thấy Compose plugin và hai test cấu hình lỗi dù `docker compose config --quiet` trực tiếp pass. Bổ sung biến vào môi trường test và xác minh Windows. Nguồn: [W2-THANH-01](plans/W2-THANH-01.md) · Lịch: —
 - **BL-THANH-39** · DONE · finding · P2 · owner: Trọng — Compose mặc định thời gian dừng ngắn hơn giới hạn chờ ACK/flush/close của collector; xem xét `stop_grace_period` phù hợp sau nghiệm thu W2. Runbook Thành hướng dẫn stop với timeout 100 giây. Nguồn: [W2-THANH-01](plans/W2-THANH-01.md) · Lịch: đề xuất W2-TRONG-01
 

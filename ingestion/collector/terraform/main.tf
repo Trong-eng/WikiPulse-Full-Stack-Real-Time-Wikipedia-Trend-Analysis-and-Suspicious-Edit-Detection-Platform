@@ -24,6 +24,15 @@ variable "run_id" {
   }
 }
 
+variable "source_revision" {
+  type        = string
+  description = "Full immutable Git commit to clone and verify."
+  validation {
+    condition     = can(regex("^[0-9a-f]{40}$", var.source_revision))
+    error_message = "source_revision must be a 40-character lowercase Git SHA."
+  }
+}
+
 data "aws_vpc" "default" {
   default = true
 }
@@ -89,11 +98,12 @@ resource "aws_instance" "test" {
   vpc_security_group_ids               = [aws_security_group.test.id]
   iam_instance_profile                 = aws_iam_instance_profile.ssm.name
   instance_initiated_shutdown_behavior = "terminate"
-  user_data                            = <<-SCRIPT
-    #!/bin/bash
-    systemd-run --unit=wikipulse-expire --on-active=3h /usr/bin/systemctl poweroff
-  SCRIPT
-  user_data_replace_on_change          = true
+  user_data = templatefile("${path.module}/user-data.sh.tftpl", {
+    source_revision = var.source_revision
+    bootstrap_b64   = filebase64("${path.module}/bootstrap.sh")
+    verify_b64      = filebase64("${path.module}/verify.sh")
+  })
+  user_data_replace_on_change = true
 
   metadata_options {
     http_tokens = "required"
