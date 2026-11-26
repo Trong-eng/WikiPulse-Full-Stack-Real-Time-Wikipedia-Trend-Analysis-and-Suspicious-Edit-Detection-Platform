@@ -44,10 +44,19 @@ Các kết quả có thể được ghi lại theo khóa ổn định khi xử l
 \includegraphics[width=0.85\linewidth,height=0.48\textheight,keepaspectratio]{so-do/design-deployment.pdf}
 \caption{Các thành phần khi triển khai với lưu trữ cục bộ hoặc HDFS.}\label{fig:trienkhai}
 \end{figure}
+\subsection{Chuẩn bị môi trường kiểm thử trên EC2}
+Để tái hiện phép thử trên một máy độc lập, cấu hình Terraform tạo máy EC2 tạm, ổ lưu trữ và quyền truy cập qua AWS Systems Manager. Máy không mở cổng truy cập từ bên ngoài; các dịch vụ của hệ thống được khởi động trong mạng Docker. Khi máy khởi động, user data kích hoạt bộ đếm thời gian dọn máy, sau đó cài Git, Docker, Compose và Python, tải mã nguồn và checkout một mã commit được chỉ định. Sau khi kiểm tra checkout sạch, quá trình tạo môi trường Python và cài các thư viện cần thiết.
+
+Quá trình chuẩn bị ghi trạng thái đang chạy, sẵn sàng hoặc thất bại cùng log để người vận hành kiểm tra. Khi môi trường sẵn sàng, lệnh \code{wikipulse-verify} xác nhận commit và trạng thái checkout, rồi chạy smoke REPLAY trên một Docker Compose project riêng (Hình~\ref{fig:ec2-environment}). Smoke mặc định ghi activity vào Cassandra và analytics vào Parquet. Báo cáo và log cần được lưu ra ngoài trước khi máy bị hủy. Timer và watchdog chỉ là dự phòng; cần kiểm tra tài nguyên đã được thu hồi.
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{so-do/design-ec2-verification.pdf}
+\caption{Môi trường EC2 tạm và luồng chuẩn bị, kiểm thử REPLAY.}\label{fig:ec2-environment}
+\end{figure}
 \section{API và bảo vệ dữ liệu}
 API cung cấp dữ liệu hoạt động, xu hướng, chỉnh sửa cần ưu tiên và chi tiết sự kiện, đồng thời trả thông tin sẵn sàng của dịch vụ. Danh sách rỗng được phân biệt với lỗi kết nối; yêu cầu không hợp lệ và yêu cầu vượt giới hạn được thông báo rõ ràng. Những kết quả tạm tính có thể thay đổi khi có dữ liệu bổ sung.
 
 Dữ liệu nguồn ở Bronze có thể chứa định danh và bình luận. Silver thay định danh trực tiếp bằng mã băm có salt và loại bình luận gốc; các phản hồi phục vụ không trả định danh trực tiếp, địa chỉ IP, bình luận hoặc mã băm người dùng. Việc này không bảo đảm ẩn danh tuyệt đối vì tiêu đề trang và thông tin mô tả vẫn có thể chứa danh tính.
+\clearpage
 \section{Dashboard}
 Dashboard cho phép người xem chọn phiên bản Wikipedia và điều chỉnh bộ lọc phù hợp. Bốn trang tập trung vào những câu hỏi khác nhau:
 

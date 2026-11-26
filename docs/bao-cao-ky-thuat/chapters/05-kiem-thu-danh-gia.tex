@@ -16,6 +16,27 @@ Hoạt động Wikipedia tiếng Việt: sự kiện / chỉnh sửa / trang m�
 Ở một phép kiểm riêng với cùng bộ mẫu, cả chín truy vấn xử lý đều chạy và kết quả xu hướng, chỉnh sửa cần xem xét cùng chi tiết sự kiện được đọc qua API. Bảy chi tiết sự kiện tương ứng với bảy sự kiện Silver. Số người sửa là giá trị ước lượng; kết quả không khẳng định độ chính xác tuyệt đối với mọi tập dữ liệu.
 
 Một bộ mẫu khác đã loại thông tin nhận dạng được dùng để kiểm tra việc chuẩn hóa dữ liệu nguồn thật. Vì hai bộ mẫu khác nhau, số bản ghi của chúng không được so sánh như kết quả của cùng một đầu vào.
+\subsection{Nghiệm thu trên máy thứ hai}
+Ngày 26/11/2026, nhóm clone trực tiếp mã nguồn từ kho Git vào một EC2 Amazon Linux 2023 độc lập và checkout commit \code{fb7ce454}. Trước khi tạo môi trường, commit được đối chiếu và working tree không có thay đổi. Smoke REPLAY hoàn thành với mã thoát 0 và tám nhóm kiểm tra đạt; kết quả gồm 11 bản ghi Bronze, 2 bản ghi không hợp lệ và 7 sự kiện Silver, với 2 dòng hoạt động đã chốt tại cửa sổ kiểm thử. Các kiểm tra bao gồm trạng thái Spark, API, dashboard, hoạt động của hai wiki và đầu ra phân tích.
+
+Trong một lượt EC2 riêng, Terraform đưa script tự cài từ working tree vào user data và checkout cùng commit nguồn nói trên. Bootstrap đạt trạng thái sẵn sàng; gọi verify trong lúc bootstrap còn chạy trả lỗi, còn khi sẵn sàng thì smoke REPLAY đạt tám nhóm kiểm tra với mã thoát 0. Hai phép thử có phạm vi REPLAY và lưu trữ cục bộ; không suy từ đó rằng LIVE hoặc HDFS đã được kiểm tra trên cùng EC2. Các instance và tài nguyên tạm của hai lượt đã được thu hồi sau khi lưu evidence.
+
+Bảng~\ref{tab:ec2-tests} đối chiếu thiết kế và kết quả của từng lượt; Hình~\ref{fig:ec2-acceptance} mô tả quy trình verify của lượt bootstrap tự động và xử lý trường hợp không đạt. Smoke chỉ kiểm tra một số trường envelope của trends và suspicious; với event detail, bài thử chấp nhận 404 hoặc đối chiếu event ID nếu nhận 200. Các bước này không chứng minh dữ liệu analytics đã được phục vụ từ Cassandra. Hồ sơ lệnh và bằng chứng chi tiết nằm trong hai plan nghiệm thu của repository.\footnote{\path{docs/plans/final-checker-nghiem-thu.md} và \path{docs/plans/thanh-ec2-bootstrap.md}.}
+\begin{table}[H]\centering\small
+\caption{Thiết kế và kết quả hai lượt REPLAY trên EC2}\label{tab:ec2-tests}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}\toprule
+\textbf{Tiêu chí} & \textbf{Clean clone} & \textbf{Bootstrap tự động} \\ \midrule
+Môi trường & AL2023 x86-64, 2 vCPU, 8 GiB RAM, gp3 30 GB & Cùng loại máy và cấu hình lưu trữ \\
+Mã nguồn & GitHub, commit \code{fb7ce454}, checkout sạch & Cùng commit; script tự cài lấy từ working tree \\
+Chuẩn bị & Cài môi trường qua SSM & User data cài đặt; trạng thái READY \\
+Kiểm thử & REPLAY, lưu trữ cục bộ & REPLAY, lưu trữ cục bộ; gọi sớm trả lỗi \\
+Kết quả & Exit 0; 8 nhóm kiểm tra đạt & Exit 0; 8 nhóm kiểm tra đạt \\
+\bottomrule\end{tabularx}\end{table}
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{so-do/flow-ec2-acceptance.pdf}
+\caption{Verify sau bootstrap tự động và xử lý khi phép thử không đạt.}\label{fig:ec2-acceptance}
+\end{figure}
 \section{Kiểm tra quy tắc và phục hồi}
 Với dữ liệu tổng hợp, bốn trường hợp chỉnh sửa thông thường, chỉnh sửa bởi bot, tạo trang và nhật ký lần lượt cho điểm ưu tiên 60, 50, 0 và 0 theo quy tắc mặc định. Hai cửa sổ xu hướng của một bộ mẫu riêng cho điểm 0,0335 và 0,023. Đây là các kết quả kiểm thử quy tắc, không phải thống kê từ luồng thật.
 
