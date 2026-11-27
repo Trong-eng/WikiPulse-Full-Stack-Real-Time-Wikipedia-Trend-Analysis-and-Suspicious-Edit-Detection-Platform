@@ -21,6 +21,7 @@ Dùng smoke với project/volume riêng để tránh trộn dữ liệu demo và
 
 ## Nhật ký
 
+- 2026-11-27 — Lưu nguyên văn [đề xuất luật chấm điểm risk](../trong/luat-cham-diem-risk.md) sau khi cập nhật `main` lên `f5112b3` — `docs(trong): document proposed risk scoring rules`.
 - 2026-11-23 — Soạn [báo cáo hạ tầng và tích hợp W1–W4](../trong/ha-tang-tich-hop-bao-cao.md) trên `main` theo bố cục báo cáo của Thành. Đối chiếu số liệu với hồ sơ CP0 và các plan W2–W4, kiểm tra liên kết và sơ đồ trước khi bàn giao.
 - 2026-11-23 — `git fetch --all --prune --tags` thêm 5 nhánh remote của Nhân/Thành; `git pull --ff-only origin main` fast-forward `0c59b03` → `a691238` (12 commit). `git rev-list --left-right --count main...origin/main` trả `0 0`; các nhánh local Trọng W2/W3/W4 cũng khớp remote.
 - 2026-11-23 — Theo yêu cầu của Trọng, `git push --atomic origin main` cùng ba nhánh Trọng W2/W3/W4 trả exit 0. Đối chiếu `git ls-remote --heads origin` xác nhận `main` và W4 ở `0c59b03`, W3 ở `7db6682`, W2 ở `312c086`; local `main` khớp `origin/main`.
